@@ -9,7 +9,21 @@ import AuthorHeader from './components/AuthorHeader';
 import cookie from 'react-cookies';
 import validateCookie from './utils/utils.js';
 import {CURRENT_USER_API,AUTHOR_API} from "./utils/constants.js";
-var authorid='';
+
+const layout = {
+    labelCol: {
+      span: 8,
+    },
+    wrapperCol: {
+      span: 16,
+    },
+  };
+const tailLayout = {
+    wrapperCol: {
+      offset: 8,
+      span: 16,
+    },
+};
 
 class ProfileContent extends React.Component {
     constructor(props) {
@@ -25,69 +39,59 @@ class ProfileContent extends React.Component {
     }
 
     componentWillMount() {
-      validateCookie();
+        validateCookie();
     }
 
     componentDidMount() {
-       validateCookie();
+        validateCookie();
         axios.get(CURRENT_USER_API, 
-        { headers: { 'Authorization': 'Token ' + cookie.load('token') } }).then(res => {
+        { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+        .then(res => {
             var userInfo = res.data;
             this.setState({
-              userName: userInfo.username,
-              email: userInfo.email,
-              displayName: userInfo.displayName,
-              github: userInfo.github,
-              bio: userInfo.bio
+                userName: userInfo.username,
+                email: userInfo.email,
+                displayName: userInfo.displayName,
+                github: userInfo.github,
+                bio: userInfo.bio
             });
-            authorid = res.data.username;
-          }).catch((error) => {
+        }).catch((error) => {
             console.log(error);
-          });
-      };
+        });
+    };
     
     handleSubmit = e => {
-      this.props.form.validateFieldsAndScroll((err, values) => {
-        if (!err) {
-          var { userName } = this.state;
-          axios.patch(AUTHOR_API + userName + '/',
-            {
-                "github": values.github,
-                "displayName": values.displayName,
-                "bio": values.bio,
-            },{ headers: { 'Authorization': 'Token ' + cookie.load('token') } }
-            )
-            .then(function (response) {
-              document.location.replace("/author/".concat(authorid).concat("/posts"));
-            })
-            .catch(function (error) {
-              console.log(error);
-            });
-        }
-      });
+        this.props.form.validateFieldsAndScroll((err, values) => {
+            if (!err) {
+                var { userName } = this.state;
+                axios.patch(AUTHOR_API + userName + '/',
+                {
+                    "github": values.github,
+                    "displayName": values.displayName,
+                    "bio": values.bio,
+                },{ headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+                .then(() =>{
+                    document.location.replace("/author/".concat(userName).concat("/posts"));
+                }).catch ((error) => {
+                    console.log(error);
+                });
+            }
+        });
     };  
 
     render(){
         const { getFieldDecorator } = this.props.form;
-        const { displayName, github, bio } = this.state;
-        const layout = {   
-            // labelCol: {
-            //     span: 20,
-            //   },
-            // wrapperCol: {
-            //     span: 16,
-            // },
-          };
+        const { userName, email, displayName, github, bio } = this.state;
         return(
             <div>
-              <AuthorHeader/>
-
-              {/* <div className={'postInput'} style={{display: 'flex',  justifyContent:'center'}}> */}
-              <div className="user-info">
-                <span>User Name: {this.state.userName}</span><br/>
-                <span>Email: {this.state.email}</span>
-                <Form {...layout}>
-
+                <AuthorHeader/>
+                <Form {...layout} className = "user-info">
+                    <Form.Item label="User Name">
+                        {userName}
+                    </Form.Item>
+                    <Form.Item label="Email">
+                        {email}
+                    </Form.Item>
                     <Form.Item label="Display Name">
                         {getFieldDecorator('displayName', {
                             initialValue: displayName,
@@ -98,6 +102,9 @@ class ProfileContent extends React.Component {
                         {getFieldDecorator('github', {
                             initialValue: github,
                         })(<Input />)}
+                        {/* <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
+                            Save
+                        </Button> */}
                     </Form.Item>
 
                     <Form.Item label="Bio">
@@ -106,17 +113,14 @@ class ProfileContent extends React.Component {
                         })(<Input.TextArea autoSize={true}/>)}
                     </Form.Item>
             
-                    <Form.Item wrapperCol={{ ...layout.wrapperCol }}>
+                    <Form.Item {...tailLayout}>
                         <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
                             Save
                         </Button>
                     </Form.Item>
                 </Form>
-              </div>
             </div>
-
         )
-
     }
 }
 
