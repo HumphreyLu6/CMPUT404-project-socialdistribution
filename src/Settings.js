@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, Tooltip } from 'antd';
 import axios from 'axios';
 import './components/Settings.css';
 import './components/Header.css';
@@ -79,6 +79,14 @@ class ProfileContent extends React.Component {
         });
     };  
 
+    handleValidate = e => {
+        this.props.form.validateFieldsAndScroll((err, values) => {
+            if (!err) {
+                alert(values.github);
+            }
+        });
+    };  
+
     render(){
         const { getFieldDecorator } = this.props.form;
         const { userName, email, displayName, github, bio } = this.state;
@@ -101,10 +109,12 @@ class ProfileContent extends React.Component {
                     <Form.Item label="GitHub">
                         {getFieldDecorator('github', {
                             initialValue: github,
-                        })(<Input />)}
-                        {/* <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
-                            Save
-                        </Button> */}
+                        })(<Input style={{ width: 770, float: "left"}}/>)}
+                        <Tooltip title="You have to validate first">
+                            <Button type="link" onClick={this.handleValidate}>
+                                Validate
+                            </Button>
+                        </Tooltip>
                     </Form.Item>
 
                     <Form.Item label="Bio">
