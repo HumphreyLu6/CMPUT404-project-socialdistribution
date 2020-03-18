@@ -11,34 +11,22 @@ class AuthorProfile extends Component {
 
     constructor(props) {
         super(props)
-    
         this.state = {
             username: this.props.username,
+            email: this.props.email,
+            displayName: this.props.displayName,
+            github: this.props.github,
+            bio: this.props.bio,
             isSelf: this.props.isSelf,
             isFriend: false,
             isPending: false,
         };
-
     }
 
     componentDidMount() {
         validateCookie();
         const token = cookie.load('token');
-        const headers = {
-          'Authorization': 'Token '.concat(token)
-        }
-        axios.get(AUTHOR_API.concat(this.props.username).concat("/"), 
-        { headers: headers}).then(res => {
-            var userInfo = res.data;
-            this.setState({
-                email: userInfo.email,
-                displayName: userInfo.displayName,
-                github: userInfo.github,
-                bio: userInfo.bio
-            });
-          }).catch((error) => {
-              console.log(error);
-          });
+        const headers = {'Authorization': 'Token '.concat(token)};
 
         if (!this.props.isSelf) {
             axios.get(FRIEND_BOOL.concat(this.props.username).concat("/"), 

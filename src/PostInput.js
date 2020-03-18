@@ -108,10 +108,10 @@ class PostInput extends React.Component {
         if (!err) {              
           axios.post(POST_API,
             {
-              title: values.postTitle,
+                title: values.postTitle,
 	            description: "",            
 	            content: values.postContent,  
-          	  contentType: values.Type,      
+          	    contentType: values.Type,      
 	            isImage: false,                 
 	            visibility: values.Visibility,           
 	            visibleTo: "",                

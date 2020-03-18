@@ -18,75 +18,103 @@ var urljoin;
 var commentUrl='';
 
 class UserSelf extends React.Component {
-  state = {
-    MyPostData:[],
-    username : "",
-    currentUser: "",
-    isloading : true,
-    isSelf: true
-  };
+    state = {
+        MyPostData:[],
+        username : "",
+        currentUser: "",
+        email: "",
+        displayName: "",
+        github: "",
+        bio: "",
+        isloading : true,
+        isSelf: true,
+    };
 
-  showDeleteConfirm = (postId, author) => {
-    confirm({
-      title: 'Are you sure you want to delete this post?',
-      okText: 'Yes',
-      okType: 'danger',
-      cancelText: 'No',
-      onOk() {
-        axios.delete(POST_API + String(postId) + '/', { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
-        .then(function () {
-          document.location.replace("/author/".concat(author).concat("/posts"));
-        })
-      },
-      onCancel() {
-        console.log('Cancel');
-      },
-    });
-  }
-  
-  componentDidMount() {
-    validateCookie();
-    const token = cookie.load('token');
-    const headers = {
-      'Authorization': 'Token '.concat(token)
+    showDeleteConfirm = (postId, author) => {
+        confirm({
+        title: 'Are you sure you want to delete this post?',
+        okText: 'Yes',
+        okType: 'danger',
+        cancelText: 'No',
+        onOk() {
+            axios.delete(POST_API + String(postId) + '/', { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+            .then(function () {
+            document.location.replace("/author/".concat(author).concat("/posts"));
+            })
+        },
+        onCancel() {
+            console.log('Cancel');
+        },
+        });
     }
-    const pathArray = window.location.pathname.split('/');
-    let username = pathArray[2];
-    axios.get(CURRENT_USER_API,
-    {headers : headers}).then(res => {
-        this.setState({
-            currentUser: res.data.username,
-        });
-        var currentUser = this.state.currentUser;
-        if (username) {
-            if (username !== currentUser) {
-                this.setState({
-                    isSelf: false,
-                });
+  
+    componentDidMount() {
+        validateCookie();
+        const token = cookie.load('token');
+        const headers = {'Authorization': 'Token '.concat(token)}
+        const pathArray = window.location.pathname.split('/');
+        let username = pathArray[2];
+        axios.get(CURRENT_USER_API, {headers : headers}).then(res => {
+            this.setState({
+                currentUser: res.data.username,
+            });
+            var currentUser = this.state.currentUser;
+            if (username) {
+                if (username !== currentUser) {
+                    this.setState({
+                        isSelf: false,
+                    });
+                }
+            } else {
+                username = currentUser;
             }
-        } else {
-            username = currentUser;
-        }
-        this.fetchPost(headers, username);
-
-    }).catch((error) => {
-          console.log(error);
-    });
-  };
-
-  fetchPost(headers, username) {
-    axios.get(AUTHOR_API.concat(username).concat("/user_posts/"), 
-    {headers : headers}).then(res => {
-        this.setState({
-            username: username,
-            MyPostData: res.data,
-            isloading: false,
+            this.getProfile(headers, username);
+            this.fetchPost(headers, username);
+        }).catch((error) => {
+            console.log(error);
         });
-        
-      }).catch((error) => {
-          console.log(error);
-      });
-  }
+    };
+
+    getProfile(headers, username) {
+        axios.get(AUTHOR_API.concat(username).concat("/"), 
+        { headers: headers}).then(res => {
+            var userInfo = res.data;
+            this.setState({
+                email: userInfo.email,
+                displayName: userInfo.displayName,
+                github: userInfo.github,
+                bio: userInfo.bio
+            });
+            if (this.state.github) {
+                var githubUsername = this.state.github.replace("https://github.com/", "");
+                console.log(githubUsername);
+                this.pullGithubActivity(githubUsername);
+            }
+        }).catch((error) => {
+              console.log(error);
+        });
+    }
+
+    fetchPost(headers, username) {
+        axios.get(AUTHOR_API.concat(username).concat("/user_posts/"),{headers : headers}).then(res => {
+            this.setState({
+                username: username,
+                MyPostData: res.data.slice().sort((a, b) => Date.parse(b.published) - Date.parse(a.published)),
+                isloading: false,
+            });
+        }).catch((error) => {
+            console.log(error);
+        });
+    }
+
+    pullGithubActivity(githubUsername) {
+        axios.get("https://api.github.com/users/" + githubUsername + "/events/public").then(res => {
+            console.log(res.data);
+        }).catch((error) => {
+            console.log(error);
+        });
+    }
+
 
   handleEdit = (postId) => {
     reactLocalStorage.set("postid", postId);
@@ -103,13 +131,17 @@ class UserSelf extends React.Component {
 
   render() {
       
-      const {username, isloading, MyPostData, isSelf} = this.state;
+      const {username, email, displayName, github, bio, isloading, MyPostData, isSelf} = this.state;
       return(!isloading ? 
         <div>
           <AuthorHeader/>
           <div className="mystyle">
               <AuthorProfile 
                 username={username}
+                email={email}
+                displayName={displayName}
+                github={github}
+                bio={bio}
                 isSelf={isSelf}
               />
               <List

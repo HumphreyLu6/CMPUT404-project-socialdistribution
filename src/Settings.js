@@ -39,7 +39,7 @@ class ProfileContent extends React.Component {
                 userName: userInfo.username,
                 email: userInfo.email,
                 displayName: userInfo.displayName,
-                github: userInfo.github.replace(githubUrl, ""),
+                github: userInfo.github ? userInfo.github.replace(githubUrl, "") : null,
                 bio: userInfo.bio
             });
         }).catch((error) => {
@@ -53,7 +53,7 @@ class ProfileContent extends React.Component {
                 var { userName } = this.state;
                 axios.patch(AUTHOR_API + userName + '/',
                 {
-                    "github": githubUrl + values.github,
+                    "github": values.github ? githubUrl + values.github : null,
                     "displayName": values.displayName,
                     "bio": values.bio,
                 },{ headers: { 'Authorization': 'Token ' + cookie.load('token') } })
