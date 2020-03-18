@@ -11,7 +11,7 @@ import cookie from 'react-cookies';
 import './UserSelf.css';
 import {reactLocalStorage} from 'reactjs-localstorage';
 import {POST_API} from "./utils/constants.js";
-
+import ReactMarkdown from 'react-markdown';
 var urlpostid = '';
 var urljoin;
 urljoin = require('url-join');
@@ -37,12 +37,15 @@ class User extends React.Component {
   fetchData = () => {
     axios.get(POST_API, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
       .then(res => {
+        if (res.status === 404)document.location.replace("/404")
         var publicPost = res.data.slice().sort((a, b) => Date.parse(b.published) - Date.parse(a.published));
+        // console.log(publicPost)
+        // alert(res.status)
+        console.log(res.data)
         this.setState({
             isloading: false,
         })
         if (publicPost) {
-            
             this.setState({
                 PublicPostData : publicPost,
                 authorid: publicPost[0].author,
@@ -108,7 +111,7 @@ class User extends React.Component {
                                 title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
                                 description={item.published}
                             />
-                            {item.content}
+                            {item.contentType == "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content}
                         </List.Item>
                     )}
                 />

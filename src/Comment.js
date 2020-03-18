@@ -6,9 +6,11 @@ import { Button} from 'antd';
 import {reactLocalStorage} from 'reactjs-localstorage';
 import cookie from 'react-cookies';
 import axios from 'axios';
+import ReactMarkdown from 'react-markdown';
 import AuthorHeader from './components/AuthorHeader'
 import {POST_API}  from "./utils/constants.js";
 const { TextArea } = Input;
+
 var id = '';
 
 class Comments extends React.Component {
@@ -84,7 +86,8 @@ class Comments extends React.Component {
                                 <Comment
                                     author={item.author}
                                     avatar={<Avatar src={'https://cdn2.iconfinder.com/data/icons/user-icon-2-1/100/user_5-15-512.png'} />}                                    
-                                    content={item.content}
+                                    content={item.contentType == "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content}
+                                    
                                     datetime={item.published}
                                 />
                             </li>

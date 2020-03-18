@@ -94,6 +94,7 @@ class PostEdit extends React.Component {
         id = reactLocalStorage.get("postid");
         axios.get(POST_API + String(id) + '/', { headers: { 'Authorization': 'Token ' + cookie.load('token')}})
         .then(res => {
+          if (res.status === 404)document.location.replace("/404")
           const getPost = res.data;
           this.setState({
             specificPost: getPost,

@@ -69,6 +69,7 @@ class AuthorProfile extends Component {
             f2Id: username,
         },{headers: headers}
         ).then(res => {
+            if (res.status === 404)document.location.replace("/404")
             this.setState({
                 isPending: true,
             })
