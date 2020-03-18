@@ -1,5 +1,9 @@
 .user-info {
     margin-top: 2%;
-    font-weight: bolder;
     margin-right:20%;
+}
+
+.user-info label {
+    font-weight: bolder;
+    font-size: larger;
 }

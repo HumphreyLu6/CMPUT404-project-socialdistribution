@@ -10,20 +10,7 @@ import cookie from 'react-cookies';
 import validateCookie from './utils/utils.js';
 import {CURRENT_USER_API,AUTHOR_API} from "./utils/constants.js";
 
-const layout = {
-    labelCol: {
-      span: 8,
-    },
-    wrapperCol: {
-      span: 16,
-    },
-  };
-const tailLayout = {
-    wrapperCol: {
-      offset: 8,
-      span: 16,
-    },
-};
+const githubUrl = "https://github.com/";
 
 class ProfileContent extends React.Component {
     constructor(props) {
@@ -52,7 +39,7 @@ class ProfileContent extends React.Component {
                 userName: userInfo.username,
                 email: userInfo.email,
                 displayName: userInfo.displayName,
-                github: userInfo.github,
+                github: userInfo.github.replace(githubUrl, ""),
                 bio: userInfo.bio
             });
         }).catch((error) => {
@@ -66,7 +53,7 @@ class ProfileContent extends React.Component {
                 var { userName } = this.state;
                 axios.patch(AUTHOR_API + userName + '/',
                 {
-                    "github": values.github,
+                    "github": githubUrl + values.github,
                     "displayName": values.displayName,
                     "bio": values.bio,
                 },{ headers: { 'Authorization': 'Token ' + cookie.load('token') } })
@@ -90,6 +77,21 @@ class ProfileContent extends React.Component {
     render(){
         const { getFieldDecorator } = this.props.form;
         const { userName, email, displayName, github, bio } = this.state;
+        const layout = {
+            labelCol: {
+              span: 8,
+            },
+            wrapperCol: {
+              span: 16,
+            },
+          };
+        
+        const tailLayout = {
+            wrapperCol: {
+              offset: 8,
+              span: 16,
+            },
+        };
         return(
             <div>
                 <AuthorHeader/>
@@ -107,9 +109,10 @@ class ProfileContent extends React.Component {
                     </Form.Item>
                     
                     <Form.Item label="GitHub">
+                        <span>{githubUrl}</span>
                         {getFieldDecorator('github', {
                             initialValue: github,
-                        })(<Input style={{ width: 770, float: "left"}}/>)}
+                        })(<Input style={{ width: 640 }}/>)}
                         <Tooltip title="You have to validate first">
                             <Button type="link" onClick={this.handleValidate}>
                                 Validate
