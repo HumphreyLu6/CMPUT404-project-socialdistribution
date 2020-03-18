@@ -83,7 +83,6 @@ class PostInput extends React.Component {
 
     handleMarkdown = () => {
       this.setState({markdownSelected: !this.state.markdownSelected});
-      // <ReactMarkdown source = {Input}>
     }
 
     handleCancel = () => {

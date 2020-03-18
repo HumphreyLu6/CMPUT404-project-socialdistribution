@@ -16,7 +16,6 @@ import NodesPage from './NodesPage';
 import AuthorPage from './AuthorPage';
 import ProfilePage from './ProfilePage';
 import AddNodesPage from './AddNodesPage';
-import Error from './404';
 import SearchPage from './SearchPage';
 
 const Routes = () => {
@@ -25,7 +24,6 @@ const Routes = () => {
       {/*author*/}
       <Route exact path="/" component={Login} />
       <Route path="/register" component={Register} />
-      <Route path="/404" component={Error}/>
       <Route path="/author/posts" component={User} />
       <Route exact path="/author/:authorid/posts" component={UserSelf} />
       <Route path="/settings" component={Settings} />
