@@ -19,7 +19,7 @@ var commentUrl='';
 
 class UserSelf extends React.Component {
     state = {
-        MyPostData:[],
+        postData: [],
         username : "",
         currentUser: "",
         email: "",
@@ -80,6 +80,7 @@ class UserSelf extends React.Component {
         { headers: headers}).then(res => {
             var userInfo = res.data;
             this.setState({
+                username: username,
                 email: userInfo.email,
                 displayName: userInfo.displayName,
                 github: userInfo.github,
@@ -88,33 +89,48 @@ class UserSelf extends React.Component {
             if (this.state.github) {
                 var githubUsername = this.state.github.replace("https://github.com/", "");
                 console.log(githubUsername);
-                this.pullGithubActivity(githubUsername);
+                this.pullGithubActivity(githubUsername, username);
             }
         }).catch((error) => {
               console.log(error);
         });
     }
 
-    fetchPost(headers, username) {
-        axios.get(AUTHOR_API.concat(username).concat("/user_posts/"),{headers : headers}).then(res => {
+    pullGithubActivity(githubUsername, username) {
+        var githubData = [];
+        axios.get("https://api.github.com/users/" + githubUsername + "/events/public").then(res => {
+            console.log(res.data);
+            res.data.forEach((item) => {
+                // var mountainTime = item.created_at.toLocaleString({timeZone: "america/denver"});
+                // mountainTime = new Date(mountainTime);
+                // console.log('time: '+mountainTime.toLocaleString())
+                var data = {
+                    author: username,
+                    title: item.type,
+                    content: "https://github.com/" + item.repo.name,
+                    visibility: item.public ? "PUBLIC" : "PRIVATE",
+                    published: item.created_at,
+                }
+                githubData.push(data);
+            });
             this.setState({
-                username: username,
-                MyPostData: res.data.slice().sort((a, b) => Date.parse(b.published) - Date.parse(a.published)),
-                isloading: false,
+                postData: this.state.postData.concat(githubData),
             });
         }).catch((error) => {
             console.log(error);
         });
     }
 
-    pullGithubActivity(githubUsername) {
-        axios.get("https://api.github.com/users/" + githubUsername + "/events/public").then(res => {
-            console.log(res.data);
+    fetchPost(headers, username) {
+        axios.get(AUTHOR_API.concat(username).concat("/user_posts/"),{headers : headers}).then(res => {
+            this.setState({
+                postData: this.state.postData.concat(res.data),
+                isloading: false,
+            });
         }).catch((error) => {
             console.log(error);
         });
     }
-
 
   handleEdit = (postId) => {
     reactLocalStorage.set("postid", postId);
@@ -131,7 +147,7 @@ class UserSelf extends React.Component {
 
   render() {
       
-      const {username, email, displayName, github, bio, isloading, MyPostData, isSelf} = this.state;
+      const {postData, username, email, displayName, github, bio, isloading, isSelf} = this.state;
       return(!isloading ? 
         <div>
           <AuthorHeader/>
@@ -148,7 +164,7 @@ class UserSelf extends React.Component {
                   itemLayout="vertical"
                   size="large"
                   pagination={{pageSize: 5, hideOnSinglePage:true}}
-                  dataSource={MyPostData}
+                  dataSource={postData}
                   renderItem={item => (
                       <List.Item
                           key={item.title}
@@ -166,16 +182,6 @@ class UserSelf extends React.Component {
                                 <a href="#!" onClick={this.showDeleteConfirm.bind(this, item.id, item.author)} style={{marginRight: 8}}><Icon type="delete"/></a>
                             : null}
                             </span>,
-                        //   <span>
-                        //     <Button onClick={this.handleComment.bind(this, item.id)} icon="message" style={{width: "28px", height: "28px", backgroundColor: "white"}}></Button>
-                        //     {0}
-                        //     {isSelf ? 
-                        //     <Button onClick={this.handleEdit.bind(this, item.id)} icon="edit" style={{left: "30%", width: "28px", height: "28px", backgroundColor: "white"}}></Button>
-                        //     : null}
-                        //     {isSelf ?
-                        //     <Button onClick={this.showDeleteConfirm.bind(this, item.id)} icon="delete" style={{left: "50%", width: "28px", height: "28px", backgroundColor: "white"}}></Button>
-                        //     : null}
-                        //   </span>
                           ]}
                           extra={
                             <SimpleReactLightbox>
@@ -209,6 +215,8 @@ class UserSelf extends React.Component {
                             title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
                             description={item.published}
                       />
+                      {item.title}
+                      <br/>
                       {item.content}                      
                       </List.Item>
                   )}
