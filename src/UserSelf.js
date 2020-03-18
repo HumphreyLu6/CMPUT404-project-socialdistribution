@@ -88,7 +88,6 @@ class UserSelf extends React.Component {
             });
             if (this.state.github) {
                 var githubUsername = this.state.github.replace("https://github.com/", "");
-                console.log(githubUsername);
                 this.pullGithubActivity(githubUsername, username);
             }
         }).catch((error) => {
@@ -99,17 +98,14 @@ class UserSelf extends React.Component {
     pullGithubActivity(githubUsername, username) {
         var githubData = [];
         axios.get("https://api.github.com/users/" + githubUsername + "/events/public").then(res => {
-            console.log(res.data);
             res.data.forEach((item) => {
-                // var mountainTime = item.created_at.toLocaleString({timeZone: "america/denver"});
-                // mountainTime = new Date(mountainTime);
-                // console.log('time: '+mountainTime.toLocaleString())
+                var time = this.convertTime(item.created_at);
                 var data = {
                     author: username,
                     title: item.type,
                     content: "https://github.com/" + item.repo.name,
                     visibility: item.public ? "PUBLIC" : "PRIVATE",
-                    published: item.created_at,
+                    published: time,
                 }
                 githubData.push(data);
             });
@@ -120,6 +116,31 @@ class UserSelf extends React.Component {
             console.log(error);
         });
     }
+
+    convertTime(utcTime) {
+        // Reference: https://stackoverflow.com/questions/17415579/how-to-iso-8601-format-a-date-with-timezone-offset-in-javascript
+        Date.prototype.toIsoString = function() {
+            var tzo = -this.getTimezoneOffset(),
+                dif = tzo >= 0 ? '+' : '-',
+                pad = function(num) {
+                    var norm = Math.floor(Math.abs(num));
+                    return (norm < 10 ? '0' : '') + norm;
+                };
+            return this.getFullYear() +
+                '-' + pad(this.getMonth() + 1) +
+                '-' + pad(this.getDate()) +
+                'T' + pad(this.getHours()) +
+                ':' + pad(this.getMinutes()) +
+                ':' + pad(this.getSeconds()) +
+                dif + pad(tzo / 60) +
+                ':' + pad(tzo % 60);
+        }
+
+        var mountainTime = utcTime.toLocaleString({timeZone: "america/denver"});
+        mountainTime = new Date(mountainTime);
+        return mountainTime.toIsoString();
+    }
+
 
     fetchPost(headers, username) {
         axios.get(AUTHOR_API.concat(username).concat("/user_posts/"),{headers : headers}).then(res => {
