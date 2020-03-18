@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from .validators import UnicodeUsernameValidator
 
-DEFAULTHOST = "http://127.0.0.1:3000/"
+DEFAULTHOST = "https://spongebook.herokuapp.com/ "
 
 # Create your models here.
 class User(AbstractUser):

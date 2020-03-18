@@ -39,7 +39,7 @@ class AuthorSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField(read_only=True)
 
     def get_url(self, obj):
-        return f"{obj.host}author/{obj.username}"
+        return f"{obj.host}author/{obj.username}/posts/"
 
     class Meta:
         model = User
