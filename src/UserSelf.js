@@ -23,7 +23,7 @@ class UserSelf extends React.Component {
     username : "",
     currentUser: "",
     isloading : true,
-    isSelf: true
+    isSelf: true,
   };
 
   showDeleteConfirm = (postId, author) => {
@@ -79,7 +79,7 @@ class UserSelf extends React.Component {
     {headers : headers}).then(res => {
         this.setState({
             username: username,
-            MyPostData: res.data,
+            MyPostData: res.data.slice().sort((a, b) => Date.parse(b.published) - Date.parse(a.published)),
             isloading: false,
         });
         
@@ -117,12 +117,14 @@ class UserSelf extends React.Component {
                   size="large"
                   pagination={{pageSize: 5, hideOnSinglePage:true}}
                   dataSource={MyPostData}
+                  locale={{ emptyText: "You have not posted anything yet"}}
                   renderItem={item => (
                       <List.Item
                           key={item.title}
                           actions={[
                             <span>
-                                <a href="#!" onClick={this.handleComment.bind(this, item.id)} style={{marginRight: 8}}><Icon type="message"/></a>{0}   
+                                <a href="#!" onClick={this.handleComment.bind(this, item.id)} style={{marginRight: 8}}><Icon type="message"/></a>
+                                {String(item.comments_count).concat(" comment(s)")}   
                             </span>, 
                             <span>
                             {isSelf ?
@@ -133,37 +135,10 @@ class UserSelf extends React.Component {
                             {isSelf ?
                                 <a href="#!" onClick={this.showDeleteConfirm.bind(this, item.id, item.author)} style={{marginRight: 8}}><Icon type="delete"/></a>
                             : null}
-                            </span>,
-                        //   <span>
-                        //     <Button onClick={this.handleComment.bind(this, item.id)} icon="message" style={{width: "28px", height: "28px", backgroundColor: "white"}}></Button>
-                        //     {0}
-                        //     {isSelf ? 
-                        //     <Button onClick={this.handleEdit.bind(this, item.id)} icon="edit" style={{left: "30%", width: "28px", height: "28px", backgroundColor: "white"}}></Button>
-                        //     : null}
-                        //     {isSelf ?
-                        //     <Button onClick={this.showDeleteConfirm.bind(this, item.id)} icon="delete" style={{left: "50%", width: "28px", height: "28px", backgroundColor: "white"}}></Button>
-                        //     : null}
-                        //   </span>
-                          ]}
-                          extra={
-                            <SimpleReactLightbox>
-                              <SRLWrapper>
-                                <img
-                                  width={250}
-                                  alt=""
-                                  src="https://wallpaperaccess.com/full/628286.jpg"/>
-                                <img
-                                width={250}
-                                alt=""
-                                src="https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg"/> 
-
-                              </SRLWrapper> 
-                            </SimpleReactLightbox>
-                          }
+                            </span>,                 
+                          ]}                       
                       >
                       <List.Item.Meta
-                        // avatar={<Avatar src={'https://cdn2.iconfinder.com/data/icons/user-icon-2-1/100/user_5-15-512.png'} />}
-                        // title={item.author}
                         avatar={
                             <Avatar size="large"
                                 style={{
@@ -175,9 +150,45 @@ class UserSelf extends React.Component {
                             </Avatar>
                         }
                             title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
-                            description={item.published}
+                            description={item.published.split(".")[0] + "-" + item.published.split("-", 4)[3]}                        
                       />
-                      {item.content}                      
+                      {"Title: ".concat(item.title)}<p>  </p>
+                      {item.content}
+                      <p>  </p>
+                      <SimpleReactLightbox>
+                              <SRLWrapper>
+                                <img
+                                  width={150}
+                                  height={150}
+                                  hspace={3}
+                                  vspace={3}
+                                  alt=""
+                                  src="https://wallpaperaccess.com/full/628286.jpg"/>
+                                <img
+                                  width={150}
+                                  height={150}
+                                  hspace={3}
+                                  vspace={3}
+                                  alt=""
+                                  src="https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg"/>
+                                <br></br>                        
+                                <img
+                                  width={150}
+                                  height={150}
+                                  hspace={3}
+                                  vspace={3}
+                                  alt=""
+                                  src="https://wallpaperaccess.com/full/628286.jpg"/>
+                                <img
+                                  width={150}
+                                  height={150}
+                                  hspace={3}
+                                  vspace={3}
+                                  alt=""
+                                  src="https://wallpaperaccess.com/full/628286.jpg"/> 
+
+                              </SRLWrapper> 
+                        </SimpleReactLightbox>                      
                       </List.Item>
                   )}
               />

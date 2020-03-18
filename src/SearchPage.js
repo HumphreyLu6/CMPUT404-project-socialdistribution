@@ -77,6 +77,7 @@ class SearchPage extends React.Component{
                     {!this.state.isloading ?
                  <List
                     style={{marginLeft:"34.9%",width:"30%"}}
+                    locale={{ emptyText: "No result"}}
                     size="small"
                     bordered
                     dataSource={this.usernameFilter().map((username) => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { Form, Input, Button, Upload, Modal, Icon, Radio} from 'antd';
+import { Form, Input, Button, Upload, Modal, Icon, Radio, message} from 'antd';
 import {reactLocalStorage} from 'reactjs-localstorage';
 import axios from 'axios';
 import './components/PostInput.css';
@@ -23,6 +23,14 @@ return new Promise((resolve, reject) => {
     reader.onload = () => resolve(reader.result);
     reader.onerror = error => reject(error);
 });
+}
+
+function beforeUpload(file) {
+  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+  if (!isJpgOrPng) {
+    message.error('You can only upload JPG/PNG file!');
+  }
+  return isJpgOrPng;
 }
 
 
@@ -78,11 +86,12 @@ class PostEdit extends React.Component {
     handlePreview = async file => {
       if (!file.url && !file.preview) {
         file.preview = await getBase64(file.originFileObj);
+        
       }
       this.setState({
         previewImage: file.url || file.preview,
         previewVisible: true,
-      });
+      });     
     };
   
     handleChange = ({ fileList }) => {
@@ -250,6 +259,7 @@ class PostEdit extends React.Component {
                   })(<div><Upload
                       action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
                       listType="picture-card"
+                      beforeUpload={beforeUpload}
                       onPreview={this.handlePreview}
                       onChange={this.handleChange}
                     >

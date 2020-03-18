@@ -79,6 +79,7 @@ class Comments extends React.Component {
                         header={`${this.state.commentData.length} comment(s)`}
                         itemLayout="horizontal"
                         dataSource={this.state.commentData}
+                        locale={{ emptyText: "No comment yet"}}
                         renderItem={item => (
                             <li>
                                 <Comment
