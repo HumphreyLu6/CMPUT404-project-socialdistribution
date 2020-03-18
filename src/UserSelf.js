@@ -8,6 +8,7 @@ import AuthorHeader from './components/AuthorHeader'
 import AuthorProfile from './components/AuthorProfile'
 import {reactLocalStorage} from 'reactjs-localstorage';
 import './UserSelf.css';
+import ReactMarkdown from 'react-markdown';
 import cookie from 'react-cookies';
 import validateCookie from './utils/utils.js';
 import {POST_API,AUTHOR_API,CURRENT_USER_API} from "./utils/constants.js";
@@ -177,7 +178,7 @@ class UserSelf extends React.Component {
                             title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
                             description={item.published}
                       />
-                      {item.content}                      
+                      {item.contentType == "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content}                     
                       </List.Item>
                   )}
               />
