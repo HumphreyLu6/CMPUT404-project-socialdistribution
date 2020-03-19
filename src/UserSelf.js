@@ -120,7 +120,7 @@ class UserSelf extends React.Component {
     fetchPost(headers, username) {
         axios.get(AUTHOR_API.concat(username).concat("/user_posts/"),{headers : headers}).then(res => {
             res.data.forEach((item) => {
-                item.published = convertTime(item.published);
+                item.published = item.published.split(".")[0] + "-" + item.published.split("-", 4)[3];
             });
             this.setState({
                 postData: this.state.postData.concat(res.data),
