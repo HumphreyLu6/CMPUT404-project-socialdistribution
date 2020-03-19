@@ -4,7 +4,7 @@ import { Icon, Button } from 'antd';
 import './AuthorProfile.css'
 import axios from 'axios';
 import cookie from 'react-cookies';
-import validateCookie from '../utils/utils.js';
+import validateCookie from '../utils/validate.js';
 import {FRIEND_BOOL,FRIEND_REQUEST_API} from '../utils/constants.js';
 
 class AuthorProfile extends Component {

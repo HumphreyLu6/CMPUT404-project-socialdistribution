@@ -9,7 +9,8 @@ import AuthorProfile from './components/AuthorProfile'
 import {reactLocalStorage} from 'reactjs-localstorage';
 import './UserSelf.css';
 import cookie from 'react-cookies';
-import validateCookie from './utils/utils.js';
+import validateCookie from './utils/validate.js';
+import convertTime from './utils/isoFormat.js';
 import {POST_API,AUTHOR_API,CURRENT_USER_API} from "./utils/constants.js";
 
 const { confirm } = Modal;
@@ -99,13 +100,12 @@ class UserSelf extends React.Component {
         var githubData = [];
         axios.get("https://api.github.com/users/" + githubUsername + "/events/public").then(res => {
             res.data.forEach((item) => {
-                var time = this.convertTime(item.created_at);
                 var data = {
                     author: username,
                     title: item.type,
                     content: "https://github.com/" + item.repo.name,
                     visibility: item.public ? "PUBLIC" : "PRIVATE",
-                    published: time,
+                    published: convertTime(item.created_at),
                 }
                 githubData.push(data);
             });
@@ -117,36 +117,10 @@ class UserSelf extends React.Component {
         });
     }
 
-    convertTime(utcTime) {
-        // Reference: https://stackoverflow.com/questions/17415579/how-to-iso-8601-format-a-date-with-timezone-offset-in-javascript
-        // eslint-disable-next-line no-extend-native
-        Date.prototype.toIsoString = function() {
-            var tzo = -this.getTimezoneOffset(),
-                dif = tzo >= 0 ? '+' : '-',
-                pad = function(num) {
-                    var norm = Math.floor(Math.abs(num));
-                    return (norm < 10 ? '0' : '') + norm;
-                };
-            return this.getFullYear() +
-                '-' + pad(this.getMonth() + 1) +
-                '-' + pad(this.getDate()) +
-                'T' + pad(this.getHours()) +
-                ':' + pad(this.getMinutes()) +
-                ':' + pad(this.getSeconds()) +
-                dif + pad(tzo / 60) +
-                ':' + pad(tzo % 60);
-        }
-
-        var mountainTime = utcTime.toLocaleString({timeZone: "america/denver"});
-        mountainTime = new Date(mountainTime);
-        return mountainTime.toIsoString();
-    }
-
     fetchPost(headers, username) {
         axios.get(AUTHOR_API.concat(username).concat("/user_posts/"),{headers : headers}).then(res => {
             res.data.forEach((item) => {
-                var time = this.convertTime(item.published);
-                item.published = time;
+                item.published = convertTime(item.published);
             });
             this.setState({
                 postData: this.state.postData.concat(res.data),
@@ -239,9 +213,8 @@ class UserSelf extends React.Component {
                                     title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
                                     description={item.published}
                             />
-                            {item.title}
-                            <br/>
-                            {item.content}                      
+                            <h3>{"Title: ".concat(item.title)}</h3>
+                            {item.content}
                             </List.Item>
                         )}
                     />

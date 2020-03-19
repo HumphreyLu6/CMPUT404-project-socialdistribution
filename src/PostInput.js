@@ -6,7 +6,7 @@ import axios from 'axios';
 import './components/PostInput.css';
 import './components/Header.css';
 import cookie from 'react-cookies';
-import validateCookie from './utils/utils.js';
+import validateCookie from './utils/validate.js';
 import AuthorHeader from './components/AuthorHeader';
 import {reactLocalStorage} from 'reactjs-localstorage';
 import {POST_API, CURRENT_USER_API} from "./utils/constants.js";

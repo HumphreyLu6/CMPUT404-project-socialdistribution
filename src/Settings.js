@@ -7,7 +7,7 @@ import './components/Settings.css';
 import './components/Header.css';
 import AuthorHeader from './components/AuthorHeader';
 import cookie from 'react-cookies';
-import validateCookie from './utils/utils.js';
+import validateCookie from './utils/validate.js';
 import {CURRENT_USER_API,AUTHOR_API} from "./utils/constants.js";
 
 const githubUrl = "https://github.com/";
