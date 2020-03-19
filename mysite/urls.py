@@ -18,10 +18,10 @@ from django.views.generic import TemplateView
 from django.urls import path, include, re_path
 
 urlpatterns = [
-    path("api/user/", include("user.urls")),
+    path("", include("user.urls")),
     path("api/post/", include("post.urls")),
     path("api/friend/", include("friend.urls")),
     path("api/node/", include("node.urls")),
     path("api/comment/", include("comment.urls")),
-    re_path(".*", TemplateView.as_view(template_name="index.html")),
+    #re_path(".*", TemplateView.as_view(template_name="index.html")),
 ]

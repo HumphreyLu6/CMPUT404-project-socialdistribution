@@ -37,20 +37,28 @@ class AuthorSerializer(serializers.ModelSerializer):
     """
 
     url = serializers.SerializerMethodField(read_only=True)
+    id = serializers.SerializerMethodField(read_only=True)
+    displayName = serializers.SerializerMethodField(read_only=True)
 
     def get_url(self, obj):
-        return f"{obj.host}author/{obj.username}/posts/"
+        return f"{obj.host}author/{obj.id}"
+
+    def get_id(self, obj):
+        return f"{obj.host}author/{obj.id}"
+
+    def get_displayName(self, obj):
+        return f"{obj.username}"
 
     class Meta:
         model = User
         fields = [
-            "username",
-            "email",
-            "displayName",
+            "id",
             "host",
-            "github",
-            "bio",
+            "displayName",
             "url",
+            "github",
+            "email",
+            "bio",
         ]
 
 

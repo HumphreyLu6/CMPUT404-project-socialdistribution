@@ -22,7 +22,7 @@ from .permissions import OwnerOrAdminPermissions
 class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
     queryset = User.objects.filter(is_superuser=0)
-    lookup_field = "username"
+    lookup_field = "id"
 
     def get_permissions(self):
         if self.action in ["update", "destroy", "partial_update", "create"]:
