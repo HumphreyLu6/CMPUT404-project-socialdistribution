@@ -4,7 +4,7 @@ from .views import NodeViewSet
 
 router = routers.DefaultRouter()
 
-router.register("nodes",NodeViewSet,basename="node")
+router.register("",NodeViewSet,basename="node")
 
 urlpatterns = [
     path("",include(router.urls))
