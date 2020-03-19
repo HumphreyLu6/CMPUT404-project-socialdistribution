@@ -119,6 +119,7 @@ class UserSelf extends React.Component {
 
     convertTime(utcTime) {
         // Reference: https://stackoverflow.com/questions/17415579/how-to-iso-8601-format-a-date-with-timezone-offset-in-javascript
+        // eslint-disable-next-line no-extend-native
         Date.prototype.toIsoString = function() {
             var tzo = -this.getTimezoneOffset(),
                 dif = tzo >= 0 ? '+' : '-',
@@ -141,9 +142,12 @@ class UserSelf extends React.Component {
         return mountainTime.toIsoString();
     }
 
-
     fetchPost(headers, username) {
         axios.get(AUTHOR_API.concat(username).concat("/user_posts/"),{headers : headers}).then(res => {
+            res.data.forEach((item) => {
+                var time = this.convertTime(item.published);
+                item.published = time;
+            });
             this.setState({
                 postData: this.state.postData.concat(res.data),
                 isloading: false,
@@ -153,100 +157,98 @@ class UserSelf extends React.Component {
         });
     }
 
-  handleEdit = (postId) => {
-    reactLocalStorage.set("postid", postId);
-    document.location.replace("/posts/".concat(postId).concat("/edit"));
-  }
-
-  handleComment = (postId) => {
-    reactLocalStorage.set("postid", postId);
-    urlpostid = reactLocalStorage.set("urlpostid", postId);
-    urljoin = require('url-join');
-    commentUrl = urljoin("/posts", urlpostid, "/comments");
-    document.location.replace(commentUrl);
-  }
-
-  render() {
-      
-      const {postData, username, email, displayName, github, bio, isloading, isSelf} = this.state;
-      return(!isloading ? 
-        <div>
-          <AuthorHeader/>
-          <div className="mystyle">
-              <AuthorProfile 
-                username={username}
-                email={email}
-                displayName={displayName}
-                github={github}
-                bio={bio}
-                isSelf={isSelf}
-              />
-              <List
-                  itemLayout="vertical"
-                  size="large"
-                  pagination={{pageSize: 5, hideOnSinglePage:true}}
-                  dataSource={postData}
-                  renderItem={item => (
-                      <List.Item
-                          key={item.title}
-                          actions={[
-                            <span>
-                                <a href="#!" onClick={this.handleComment.bind(this, item.id)} style={{marginRight: 8}}><Icon type="message"/></a>{0}   
-                            </span>, 
-                            <span>
-                            {isSelf ?
-                                <a href="#!" onClick={this.handleEdit.bind(this, item.id)} style={{marginRight: 8}}><Icon type="edit"/></a>
-                            : null}
-                            </span>,
-                            <span>
-                            {isSelf ?
-                                <a href="#!" onClick={this.showDeleteConfirm.bind(this, item.id, item.author)} style={{marginRight: 8}}><Icon type="delete"/></a>
-                            : null}
-                            </span>,
-                          ]}
-                          extra={
-                            <SimpleReactLightbox>
-                              <SRLWrapper>
-                                <img
-                                  width={250}
-                                  alt=""
-                                  src="https://wallpaperaccess.com/full/628286.jpg"/>
-                                <img
-                                width={250}
-                                alt=""
-                                src="https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg"/> 
-
-                              </SRLWrapper> 
-                            </SimpleReactLightbox>
-                          }
-                      >
-                      <List.Item.Meta
-                        // avatar={<Avatar src={'https://cdn2.iconfinder.com/data/icons/user-icon-2-1/100/user_5-15-512.png'} />}
-                        // title={item.author}
-                        avatar={
-                            <Avatar size="large"
-                                style={{
-                                    color: '#FFFFFF',
-                                    backgroundColor: '#3991F7',
-                                    
-                                }}
-                            >{item.author[0].toUpperCase()}
-                            </Avatar>
-                        }
-                            title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
-                            description={item.published}
-                      />
-                      {item.title}
-                      <br/>
-                      {item.content}                      
-                      </List.Item>
-                  )}
-              />
-          </div>
-        </div> : null
-
-      );
+    handleEdit = (postId) => {
+        reactLocalStorage.set("postid", postId);
+        document.location.replace("/posts/".concat(postId).concat("/edit"));
     }
-}
+
+    handleComment = (postId) => {
+        reactLocalStorage.set("postid", postId);
+        urlpostid = reactLocalStorage.set("urlpostid", postId);
+        urljoin = require('url-join');
+        commentUrl = urljoin("/posts", urlpostid, "/comments");
+        document.location.replace(commentUrl);
+    }
+
+    render() {
+        
+        const {postData, username, email, displayName, github, bio, isloading, isSelf} = this.state;
+        var sortedData = postData.slice().sort((a, b) => Date.parse(b.published) - Date.parse(a.published));
+        return(!isloading ? 
+            <div>
+                <AuthorHeader/>
+                <div className="mystyle">
+                    <AuthorProfile 
+                        username={username}
+                        email={email}
+                        displayName={displayName}
+                        github={github}
+                        bio={bio}
+                        isSelf={isSelf}
+                    />
+                    <List
+                        itemLayout="vertical"
+                        size="large"
+                        pagination={{pageSize: 5, hideOnSinglePage:true}}
+                        dataSource={sortedData}
+                        renderItem={item => (
+                            <List.Item
+                                key={item.title}
+                                actions={[
+                                    <span>
+                                        <a href="#!" onClick={this.handleComment.bind(this, item.id)} style={{marginRight: 8}}><Icon type="message"/></a>{0}   
+                                    </span>, 
+                                    <span>
+                                    {isSelf ?
+                                        <a href="#!" onClick={this.handleEdit.bind(this, item.id)} style={{marginRight: 8}}><Icon type="edit"/></a>
+                                    : null}
+                                    </span>,
+                                    <span>
+                                    {isSelf ?
+                                        <a href="#!" onClick={this.showDeleteConfirm.bind(this, item.id, item.author)} style={{marginRight: 8}}><Icon type="delete"/></a>
+                                    : null}
+                                    </span>,
+                                ]}
+                                extra={
+                                    <SimpleReactLightbox>
+                                    <SRLWrapper>
+                                        <img
+                                        width={250}
+                                        alt=""
+                                        src="https://wallpaperaccess.com/full/628286.jpg"/>
+                                        <img
+                                        width={250}
+                                        alt=""
+                                        src="https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg"/> 
+
+                                    </SRLWrapper> 
+                                    </SimpleReactLightbox>
+                                }
+                            >
+                            <List.Item.Meta
+                                avatar={
+                                    <Avatar size="large"
+                                        style={{
+                                            color: '#FFFFFF',
+                                            backgroundColor: '#3991F7',
+                                            
+                                        }}
+                                    >{item.author[0].toUpperCase()}
+                                    </Avatar>
+                                }
+                                    title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
+                                    description={item.published}
+                            />
+                            {item.title}
+                            <br/>
+                            {item.content}                      
+                            </List.Item>
+                        )}
+                    />
+                </div>
+            </div> : null
+        );
+        }
+    }
 
 export default UserSelf;
