@@ -7,22 +7,14 @@ from .models import Comment
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SerializerMethodField()
-
-    def get_author(self, obj):
-        return f"{obj.created_by.username}"
-
     class Meta:
         model = Comment
         fields = [
-            "id",
-            "post",
-            "created_by",
-            "content",
+            "author",
+            "comment",
             "contentType",
             "published",
-            "updated",
-            "author",
+            "id",
         ]
-        extra_kwargs = {"created_by": {"write_only": True}}
+        # extra_kwargs = {"created_by": {"write_only": True}}
 

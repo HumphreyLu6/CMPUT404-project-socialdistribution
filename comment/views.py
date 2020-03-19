@@ -12,7 +12,7 @@ from rest_framework.decorators import action
 
 from user.models import User
 from .models import Comment
-from .serializer import CommentSerializer
+from .serializers import CommentSerializer
 
 
 class OwnerOrAdminPermission(permissions.BasePermission):
