@@ -1,10 +1,9 @@
 import uuid
+# from mysite.settings import DEFAULT_HOST
 from django.db import models
 from user.models import User
 
-
-DEFAULTHOST = "http://127.0.0.1:3000/"
-
+DEFAULT_HOST = "http://127.0.0.1:8000"
 VISIBILITYCHOICES = (
     ("PUBLIC", "PUBLIC: visible to PUBLIC"),
     ("FOAF", "FOAF: visible to friends of a friend"),
@@ -25,8 +24,8 @@ class Post(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=256)
-    source = models.URLField(default=DEFAULTHOST)
-    origin = models.URLField(default=DEFAULTHOST)
+    source = models.URLField(default=DEFAULT_HOST)
+    origin = models.URLField(default=DEFAULT_HOST)
     description = models.CharField(max_length=256, blank=True, default="")
     content = models.TextField()
     contentType = models.CharField(

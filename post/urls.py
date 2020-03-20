@@ -1,11 +1,18 @@
-from rest_framework import routers
 from django.urls import path, include
 
 from .views import PostsViewSet
 
-router = routers.DefaultRouter(trailing_slash=False)
-router.register("", PostsViewSet, basename="post")
-
 urlpatterns = [
-    path("", include(router.urls)),
+    path("posts", PostsViewSet.as_view({"get": "list", "post": "create",})),
+    path(
+        "posts/<uuid:id>",
+        PostsViewSet.as_view(
+            {"get": "retrieve", "patch": "partial_update", "delete": "destroy",}
+        ),
+    ),
+    path("author/posts", PostsViewSet.as_view({"get": "visible_posts",})),
+    path(
+        "author/<slug:AUTHOR_ID>/posts",
+        PostsViewSet.as_view({"get": "author_visible_posts",}),
+    ),
 ]

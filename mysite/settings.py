@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import socket
 import django_heroku
 from corsheaders.defaults import default_methods
 
@@ -33,6 +34,7 @@ ALLOWED_HOSTS = [
     "spongebook-develop.herokuapp.com",
 ]
 
+APPEND_SLASH=False
 
 # Application definition
 
@@ -193,3 +195,10 @@ if "HEROKU" in os.environ:
     django_heroku.settings(locals())
 else:
     django_heroku.settings(locals(), test_runner=False)
+
+# ref: https://stackoverflow.com/questions/4093999/how-to-use-django-to-get-the-name-for-the-host-server
+DEFAULT_HOST = None
+try:
+    DEFAULT_HOST = socket.gethostname()
+except:
+    DEFAULT_HOST = "http://127.0.0.1:8000"

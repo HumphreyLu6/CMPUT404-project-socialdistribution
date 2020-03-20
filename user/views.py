@@ -66,60 +66,59 @@ class AuthorViewSet(viewsets.ModelViewSet):
         author = self.get_object()
         author_posts = Post.objects.filter(author=author)
 
-        # 1 visibility="PUBLIC"
-        q1 = Q(visibility="PUBLIC")
+        if self.request.user == author:
+            posts = author_posts
+        else:
+            # q1 visibility="PUBLIC"
+            q1 = Q(visibility="PUBLIC")
 
-        if self.request.user.is_authenticated:
-            # 2 visibility="FOAF"
-            user_f2_ids = self.request.user.f1Ids.filter(status="A").values_list(
-                "f2Id", flat=True
-            )
-            user_f1_ids = self.request.user.f2Ids.filter(status="A").values_list(
-                "f1Id", flat=True
-            )
-            friends = list(user_f2_ids) + list(user_f1_ids)
-            f2_foaf = Friend.objects.filter(
-                Q(status="A") & Q(f1Id__in=list(friends))
-            ).values_list("f2Id", flat=True)
-            f1_foaf = Friend.objects.filter(
-                Q(status="A") & Q(f2Id__in=list(friends))
-            ).values_list("f1Id", flat=True)
-            foaf = list(f1_foaf) + list(f2_foaf) + list(friends)
-            q2_1 = Q(visibility="FOAF")
-            q2_2 = Q(author__username__in=foaf)
+            # q2 visibility="FRIENDS"
+            # q2_1, q2_2 = get_friends_Q(self.request.user)
 
-            # 3 visibility="FRIENDS"
-            user_f2_ids = self.request.user.f1Ids.filter(status="A").values_list(
-                "f2Id", flat=True
-            )
-            user_f1_ids = self.request.user.f2Ids.filter(status="A").values_list(
-                "f1Id", flat=True
-            )
-            friends = list(user_f2_ids) + list(user_f1_ids)
-            q3_1 = Q(visibility="FRIENDS")
-            q3_2 = Q(author__username__in=friends)
+            # q3 visibility="foaf"
+            # q3_1, q3_2 = get_foaf_Q(self.request.user)
 
-            # q4: post is private but user is in post's visiableTo list.
-            q4_1 = Q(visibility="PRIVATE")
-            q4_2 = Q(
-                visibleTo__contains=self.request.user.username
-            )  # check if Json string contains user's email.
+            # q4 visibility="PRIVATE"
+            q4_1, q4_2 = get_visible_Q(self.request.user)
 
             # q5: post's author is the user
             q5 = Q(author=self.request.user)
 
-            posts = author_posts.filter(
-                q1 | (q2_1 & q2_2) | (q3_1 & q3_2) | (q4_1 & q4_2) | q5
-            )
-        else:  # anonymous user
-            posts = Post.objects.filter(q1)
+            # posts = author_posts.filter(
+            #     q1 | (q2_1 & q2_2) | (q3_1 & q3_2) | (q4_1 & q4_2) | q5
+            # )
+            posts = author_posts.filter(q1 | (q4_1 & q4_2) | q5)
+
         serializer = PostSerializer(posts, many=True)
 
         return Response(serializer.data, status=200)
 
     @action(detail=False, methods=["GET"])
     def posts(self, request, *args, **kwargs):
-        pass
+
+        # q1 visibility="PUBLIC"
+        q1 = Q(visibility="PUBLIC")
+
+        # q2 visibility="FRIENDS"
+        # q2_1, q2_2 = get_friends_Q(self.request.user)
+
+        # q3 visibility="foaf"
+        # q3_1, q3_2 = get_foaf_Q(self.request.user)
+
+        # q4 visibility="PRIVATE"
+        q4_1, q4_2 = get_visible_Q(self.request.user)
+
+        # q5: post's author is the user
+        q5 = Q(author=self.request.user)
+
+        # posts = author_posts.filter(
+        #     q1 | (q2_1 & q2_2) | (q3_1 & q3_2) | (q4_1 & q4_2) | q5
+        # )
+        posts = Post.objects.filter(q1 | (q4_1 & q4_2) | q5)
+
+        serializer = PostSerializer(posts, many=True)
+
+        return Response(serializer.data, status=200)
 
     @action(detail=False, methods=["GET"])
     def current_user(self, request, *args, **kwargs):
@@ -141,3 +140,4 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminUser]
     queryset = User.objects.all()
     lookup_field = "username"
+
