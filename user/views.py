@@ -18,10 +18,18 @@ from .serializers import AuthorSerializer, UserSerializer
 from .models import User
 from .permissions import OwnerOrAdminPermissions
 
+class AuthorProfileViewSet(viewsets.ViewSet):
+
+    def get_profile(self, request, authorId, *args, **kwargs):
+        user = User.objects.get(id=authorId)
+        serializer = AuthorSerializer(instance=user)
+
+        return Response(serializer.data, status=200)
+
 # Create your views here.
 class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
-    queryset = User.objects.filter(is_superuser=0)
+    queryset = User.objects.filter(is_superuser=0,host="https://spongebook.herokuapp.com/")
     lookup_field = "id"
 
     def get_permissions(self):

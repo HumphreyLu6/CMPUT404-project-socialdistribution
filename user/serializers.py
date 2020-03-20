@@ -1,10 +1,12 @@
 from rest_framework import serializers, exceptions
+from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_auth.serializers import LoginSerializer
 from django.utils.translation import ugettext_lazy as _
-
+from friend.models import Friend
 from .models import User
-
+from django.http import JsonResponse
+import json
 
 class CustomLoginSerializer(LoginSerializer):
     def validate(self, attrs):
@@ -30,6 +32,29 @@ class CustomLoginSerializer(LoginSerializer):
         attrs["user"] = user
         return attrs
 
+class FriendSerializer(serializers.ModelSerializer):
+
+    id = serializers.SerializerMethodField(read_only=True)
+    host = serializers.SerializerMethodField(read_only=True)
+    url = serializers.SerializerMethodField(read_only=True)
+    displayName = serializers.SerializerMethodField(read_only=True)
+
+    def get_id(self, obj):
+        return f"{obj.f2Id.host}author/{obj.f2Id.id}"
+
+    def get_host(self, obj):
+        return f"{obj.f2Id.host}"
+
+    def get_displayName(self, obj):
+        return f"{obj.f2Id.username}"
+
+    def get_url(self, obj):
+        return f"{obj.f2Id.host}author/{obj.f2Id.id}"
+
+    class Meta:
+        model = Friend
+        fields = ['id','host','displayName','url']
+
 
 class AuthorSerializer(serializers.ModelSerializer):
     """
@@ -39,6 +64,7 @@ class AuthorSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField(read_only=True)
     id = serializers.SerializerMethodField(read_only=True)
     displayName = serializers.SerializerMethodField(read_only=True)
+    friends = serializers.SerializerMethodField(read_only=True)
 
     def get_url(self, obj):
         return f"{obj.host}author/{obj.id}"
@@ -48,6 +74,11 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     def get_displayName(self, obj):
         return f"{obj.username}"
+
+    def get_friends(self, obj):
+        qs = Friend.objects.filter(status='A', f1Id_id=obj.id)
+        serializer = FriendSerializer(instance=qs, many=True)
+        return serializer.data
 
     class Meta:
         model = User
@@ -59,6 +90,7 @@ class AuthorSerializer(serializers.ModelSerializer):
             "github",
             "email",
             "bio",
+            "friends",
         ]
 
 
