@@ -21,22 +21,22 @@ from .models import Post, VISIBILITYCHOICES
 from .permissions import OwnerOrAdminPermissions
 
 
-# class PostPagination(PageNumberPagination):
-#     page_size = 2  # debug
-#     # page_size = 50
-#     page_size_query_param = "size"
+class PostPagination(PageNumberPagination):
+    page_size = 2  # debug
+    # page_size = 50
+    page_size_query_param = "size"
 
-#     def get_paginated_response(self, data):
-#         return Response(
-#             {
-#                 "query": "posts",
-#                 "next": self.get_next_link(),
-#                 "previous": self.get_previous_link(),
-#                 "size": self.get_page_size(self.request),
-#                 "count": self.page.paginator.count,
-#                 "results": data,
-#             }
-#         )
+    def get_paginated_response(self, data):
+        return Response(
+            {
+                "query": "posts",
+                "count": self.page.paginator.count,
+                "size": self.get_page_size(self.request),
+                "next": self.get_next_link(),
+                "previous": self.get_previous_link(),
+                "posts": data,
+            }
+        )
 
 
 class PostsViewSet(viewsets.ModelViewSet):
@@ -69,8 +69,9 @@ class PostsViewSet(viewsets.ModelViewSet):
         authenticated user)
         """
         filtered_posts = get_visible_posts(Post.objects.all(), self.request.user)
-        serializer = PostSerializer(filtered_posts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        paged_posts = self.paginate_queryset(filtered_posts.order_by("-published"))
+        serializer = PostSerializer(paged_posts, many=True)
+        return self.get_paginated_response(serializer.data)
 
     @action(detail=False, methods="POST")
     def author_visible_posts(self, request, *args, **kwargs):
@@ -89,8 +90,9 @@ class PostsViewSet(viewsets.ModelViewSet):
             filtered_posts = get_visible_posts(
                 Post.objects.filter(author=author), self.request.user
             )
-            serializer = PostSerializer(filtered_posts, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            paged_posts = self.paginate_queryset(filtered_posts.order_by("-published"))
+            serializer = PostSerializer(paged_posts, many=True)
+            return self.get_paginated_response(serializer.data)
 
 
 # helper method:

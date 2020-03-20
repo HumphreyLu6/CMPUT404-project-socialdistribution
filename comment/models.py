@@ -10,7 +10,7 @@ CONTENTTYPE = (
 
 
 class Comment(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True)
     post = models.ForeignKey(
         Post, on_delete=models.CASCADE, related_name="comments", blank=True
     )
@@ -21,8 +21,7 @@ class Comment(models.Model):
     contentType = models.CharField(
         max_length=16, choices=CONTENTTYPE, default="text/markdown"
     )
-    published = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    published = models.DateTimeField()
 
     def __str__(self):
         return str(self.id)

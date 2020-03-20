@@ -7,6 +7,8 @@ from .models import Comment
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(many=False, read_only=True)
+
     class Meta:
         model = Comment
         fields = [
@@ -16,5 +18,6 @@ class CommentSerializer(serializers.ModelSerializer):
             "published",
             "id",
         ]
-        # extra_kwargs = {"created_by": {"write_only": True}}
-
+        read_only_fields = [
+            "author",
+        ]

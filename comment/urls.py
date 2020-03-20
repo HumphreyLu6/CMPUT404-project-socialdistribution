@@ -4,6 +4,6 @@ from .views import CommentViewSet
 urlpatterns = [
     path(
         "posts/<slug:POST_ID>/comments",
-        CommentViewSet.as_view({"get": "post_comments", "post": "post_comments",}),
+        CommentViewSet.as_view({"get": "get_comments", "post": "post_comments",}),
     ),
 ]
