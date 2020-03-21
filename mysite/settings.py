@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import socket
 import django_heroku
 from corsheaders.defaults import default_methods
 
@@ -33,6 +34,7 @@ ALLOWED_HOSTS = [
     "spongebook-develop.herokuapp.com",
 ]
 
+APPEND_SLASH = False
 
 # Application definition
 
@@ -193,3 +195,5 @@ if "HEROKU" in os.environ:
     django_heroku.settings(locals())
 else:
     django_heroku.settings(locals(), test_runner=False)
+
+DEFAULT_HOST = "https://spongebook.herokuapp.com/"

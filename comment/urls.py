@@ -1,11 +1,9 @@
-from rest_framework import routers
-from django.urls import path, include
-
+from django.urls import path
 from .views import CommentViewSet
 
-router = routers.DefaultRouter()
-router.register("", CommentViewSet, basename="comment")
-
 urlpatterns = [
-    path("", include(router.urls)),
+    path(
+        "posts/<slug:POST_ID>/comments",
+        CommentViewSet.as_view({"get": "get_comments", "post": "post_comments",}),
+    ),
 ]
