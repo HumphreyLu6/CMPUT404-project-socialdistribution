@@ -150,7 +150,7 @@ class UserSelf extends React.Component {
                             </Avatar>
                         }
                             title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
-                            description={item.published.split(".")[0] + "-" + item.published.split("-", 4)[3]}                        
+                            description={"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}                        
                       />
                       {"Title: ".concat(item.title)}<p>  </p>
                       {item.content}

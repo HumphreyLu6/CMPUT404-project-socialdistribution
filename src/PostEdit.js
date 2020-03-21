@@ -50,27 +50,19 @@ class PostEdit extends React.Component {
         fileList: [
           {
             uid: '-1',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+            url: 'https://wallpaperaccess.com/full/628286.jpg',
           },
           {
             uid: '-2',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+            url: 'https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg',
           },
           {
             uid: '-3',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+            url: 'https://wallpaperaccess.com/full/628286.jpg',
           },
           {
             uid: '-4',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+            url: 'https://wallpaperaccess.com/full/628286.jpg',
           },
         ],
     };
@@ -126,13 +118,13 @@ class PostEdit extends React.Component {
           axios.patch(POST_API + String(id) + "/",
             {
               title: values.postTitle,
-	          description: "",            
-	          content: values.postContent,  
+	            description: "",            
+	            content: values.postContent,  
           	  contentType: values.Type,      
-	          isImage: false,                 
-	          visibility: values.Visibility,           
-	          visibleTo: "",                
-	          unlisted: false, 
+	            isImage: false,                 
+	            visibility: values.Visibility,           
+	            visibleTo: "",                
+	            unlisted: false, 
             },{ headers: { 'Authorization': 'Token ' + cookie.load('token') } }
             )
             .then(function (response) {
@@ -259,11 +251,12 @@ class PostEdit extends React.Component {
                   })(<div><Upload
                       action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
                       listType="picture-card"
+                      fileList={fileList}
                       beforeUpload={beforeUpload}
                       onPreview={this.handlePreview}
                       onChange={this.handleChange}
                     >
-                      {fileList.length >= 8 ? null : uploadButton}
+                      {fileList.length >= 4 ? null : uploadButton}
                     </Upload>
                     <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
                         <img alt="example" style={{ width: '100%' }} src={previewImage} />

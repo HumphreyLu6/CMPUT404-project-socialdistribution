@@ -24,8 +24,8 @@ const Routes = () => {
       {/*author*/}
       <Route exact path="/" component={Login} />
       <Route path="/register" component={Register} />
-      <Route path="/author/posts" component={User} />
-      <Route exact path="/author/:authorid/posts" component={UserSelf} />
+      <Route path="/author/posts/" component={User} />
+      <Route exact path="/author/:authorid/posts/" component={UserSelf} />
       <Route path="/settings" component={Settings} />
       <Route path="/posts/:postid/comments" component={Comments} /> 
       <Route path="/author/:authorid/friends" component={FriendsList} />

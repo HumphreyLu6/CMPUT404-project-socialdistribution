@@ -15,6 +15,9 @@ const { TextArea } = Input;
 var urljoin;
 urljoin = require('url-join');
 var profileUrl='';
+//var encoding=[];
+
+//https://stackoverflow.com/questions/54845951/react-antdesign-add-uploaded-images-to-formdata
 
 
 function getBase64(file) {
@@ -42,32 +45,9 @@ class PostInput extends React.Component {
 
         previewVisible: false,
         previewImage: '',
-        fileList: [
-          {
-            uid: '-1',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-          },
-          {
-            uid: '-2',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-          },
-          {
-            uid: '-3',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-          },
-          {
-            uid: '-4',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-          },
-        ],
+       
+        fileList:[],
+        encoding:'',
     };
 
     componentDidMount () {
@@ -100,17 +80,19 @@ class PostInput extends React.Component {
     handlePreview = async file => {
       if (!file.url && !file.preview) {
         file.preview = await getBase64(file.originFileObj);
-        console.log(file.preview);
       }
       this.setState({
         previewImage: file.url || file.preview,
         previewVisible: true,
       });
     };
-  
+
     handleChange = ({ fileList }) => {
-      this.setState({ fileList });
+        this.setState({ fileList});
+        //encoding = fileList[0].thumbUrl;
+        
     }
+
 
     handleSubmit = e => {
       this.props.form.validateFieldsAndScroll((err, values) => {
@@ -133,12 +115,17 @@ class PostInput extends React.Component {
             .catch(function (error) {
               console.log(error);
             });
+            // check if filelist is empty
+            /*var i;
+            for (i = 0; i < this.state.fileList.length; i++) {
+              encoding[i] = this.state.fileList[i].thumbUrl;
+            }
+            console.log(encoding);*/
         }
       });
     };  
 
     render(){
-
         const { getFieldDecorator } = this.props.form;
 
         const formItemLayout = {
@@ -164,7 +151,6 @@ class PostInput extends React.Component {
           }
         };
 
-  
         const { previewVisible, previewImage, fileList } = this.state;
 
         const uploadButton = (
@@ -174,7 +160,6 @@ class PostInput extends React.Component {
         </div>
         );
         
-
         return( 
             <div>
               <AuthorHeader/>
@@ -233,7 +218,6 @@ class PostInput extends React.Component {
                         </Radio.Group>
                     )}
                     </Form.Item>
-            
 
                     <Form.Item>
                     {getFieldDecorator("imageUpload", {
@@ -249,15 +233,13 @@ class PostInput extends React.Component {
                         onPreview={this.handlePreview}
                         onChange={this.handleChange}
                         >
-                        {fileList.length >= 5 ? null : uploadButton}
+                        {fileList.length >= 4 ? null : uploadButton}
                         </Upload>
                         <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
                             <img alt="example" style={{ width: '100%' }} src={previewImage} />
                         </Modal></div>
                     )}
                     </Form.Item>
-
-
 
                     <Form.Item {...tailFormItemLayout}>
                     <Button type="primary" htmlType="button" onClick={this.handleSubmit}>

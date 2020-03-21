@@ -26,6 +26,7 @@ class User extends React.Component {
       PublicPostData:[],
       authorid:'',
       isloading : true,
+    
     }
   }
 
@@ -47,7 +48,6 @@ class User extends React.Component {
                 PublicPostData : publicPost,
                 authorid: publicPost[0].author,
             });
-            console.log(publicPost);
         }
         }).catch(function (error) {
         console.log(error);
@@ -60,6 +60,10 @@ class User extends React.Component {
     commentUrl = urljoin("/posts", urlpostid, "/comments");
     document.location.replace(commentUrl);
   }
+
+  onPageChange = (pageIndex) => {
+    console.log(pageIndex);
+ }
   
   render() {  
       return(!this.state.isloading ? 
@@ -72,6 +76,7 @@ class User extends React.Component {
                     pagination={{pageSize: 5 , hideOnSinglePage:true}}
                     dataSource={this.state.PublicPostData}
                     locale={{ emptyText: "Currently no visible post"}}
+                    onPageChange={this.onPageChange}
                     renderItem={item => (
                         <List.Item
                             key={item.title}
@@ -79,6 +84,7 @@ class User extends React.Component {
                                 <span>
                                     <a href="#!" onClick={this.handleComment.bind(this, item.id)} style={{marginRight: 8}}><Icon type="message"/></a>
                                     {String(item.comments_count).concat(" comment(s)")}
+
                                 </span>
                             ]}
                         >
@@ -93,7 +99,7 @@ class User extends React.Component {
                                     </Avatar>
                                 }
                                 title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
-                                description={item.published.split(".")[0] + "-" + item.published.split("-", 4)[3]}
+                                description={"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}
                             />
                             {"Title: ".concat(item.title)}<p>  </p>
                             {item.content}
