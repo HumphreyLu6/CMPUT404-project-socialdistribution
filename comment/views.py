@@ -29,8 +29,7 @@ class OwnerOrAdminPermission(permissions.BasePermission):
 
 
 class CommentPagination(PageNumberPagination):
-    page_size = 2  # debug
-    # page_size = 50
+    page_size = 50
     page_size_query_param = "size"
 
     def get_paginated_response(self, data):
@@ -55,7 +54,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         return self.request.user.comments.all()
 
     def get_permissions(self):
-        if self.action in ["update", "destroy", "partial_update"]:
+        if self.action in ["update", "destroy", "partial_update", "post_comments"]:
             self.permission_classes = [
                 OwnerOrAdminPermission,
             ]
@@ -132,9 +131,8 @@ class CommentViewSet(viewsets.ModelViewSet):
                     else:
                         raise Exception("Bad request body")
                 except Exception as e:
-                    print(e)
                     response_data["success"] = "false"
-                    response_data["message"] = str(e)
+                    response_data["message"] = f"{str(type(e).__name__)}:{str(e)}"
                     return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
             else:
                 response_data["success"] = "false"

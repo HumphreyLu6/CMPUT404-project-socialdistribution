@@ -1,13 +1,13 @@
 from rest_framework import serializers
 
-from user.serializers import AuthorSerializer
+from user.serializers import AuthorSerializer, BriefAuthorSerializer
 
 # from post.serializers import PostSerializer
 from .models import Comment
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = AuthorSerializer(many=False, read_only=True)
+    author = BriefAuthorSerializer(many=False, read_only=True)
 
     class Meta:
         model = Comment

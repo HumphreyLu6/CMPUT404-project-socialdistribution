@@ -147,7 +147,7 @@ class FriendViewSet(viewsets.ModelViewSet):
             if not author1 or not author2:
                 raise Exception("One of the author does not exist")
         except Exception as e:
-            response_body["authors"] = [str(e)]
+            response_body["authors"] = [f"{str(type(e).__name__)}:{str(e)}"]
             response_body["friends"] = "false"
             return Response(response_body, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -193,7 +193,7 @@ class FriendViewSet(viewsets.ModelViewSet):
         except Exception as e:
             response_body.pop("author")
             response_body.pop("authors")
-            response_body["errir"] = str(e)
+            response_body["error"] = f"{str(type(e).__name__)}:{str(e)}"
             return Response(response_body, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["GET"])

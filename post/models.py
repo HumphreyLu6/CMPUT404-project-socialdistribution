@@ -1,9 +1,10 @@
 import uuid
+
 # from mysite.settings import DEFAULT_HOST
 from django.db import models
+from mysite.settings import DEFAULT_HOST
 from user.models import User
 
-DEFAULT_HOST = "http://127.0.0.1:8000"
 VISIBILITYCHOICES = (
     ("PUBLIC", "PUBLIC: visible to PUBLIC"),
     ("FOAF", "FOAF: visible to friends of a friend"),

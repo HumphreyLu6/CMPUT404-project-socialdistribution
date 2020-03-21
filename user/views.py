@@ -12,6 +12,7 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 
+from mysite.settings import DEFAULT_HOST
 from friend.models import Friend
 from post.models import Post
 from post.serializers import PostSerializer
@@ -22,28 +23,23 @@ from .permissions import OwnerOrAdminPermissions
 
 class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
-    queryset = User.objects.filter(is_superuser=0)
+    queryset = User.objects.filter(is_superuser=0, host=DEFAULT_HOST)
     lookup_field = "id"
 
     def get_permissions(self):
         if self.action in ["update", "destroy", "partial_update", "create"]:
             # user can only access this view with valid token
             self.permission_classes = [OwnerOrAdminPermissions]
-        else:
+        elif self.action in ["current_user"]:
             self.permission_classes = [IsAuthenticated]
+        else:
+            self.permission_classes = [AllowAny]
         return super(AuthorViewSet, self).get_permissions()
 
     @action(detail=False, methods=["GET"])
     def current_user(self, request, *args, **kwargs):
         if request.user.is_anonymous:
-            return Response(status=401)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         serializer = AuthorSerializer(self.request.user)
-        return Response(serializer.data, status=200)
-
-    @action(detail=False, methods=["GET"])
-    def username_list(self, request, *args, **kwargs):
-        usernames = User.objects.filter(is_superuser=0).values_list(
-            "username", flat=True
-        )
-        return Response({"usernames": usernames}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 

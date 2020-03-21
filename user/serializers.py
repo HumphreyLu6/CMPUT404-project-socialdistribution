@@ -24,7 +24,7 @@ class CustomLoginSerializer(LoginSerializer):
         # Did we get back an active user?
         if user:
             if not user.is_approve:
-                msg = _("Please wait the admin to approve your register request")
+                msg = _("Please wait for the approval of administrator")
                 raise exceptions.ValidationError(msg)
         else:
             if not User.objects.filter(email=email).exists():
@@ -58,7 +58,7 @@ class BriefAuthorSerializer(serializers.ModelSerializer):
         return f"{name}"
 
     def get_url(self, obj):
-        return f"{obj.f2Id.host}author/{obj.f2Id.id}"
+        return f"{obj.host}author/{obj.id}"
 
     class Meta:
         model = User
@@ -104,4 +104,7 @@ class AuthorSerializer(serializers.ModelSerializer):
             "github",
             "email",
             "bio",
+        ]
+        read_only_fields = [
+            "host",
         ]

@@ -1,6 +1,8 @@
 import uuid
+import json
 from typing import Tuple, List
 from django.db.models import Q
+from django.urls import resolve
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
@@ -22,8 +24,7 @@ from .permissions import OwnerOrAdminPermissions
 
 
 class PostPagination(PageNumberPagination):
-    page_size = 2  # debug
-    # page_size = 50
+    page_size = 50
     page_size_query_param = "size"
 
     def get_paginated_response(self, data):
@@ -41,10 +42,41 @@ class PostPagination(PageNumberPagination):
 
 class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
+    pagination_class = PostPagination
     lookup_field = "id"
 
+    def customize_update(self, serializer):
+        """
+        help method for create or update Post object
+        """
+        categories = self.request.data.pop("categories", None)
+        visibleTo = self.request.data.pop("visibleTo", None)
+        if not categories and not visibleTo:
+            serializer.save(author=self.request.user)
+            return
+        if not categories and visibleTo:
+            serializer.save(
+                author=self.request.user, visibleToStr=json.dumps(visibleTo)
+            )
+            return
+        if categories and not visibleTo:
+            serializer.save(
+                author=self.request.user, categoriesStr=json.dumps(categories)
+            )
+            return
+        if categories and visibleTo:
+            serializer.save(
+                author=self.request.user,
+                categoriesStr=json.dumps(categories),
+                visibleToStr=json.dumps(visibleTo),
+            )
+            return
+
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        self.customize_update(serializer)
+
+    def perform_update(self, serializer):
+        self.customize_update(serializer)
 
     def get_queryset(self):
         if self.action in ["list", "retrieve", "comments"]:
@@ -114,21 +146,24 @@ def get_visible_posts(posts, user):
     # 1 visibility = "PUBLIC"
     q1 = Q(visibility="PUBLIC")
 
-    # 2 visibility = "FRIENDS"
-    q2_1, q2_2 = get_friends_Q(user)
+    if user.is_anonymous:
+        filtered_posts = posts.filter(q1)
+    else:
+        # 2 visibility = "FRIENDS"
+        q2_1, q2_2 = get_friends_Q(user)
 
-    # 3 visibility = "FOAF"
-    q3_1, q3_2 = get_foaf_Q(user)
+        # 3 visibility = "FOAF"
+        q3_1, q3_2 = get_foaf_Q(user)
 
-    # 4 visibility = "PRIVATE"
-    q4_1, q4_2 = get_visibleTo_Q(user)
+        # 4 visibility = "PRIVATE"
+        q4_1, q4_2 = get_visibleTo_Q(user)
 
-    # 5 post's author is the request user
-    q5 = Q(author=user)
+        # 5 post's author is the request user
+        q5 = Q(author=user)
 
-    filtered_posts = posts.filter(
-        q1 | (q2_1 & q2_2) | (q3_1 & q3_2) | (q4_1 & q4_2) | q5
-    )
+        filtered_posts = posts.filter(
+            q1 | (q2_1 & q2_2) | (q3_1 & q3_2) | (q4_1 & q4_2) | q5
+        )
 
     return filtered_posts
 
