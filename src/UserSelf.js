@@ -104,7 +104,7 @@ class UserSelf extends React.Component {
             url: githubEventUrl,
         };
         if (this.state.isSelf) {
-            const accessToken = "ccaaf364ea503b8d8613a00a9dc0dd0de24d60a6"; // load from database
+            const accessToken = "access token"; // load from database
             const headers = {
                 'Authorization': 'Token ' + accessToken,
             };
