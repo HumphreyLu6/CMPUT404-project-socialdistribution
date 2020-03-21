@@ -100,7 +100,6 @@ class AuthorSerializer(serializers.ModelSerializer):
             "url",
             "friends",
             "github",
-            "githubToken",
             "email",
             "bio",
         ]
@@ -108,4 +107,3 @@ class AuthorSerializer(serializers.ModelSerializer):
             "host",
             "username",
         ]
-        extra_kwargs = {"githubToken": {"write_only": True}}
