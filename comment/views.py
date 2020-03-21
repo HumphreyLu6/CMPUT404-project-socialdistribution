@@ -12,7 +12,7 @@ from rest_framework.permissions import (
 )
 from rest_framework.decorators import action
 
-from user.models import User
+from user.models import User, create_abstract_remote_user
 from post.models import Post
 from post.views import is_post_visible_to
 from .models import Comment
@@ -117,11 +117,10 @@ class CommentViewSet(viewsets.ModelViewSet):
                     author_data["id"] = author_data["id"].split("/")[-1]
                     author = User.objects.filter(id=author_data["id"]).first()
                     if not author:
-                        author = User.objects.create_user(
-                            id=author_data["id"],
-                            host=author_data["host"],
-                            email=str(uuid.UUID(author_data["id"])) + "@email.com",
-                            username=str(uuid.UUID(author_data["id"])) + author_data["displayName"],
+                        author = create_abstract_remote_user(
+                            uuid.UUID(author_data["id"]),
+                            author_data["host"],
+                            author_data["displayName"],
                         )
                     serializer = CommentSerializer(data=comment)
                     if serializer.is_valid():

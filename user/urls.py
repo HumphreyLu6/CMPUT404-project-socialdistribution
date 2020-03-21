@@ -10,4 +10,8 @@ urlpatterns = [
         ),
     ),
     path("author/current_user", AuthorViewSet.as_view({"get": "current_user",})),
+    path(
+        "author/<uuid:id>/github_token",
+        AuthorViewSet.as_view({"get": "github_token", "post": "github_token",}),
+    ),
 ]
