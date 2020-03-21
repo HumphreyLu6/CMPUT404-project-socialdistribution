@@ -178,7 +178,7 @@ class UserSelf extends React.Component {
                             title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
                             description={item.published}
                       />
-                      {item.contentType == "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content}                     
+                      {item.contentType === "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content}                     
                       </List.Item>
                   )}
               />
