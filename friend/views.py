@@ -1,3 +1,4 @@
+import uuid
 from django.shortcuts import render
 from rest_framework import viewsets, status, exceptions
 from .serializers import FriendSerializer
@@ -6,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from .models import Friend
 from user.models import User
-import uuid
 from .permissions import AdminOrF1Permissions, AdminOrF2Permissions
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -47,9 +47,9 @@ class FriendViewSet(viewsets.ModelViewSet):
             if not author:
                 # request from remote server
                 author_data["displayName"] = (
-                    author_data["id"] + author_data["displayName"]
+                    str(uuid.UUID(author_data["id"])) + author_data["displayName"]
                 )
-                author_data["email"] = author_data["id"] + "@email.com"
+                author_data["email"] = str(uuid.UUID(author_data["id"])) + "@email.com"
                 author_data.pop("url")
                 author = User.objects.create_user(
                     id=author_data["id"],
@@ -147,7 +147,7 @@ class FriendViewSet(viewsets.ModelViewSet):
             if not author1 or not author2:
                 raise Exception("One of the author does not exist")
         except Exception as e:
-            response_body["authors"] = [str(e)]
+            response_body["authors"] = [f"{str(type(e).__name__)}:{str(e)}"]
             response_body["friends"] = "false"
             return Response(response_body, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -193,7 +193,7 @@ class FriendViewSet(viewsets.ModelViewSet):
         except Exception as e:
             response_body.pop("author")
             response_body.pop("authors")
-            response_body["errir"] = str(e)
+            response_body["error"] = f"{str(type(e).__name__)}:{str(e)}"
             return Response(response_body, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["GET"])

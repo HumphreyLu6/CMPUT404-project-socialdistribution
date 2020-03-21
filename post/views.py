@@ -1,6 +1,8 @@
 import uuid
+import json
 from typing import Tuple, List
 from django.db.models import Q
+from django.urls import resolve
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
@@ -22,8 +24,7 @@ from .permissions import OwnerOrAdminPermissions
 
 
 class PostPagination(PageNumberPagination):
-    page_size = 2  # debug
-    # page_size = 50
+    page_size = 50
     page_size_query_param = "size"
 
     def get_paginated_response(self, data):
@@ -41,10 +42,41 @@ class PostPagination(PageNumberPagination):
 
 class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
+    pagination_class = PostPagination
     lookup_field = "id"
 
+    def customize_update(self, serializer):
+        """
+        help method for create or update Post object
+        """
+        categories = self.request.data.pop("categories", None)
+        visibleTo = self.request.data.pop("visibleTo", None)
+        if not categories and not visibleTo:
+            serializer.save(author=self.request.user)
+            return
+        if not categories and visibleTo:
+            serializer.save(
+                author=self.request.user, visibleToStr=json.dumps(visibleTo)
+            )
+            return
+        if categories and not visibleTo:
+            serializer.save(
+                author=self.request.user, categoriesStr=json.dumps(categories)
+            )
+            return
+        if categories and visibleTo:
+            serializer.save(
+                author=self.request.user,
+                categoriesStr=json.dumps(categories),
+                visibleToStr=json.dumps(visibleTo),
+            )
+            return
+
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        self.customize_update(serializer)
+
+    def perform_update(self, serializer):
+        self.customize_update(serializer)
 
     def get_queryset(self):
         if self.action in ["list", "retrieve", "comments"]:
@@ -114,59 +146,63 @@ def get_visible_posts(posts, user):
     # 1 visibility = "PUBLIC"
     q1 = Q(visibility="PUBLIC")
 
-    # 2 visibility = "FRIENDS"
-    q2_1, q2_2 = get_friends_Q(user)
+    if user.is_anonymous:
+        filtered_posts = posts.filter(q1)
+    else:
+        # 2 visibility = "FRIENDS"
+        q2_1, q2_2 = get_friends_Q(user)
 
-    # 3 visibility = "FOAF"
-    q3_1, q3_2 = get_foaf_Q(user)
+        # 3 visibility = "FOAF"
+        q3_1, q3_2 = get_foaf_Q(user)
 
-    # 4 visibility = "PRIVATE"
-    q4_1, q4_2 = get_visibleTo_Q(user)
+        # 4 visibility = "PRIVATE"
+        q4_1, q4_2 = get_visibleTo_Q(user)
 
-    # 5 post's author is the request user
-    q5 = Q(author=user)
+        # 5 post's author is the request user
+        q5 = Q(author=user)
 
-    filtered_posts = posts.filter(
-        q1 | (q2_1 & q2_2) | (q3_1 & q3_2) | (q4_1 & q4_2) | q5
-    )
+        filtered_posts = posts.filter(
+            q1 | (q2_1 & q2_2) | (q3_1 & q3_2) | (q4_1 & q4_2) | q5
+        )
 
     return filtered_posts
 
 
 def get_foaf_Q(user: User) -> Tuple[Q, Q]:
-    # visibility = "FOAF"
-    # user_f2_ids = user.f1Ids.filter(status="A").values_list("f2Id", flat=True)
-    # user_f1_ids = user.f2Ids.filter(status="A").values_list("f1Id", flat=True)
-    # friends = list(user_f2_ids) + list(user_f1_ids)
-    # f2_foaf = Friend.objects.filter(
-    #     Q(status="A") & Q(f1Id__in=list(friends))
-    # ).values_list("f2Id", flat=True)
-    # f1_foaf = Friend.objects.filter(
-    #     Q(status="A") & Q(f2Id__in=list(friends))
-    # ).values_list("f1Id", flat=True)
-    # foaf = list(f1_foaf) + list(f2_foaf) + list(friends)
+    """
+    visibility = "FOAF"
+    """
+    friends_ids = list(user.f2friends.filter(status="A").values_list("f2Id", flat=True))
+    foaf = friends_ids.copy()
+    for friend_id in friends_ids:
+        foaf += list(
+            Friend.objects.filter(status="A", f1Id=friend_id).values_list(
+                "f2Id", flat=True
+            )
+        )
+    foaf = list(set(foaf))  # distint
     q1 = Q(visibility="FOAF")
-    # q2 = Q(author__username__in=foaf)
-    q2 = Q(visibility="TOBEDONE")
+    q2 = Q(author__id__in=foaf)
     return (q1, q2)
 
 
 def get_friends_Q(user: User) -> Tuple[Q, Q]:
-    # visibility = "FRIENDS"
-    # user_f2_ids = user.f1Ids.filter(status="A").values_list("f2Id", flat=True)
-    # user_f1_ids = user.f2Ids.filter(status="A").values_list("f1Id", flat=True)
-    # friends = list(user_f2_ids) + list(user_f1_ids)
+    """
+    visibility = "FRIENDS"
+    """
+    friends_ids = user.f2friends.filter(status="A").values_list("f2Id", flat=True)
     q1 = Q(visibility="FRIENDS")
-    # q2 = Q(author__username__in=friends)
-    q2 = Q(visibility="TOBEDONE")
+    q2 = Q(author__id__in=list(friends_ids))
     return (q1, q2)
 
 
 def get_visibleTo_Q(user: User) -> Tuple[Q, Q]:
-    # q4: post is private but user is in post's visiableTo list.
+    """
+    post is private but user is in post's visiableTo list.
+    """
     q1 = Q(visibility="PRIVATE")
     q2 = Q(
-        visibleToStr__icontains=f"http://{user.host}/{str(user.id)}"
+        visibleToStr__icontains=f"{user.host}author/{str(user.id)}"
     )  # check if Json string contains user's email.
     return (q1, q2)
 

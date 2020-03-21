@@ -9,4 +9,5 @@ urlpatterns = [
             {"get": "retrieve", "patch": "partial_update", "delete": "destroy",}
         ),
     ),
+    path("author/current_user", AuthorViewSet.as_view({"get": "current_user",})),
 ]

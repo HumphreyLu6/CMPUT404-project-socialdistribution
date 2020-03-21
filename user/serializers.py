@@ -24,7 +24,7 @@ class CustomLoginSerializer(LoginSerializer):
         # Did we get back an active user?
         if user:
             if not user.is_approve:
-                msg = _("Please wait the admin to approve your register request")
+                msg = _("Please wait for the approval of administrator")
                 raise exceptions.ValidationError(msg)
         else:
             if not User.objects.filter(email=email).exists():
@@ -53,12 +53,13 @@ class BriefAuthorSerializer(serializers.ModelSerializer):
     def get_displayName(self, obj):
         name = obj.username
         if obj.host != DEFAULT_HOST:
+            print(name, obj.id)
             # https://stackoverflow.com/questions/1038824/how-do-i-remove-a-substring-from-the-end-of-a-string-in-python
             name = re.sub(obj.id, "", name)
         return f"{name}"
 
     def get_url(self, obj):
-        return f"{obj.f2Id.host}author/{obj.f2Id.id}"
+        return f"{obj.host}author/{obj.id}"
 
     class Meta:
         model = User
@@ -104,4 +105,7 @@ class AuthorSerializer(serializers.ModelSerializer):
             "github",
             "email",
             "bio",
+        ]
+        read_only_fields = [
+            "host",
         ]
