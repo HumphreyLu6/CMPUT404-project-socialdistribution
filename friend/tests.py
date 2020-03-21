@@ -1,4 +1,5 @@
 import json
+import base64
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
@@ -13,199 +14,281 @@ class FriendTestCase(APITestCase):
         self.user1 = User.objects.create_user(
             email="user1@email.com", username="user1", password="passqweruser1",
         )
-        self.token1 = Token.objects.create(user=self.user1)
+        self.token1 = base64.b64encode(bytes('user1@email.com:passqweruser1', 'utf-8')).decode('utf-8')
 
         self.user2 = User.objects.create_user(
             email="user2@email.com", username="user2", password="passqweruser2",
         )
-        self.token2 = Token.objects.create(user=self.user2)
+        self.token2 = base64.b64encode(bytes('user2@email.com:passqweruser2', 'utf-8')).decode('utf-8')
 
         self.user3 = User.objects.create_user(
             email="user3@email.com", username="user3", password="passqweruser3",
         )
-        self.token3 = Token.objects.create(user=self.user3)
+        self.token3 = base64.b64encode(bytes('user3@email.com:passqweruser3', 'utf-8')).decode('utf-8')
         
     def test_send_get_friend_request(self):
-        #send friend request from user1 to user2
+        # send friend request from user1 to user2
         request_body = {
-            "f2Id": "user2",
+            "query":"friendrequest",
+            "author": {
+                "id": f"{self.user1.host}author/{self.user1.id}",
+                "host": f"{self.user1.host}",
+                "displayName": "user1",
+                "url": f"{self.user1.host}author/{self.user1.id}",
+            },
+            "friend": {
+                "id": f"{self.user2.host}author/{self.user2.id}",
+                "host": f"{self.user2.host}",
+                "displayName": "user2",
+                "url": f"{self.user2.host}author/{self.user2.id}",
+            },
         }
         response = self.client.post(
-            "/api/friend/friend_request/",
+            "/friendrequest",
             request_body,
-            HTTP_AUTHORIZATION="Token " + self.token1.key,
+            HTTP_AUTHORIZATION=f"Basic {self.token1}"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        #send friend request from user3 to user2
-        request_body = {
-            "f2Id": "user2",
-        }
-        response = self.client.post(
-            "/api/friend/friend_request/",
-            request_body,
-            HTTP_AUTHORIZATION="Token " + self.token3.key,
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        #get friend request list for user2
+        # get friend request for user2
         response = self.client.get(
-            "/api/friend/friend_request/",
-            HTTP_AUTHORIZATION="Token " + self.token2.key,
+            f"/author/{self.user2.id}/friendrequests",
+            HTTP_AUTHORIZATION=f"Basic {self.token2}"
         )
-        data = json.loads(json.dumps(response.data))
-        self.assertEqual(data[0]["f1Id"], self.user1.username)
-        self.assertEqual(data[1]["f1Id"], self.user3.username)
+        data = response.data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data['authors'],[f'{self.user1.host}author/{self.user1.id}'] )
 
     def test_accept_friend_request(self):
         #send friend request from user1 to user2
         request_body = {
-            "f2Id": "user2",
+            "query":"friendrequest",
+            "author": {
+                "id": f"{self.user1.host}author/{self.user1.id}",
+                "host": f"{self.user1.host}",
+                "displayName": "user1",
+                "url": f"{self.user1.host}author/{self.user1.id}",
+            },
+            "friend": {
+                "id": f"{self.user2.host}author/{self.user2.id}",
+                "host": f"{self.user2.host}",
+                "displayName": "user2",
+                "url": f"{self.user2.host}author/{self.user2.id}",
+            },
         }
         response = self.client.post(
-            "/api/friend/friend_request/",
+            "/friendrequest",
             request_body,
-            HTTP_AUTHORIZATION="Token " + self.token1.key,
+            HTTP_AUTHORIZATION=f"Basic {self.token1}"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        #user 2 accept the friend request from the user 1
+        # user2 accept friend accept from user1
         request_body = {
-            "f1Id" : "user1",
-            "status" : ACCEPT_STATUS
+            "query":"friendrequest",
+            "author": {
+                "id": f"{self.user1.host}author/{self.user1.id}",
+                "host": f"{self.user1.host}",
+                "displayName": "user1",
+                "url": f"{self.user1.host}author/{self.user1.id}",
+            },
+            "friend": {
+                "id": f"{self.user2.host}author/{self.user2.id}",
+                "host": f"{self.user2.host}",
+                "displayName": "user2",
+                "url": f"{self.user2.host}author/{self.user2.id}",
+            },
+            "status" : "A"
         }
-
-        data = json.loads(json.dumps(response.data))
-        friend_request_id = data['id']
         response = self.client.patch(
-            f"/api/friend/friend_request/{friend_request_id}/",
+            "/friendrequest",
             request_body,
-            HTTP_AUTHORIZATION="Token " + self.token2.key,
+            HTTP_AUTHORIZATION=f"Basic {self.token2}"
         )
-        data = json.loads(json.dumps(response.data))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(data["f1Id"], self.user1.username)
-        self.assertEqual(data["f2Id"], self.user2.username)
-        self.assertEqual(data["status"], ACCEPT_STATUS)
 
     def test_reject_friend_request(self):
         #send friend request from user1 to user2
         request_body = {
-            "f2Id": "user2",
+            "query":"friendrequest",
+            "author": {
+                "id": f"{self.user1.host}author/{self.user1.id}",
+                "host": f"{self.user1.host}",
+                "displayName": "user1",
+                "url": f"{self.user1.host}author/{self.user1.id}",
+            },
+            "friend": {
+                "id": f"{self.user2.host}author/{self.user2.id}",
+                "host": f"{self.user2.host}",
+                "displayName": "user2",
+                "url": f"{self.user2.host}author/{self.user2.id}",
+            },
         }
         response = self.client.post(
-            "/api/friend/friend_request/",
+            "/friendrequest",
             request_body,
-            HTTP_AUTHORIZATION="Token " + self.token1.key,
+            HTTP_AUTHORIZATION=f"Basic {self.token1}"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        #user 2 reject the friend request from the user 1
+        # user2 reject friend accept from user1
         request_body = {
-            "f1Id" : "user1",
-            "status" : REJECT_STATUS
+            "query":"friendrequest",
+            "author": {
+                "id": f"{self.user1.host}author/{self.user1.id}",
+                "host": f"{self.user1.host}",
+                "displayName": "user1",
+                "url": f"{self.user1.host}author/{self.user1.id}",
+            },
+            "friend": {
+                "id": f"{self.user2.host}author/{self.user2.id}",
+                "host": f"{self.user2.host}",
+                "displayName": "user2",
+                "url": f"{self.user2.host}author/{self.user2.id}",
+            },
+            "status" : "R"
         }
-
-        data = json.loads(json.dumps(response.data))
-        friend_request_id = data['id']
         response = self.client.patch(
-            f"/api/friend/friend_request/{friend_request_id}/",
+            "/friendrequest",
             request_body,
-            HTTP_AUTHORIZATION="Token " + self.token2.key,
+            HTTP_AUTHORIZATION=f"Basic {self.token2}"
         )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
 
     def test_unfriend(self):
         #send friend request from user1 to user2
         request_body = {
-            "f2Id": "user2",
+            "query":"friendrequest",
+            "author": {
+                "id": f"{self.user1.host}author/{self.user1.id}",
+                "host": f"{self.user1.host}",
+                "displayName": "user1",
+                "url": f"{self.user1.host}author/{self.user1.id}",
+            },
+            "friend": {
+                "id": f"{self.user2.host}author/{self.user2.id}",
+                "host": f"{self.user2.host}",
+                "displayName": "user2",
+                "url": f"{self.user2.host}author/{self.user2.id}",
+            },
         }
         response = self.client.post(
-            "/api/friend/friend_request/",
+            "/friendrequest",
             request_body,
-            HTTP_AUTHORIZATION="Token " + self.token1.key,
+            HTTP_AUTHORIZATION=f"Basic {self.token1}"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        #user 2 accept the friend request from the user 1
+        # user2 unfriend user1
         request_body = {
-            "f1Id" : "user1",
-            "status" : ACCEPT_STATUS
+            "query":"friendrequest",
+            "author": {
+                "id": f"{self.user1.host}author/{self.user1.id}",
+                "host": f"{self.user1.host}",
+                "displayName": "user1",
+                "url": f"{self.user1.host}author/{self.user1.id}",
+            },
+            "friend": {
+                "id": f"{self.user2.host}author/{self.user2.id}",
+                "host": f"{self.user2.host}",
+                "displayName": "user2",
+                "url": f"{self.user2.host}author/{self.user2.id}",
+            },
+            "status" : "R"
         }
-
-        data = json.loads(json.dumps(response.data))
-        friend_id = data['id']
         response = self.client.patch(
-            f"/api/friend/friend_request/{friend_id}/",
+            "/friendrequest",
             request_body,
-            HTTP_AUTHORIZATION="Token " + self.token2.key,
-        )
-
-        #user 1 unfriend user2
-        request_body = {
-            "f1Id" : "user2",
-            "status" : UNFRIEND_STATUS
-        }
-
-        response = self.client.patch(
-            f"/api/friend/my_friends/{friend_id}/",
-            request_body,
-            HTTP_AUTHORIZATION="Token " + self.token1.key,
+            HTTP_AUTHORIZATION=f"Basic {self.token2}"
         )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_if_friend(self):
-        #user1 has not sent friend request to user2
-        response = self.client.get(
-            f"/api/friend/if_friend/{self.user2.username}/",
-            HTTP_AUTHORIZATION="Token " + self.token1.key,
-        )
-        data = json.loads(json.dumps(response.data))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(data['status'], "unfriend")
-
         #send friend request from user1 to user2
         request_body = {
-            "f2Id": "user2",
+            "query":"friendrequest",
+            "author": {
+                "id": f"{self.user1.host}author/{self.user1.id}",
+                "host": f"{self.user1.host}",
+                "displayName": "user1",
+                "url": f"{self.user1.host}author/{self.user1.id}",
+            },
+            "friend": {
+                "id": f"{self.user2.host}author/{self.user2.id}",
+                "host": f"{self.user2.host}",
+                "displayName": "user2",
+                "url": f"{self.user2.host}author/{self.user2.id}",
+            },
         }
         response = self.client.post(
-            "/api/friend/friend_request/",
+            "/friendrequest",
             request_body,
-            HTTP_AUTHORIZATION="Token " + self.token1.key,
+            HTTP_AUTHORIZATION=f"Basic {self.token1}"
         )
-        data = json.loads(json.dumps(response.data))
-        friend_id = data['id']
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        #user1 is pending user2 to process the friend request
-        response = self.client.get(
-            f"/api/friend/if_friend/{self.user2.username}/",
-            HTTP_AUTHORIZATION="Token " + self.token1.key,
-        )
-        data = json.loads(json.dumps(response.data))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(data['status'], "pending")
-
-        #user 2 accept the friend request from the user 1
+        #send friend request from user1 to user3
         request_body = {
-            "f1Id" : "user1",
-            "status" : ACCEPT_STATUS
+            "query":"friendrequest",
+            "author": {
+                "id": f"{self.user1.host}author/{self.user1.id}",
+                "host": f"{self.user1.host}",
+                "displayName": "user1",
+                "url": f"{self.user1.host}author/{self.user1.id}",
+            },
+            "friend": {
+                "id": f"{self.user3.host}author/{self.user3.id}",
+                "host": f"{self.user3.host}",
+                "displayName": "user3",
+                "url": f"{self.user3.host}author/{self.user3.id}",
+            },
         }
-
-        response = self.client.patch(
-            f"/api/friend/friend_request/{friend_id}/",
+        response = self.client.post(
+            "/friendrequest",
             request_body,
-            HTTP_AUTHORIZATION="Token " + self.token2.key,
+            HTTP_AUTHORIZATION=f"Basic {self.token1}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # user2 accept friend request from user1
+        request_body = {
+            "query":"friendrequest",
+            "author": {
+                "id": f"{self.user1.host}author/{self.user1.id}",
+                "host": f"{self.user1.host}",
+                "displayName": "user1",
+                "url": f"{self.user1.host}author/{self.user1.id}",
+            },
+            "friend": {
+                "id": f"{self.user2.host}author/{self.user2.id}",
+                "host": f"{self.user2.host}",
+                "displayName": "user2",
+                "url": f"{self.user2.host}author/{self.user2.id}",
+            },
+            "status" : "A"
+        }
+        response = self.client.patch(
+            "/friendrequest",
+            request_body,
+            HTTP_AUTHORIZATION=f"Basic {self.token2}"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        #user1 has been friend with user2
+        # if friend between user1 and user2
         response = self.client.get(
-            f"/api/friend/if_friend/{self.user2.username}/",
-            HTTP_AUTHORIZATION="Token " + self.token1.key,
+            f"/author/{self.user1.id}/friends/{self.user2.id}",
+            HTTP_AUTHORIZATION=f"Basic {self.token1}"
         )
-        data = json.loads(json.dumps(response.data))
+        data = response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(data['status'], "friend")
+        self.assertEqual(data['friends'],'true')
+
+        # if friend between user1 and user3
+        response = self.client.get(
+            f"/author/{self.user1.id}/friends/{self.user3.id}",
+            HTTP_AUTHORIZATION=f"Basic {self.token1}"
+        )
+        data = response.data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data['friends'],'false')
 
