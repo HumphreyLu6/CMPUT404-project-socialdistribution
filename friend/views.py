@@ -232,8 +232,8 @@ class FriendViewSet(viewsets.ModelViewSet):
             response_body["error"] = ("author does not exist.",)
             return Response(response_body, status=status.HTTP_404_NOT_FOUND)
 
-        friend_ids = Friend.objects.filter(f1Id=author.id, status="U").values_list(
-            "f2Id", flat=True
+        friend_ids = Friend.objects.filter(f2Id=author.id, status="U",isCopy=False).values_list(
+            "f1Id", flat=True
         )
         friends = User.objects.filter(id__in=list(friend_ids))
         for user in friends:
