@@ -1,6 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { List, Icon, Modal, Avatar} from 'antd';
+import { List, Icon, Modal, Avatar } from 'antd';
 import SimpleReactLightbox from "simple-react-lightbox";
 import { SRLWrapper } from "simple-react-lightbox"; 
 import axios from 'axios';
@@ -78,7 +78,7 @@ class UserSelf extends React.Component {
 
     getProfile(headers, username) {
         axios.get(AUTHOR_API.concat(username).concat("/"), 
-        { headers: headers}).then(res => {
+        {headers: headers}).then(res => {
             var userInfo = res.data;
             this.setState({
                 username: username,
@@ -98,8 +98,25 @@ class UserSelf extends React.Component {
 
     pullGithubActivity(githubUsername, username) {
         var githubData = [];
-        axios.get("https://api.github.com/users/" + githubUsername + "/events/public").then(res => {
-            res.data.forEach((item) => {
+        const githubEventUrl = "https://api.github.com/users/" + githubUsername + "/events"
+        var config = {
+            method: 'get',
+            url: githubEventUrl,
+        };
+        if (this.state.isSelf) {
+            const accessToken = "ccaaf364ea503b8d8613a00a9dc0dd0de24d60a6"; // load from database
+            const headers = {
+                'Authorization': 'Token ' + accessToken,
+            };
+            config = {
+                method: 'get',
+                url: githubEventUrl,
+                headers: headers,
+            };
+        } 
+        axios(config).then(res => {
+            console.log(res.data);
+            res.data.forEach((item) => {    
                 var data = {
                     author: username,
                     title: item.type,
