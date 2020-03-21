@@ -169,39 +169,40 @@ def get_visible_posts(posts, user):
 
 
 def get_foaf_Q(user: User) -> Tuple[Q, Q]:
-    # visibility = "FOAF"
-    # user_f2_ids = user.f1Ids.filter(status="A").values_list("f2Id", flat=True)
-    # user_f1_ids = user.f2Ids.filter(status="A").values_list("f1Id", flat=True)
-    # friends = list(user_f2_ids) + list(user_f1_ids)
-    # f2_foaf = Friend.objects.filter(
-    #     Q(status="A") & Q(f1Id__in=list(friends))
-    # ).values_list("f2Id", flat=True)
-    # f1_foaf = Friend.objects.filter(
-    #     Q(status="A") & Q(f2Id__in=list(friends))
-    # ).values_list("f1Id", flat=True)
-    # foaf = list(f1_foaf) + list(f2_foaf) + list(friends)
+    """
+    visibility = "FOAF"
+    """
+    friends_ids = list(user.f2friends.filter(status="A").values_list("f2Id", flat=True))
+    foaf = friends_ids.copy()
+    for friend_id in friends_ids:
+        foaf += list(
+            Friend.objects.filter(status="A", f1Id=friend_id).values_list(
+                "f2Id", flat=True
+            )
+        )
+    foaf = list(set(foaf))  # distint
     q1 = Q(visibility="FOAF")
-    # q2 = Q(author__username__in=foaf)
-    q2 = Q(visibility="TOBEDONE")
+    q2 = Q(author__id__in=foaf)
     return (q1, q2)
 
 
 def get_friends_Q(user: User) -> Tuple[Q, Q]:
-    # visibility = "FRIENDS"
-    # user_f2_ids = user.f1Ids.filter(status="A").values_list("f2Id", flat=True)
-    # user_f1_ids = user.f2Ids.filter(status="A").values_list("f1Id", flat=True)
-    # friends = list(user_f2_ids) + list(user_f1_ids)
+    """
+    visibility = "FRIENDS"
+    """
+    friends_ids = user.f2friends.filter(status="A").values_list("f2Id", flat=True)
     q1 = Q(visibility="FRIENDS")
-    # q2 = Q(author__username__in=friends)
-    q2 = Q(visibility="TOBEDONE")
+    q2 = Q(author__id__in=list(friends_ids))
     return (q1, q2)
 
 
 def get_visibleTo_Q(user: User) -> Tuple[Q, Q]:
-    # q4: post is private but user is in post's visiableTo list.
+    """
+    post is private but user is in post's visiableTo list.
+    """
     q1 = Q(visibility="PRIVATE")
     q2 = Q(
-        visibleToStr__icontains=f"http://{user.host}/{str(user.id)}"
+        visibleToStr__icontains=f"{user.host}author/{str(user.id)}"
     )  # check if Json string contains user's email.
     return (q1, q2)
 

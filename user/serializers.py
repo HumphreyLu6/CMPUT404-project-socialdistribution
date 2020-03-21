@@ -53,6 +53,7 @@ class BriefAuthorSerializer(serializers.ModelSerializer):
     def get_displayName(self, obj):
         name = obj.username
         if obj.host != DEFAULT_HOST:
+            print(name, obj.id)
             # https://stackoverflow.com/questions/1038824/how-do-i-remove-a-substring-from-the-end-of-a-string-in-python
             name = re.sub(obj.id, "", name)
         return f"{name}"

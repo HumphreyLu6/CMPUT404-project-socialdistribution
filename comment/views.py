@@ -1,3 +1,4 @@
+import uuid
 from django.db.models import Q
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view
@@ -119,8 +120,8 @@ class CommentViewSet(viewsets.ModelViewSet):
                         author = User.objects.create_user(
                             id=author_data["id"],
                             host=author_data["host"],
-                            email=author_data["id"] + "@email.com",
-                            username=author_data["id"] + author_data["displayName"],
+                            email=str(uuid.UUID(author_data["id"])) + "@email.com",
+                            username=str(uuid.UUID(author_data["id"])) + author_data["displayName"],
                         )
                     serializer = CommentSerializer(data=comment)
                     if serializer.is_valid():
