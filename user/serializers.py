@@ -1,12 +1,16 @@
+import re
+import json
 from rest_framework import serializers, exceptions
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_auth.serializers import LoginSerializer
 from django.utils.translation import ugettext_lazy as _
+
+from mysite.settings import DEFAULT_HOST
 from friend.models import Friend
 from .models import User
 from django.http import JsonResponse
-import json
+
 
 class CustomLoginSerializer(LoginSerializer):
     def validate(self, attrs):
@@ -32,52 +36,61 @@ class CustomLoginSerializer(LoginSerializer):
         attrs["user"] = user
         return attrs
 
-class FriendSerializer(serializers.ModelSerializer):
+
+class BriefAuthorSerializer(serializers.ModelSerializer):
+    """
+    This serilizer serializes less fields for friends views, post views, comment views,
+    and it is meant to serialize both local and remote authors.
+    """
 
     id = serializers.SerializerMethodField(read_only=True)
-    host = serializers.SerializerMethodField(read_only=True)
     url = serializers.SerializerMethodField(read_only=True)
     displayName = serializers.SerializerMethodField(read_only=True)
 
     def get_id(self, obj):
-        return f"{obj.f2Id.host}author/{obj.f2Id.id}"
-
-    def get_host(self, obj):
-        return f"{obj.f2Id.host}"
+        return f"{obj.host}author/{obj.id}"
 
     def get_displayName(self, obj):
-        return f"{obj.f2Id.username}"
+        name = obj.username
+        if obj.host != DEFAULT_HOST:
+            # https://stackoverflow.com/questions/1038824/how-do-i-remove-a-substring-from-the-end-of-a-string-in-python
+            name = re.sub(obj.id, "", name)
+        return f"{name}"
 
     def get_url(self, obj):
         return f"{obj.f2Id.host}author/{obj.f2Id.id}"
 
     class Meta:
-        model = Friend
-        fields = ['id','host','displayName','url']
+        model = User
+        fields = ["id", "host", "displayName", "url"]
 
 
 class AuthorSerializer(serializers.ModelSerializer):
     """
-    This serilizer is provided for regular users (authors).
+    This serilizer serializes regular fields for profile page,
+    and it is meant to only serialize local authors.
     """
 
-    url = serializers.SerializerMethodField(read_only=True)
     id = serializers.SerializerMethodField(read_only=True)
+    url = serializers.SerializerMethodField(read_only=True)
     displayName = serializers.SerializerMethodField(read_only=True)
     friends = serializers.SerializerMethodField(read_only=True)
 
-    def get_url(self, obj):
+    def get_id(self, obj):
         return f"{obj.host}author/{obj.id}"
 
-    def get_id(self, obj):
+    def get_url(self, obj):
         return f"{obj.host}author/{obj.id}"
 
     def get_displayName(self, obj):
         return f"{obj.username}"
 
     def get_friends(self, obj):
-        qs = Friend.objects.filter(status='A', f1Id_id=obj.id)
-        serializer = FriendSerializer(instance=qs, many=True)
+        friend_ids = Friend.objects.filter(status="A", f1Id=obj.id).values_list(
+            "f2Id", flat=True
+        )
+        friends = User.objects.filter(id__in=list(friend_ids))
+        serializer = BriefAuthorSerializer(instance=friends, many=True)
         return serializer.data
 
     class Meta:
@@ -87,18 +100,8 @@ class AuthorSerializer(serializers.ModelSerializer):
             "host",
             "displayName",
             "url",
+            "friends",
             "github",
             "email",
             "bio",
-            "friends",
         ]
-
-
-class UserSerializer(serializers.ModelSerializer):
-    """
-    This serializer is provided for admin users.
-    """
-
-    class Meta:
-        model = User
-        fields = "__all__"

@@ -21,11 +21,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("signup/", include("rest_auth.registration.urls")),
     path("", include("rest_auth.urls")),
+
     path("", include("user.urls")),
-    path("api/post/", include("post.urls")),
-    path("", include("friend.urls")),
-    path("node/", include("node.urls")),
-    path("api/comment/", include("comment.urls")),
     path("", include("post.urls")),
     path("", include("comment.urls")),
     path("", include("friend.urls")),

@@ -34,7 +34,7 @@ ALLOWED_HOSTS = [
     "spongebook-develop.herokuapp.com",
 ]
 
-APPEND_SLASH=False
+APPEND_SLASH = False
 
 # Application definition
 
@@ -196,9 +196,4 @@ if "HEROKU" in os.environ:
 else:
     django_heroku.settings(locals(), test_runner=False)
 
-# ref: https://stackoverflow.com/questions/4093999/how-to-use-django-to-get-the-name-for-the-host-server
-DEFAULT_HOST = None
-try:
-    DEFAULT_HOST = socket.gethostname()
-except:
-    DEFAULT_HOST = "http://127.0.0.1:8000"
+DEFAULT_HOST = "https://spongebook.herokuapp.com/"

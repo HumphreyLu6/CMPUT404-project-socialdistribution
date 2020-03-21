@@ -1,16 +1,7 @@
 from django.urls import path, include
-from .views import AuthorViewSet, UserViewSet, AuthorProfileViewSet
+from .views import AuthorViewSet
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("signup/", include("rest_auth.registration.urls")),
-    path("", include("rest_auth.urls")),
-    # path("", include(router.urls)),
-    path("author/", AuthorViewSet.as_view({"get": "list",})),
-    path(
-        "author/profile/<path:authorId>/",
-        AuthorProfileViewSet.as_view({"get": "get_profile",}),
-    ),
     path("author", AuthorViewSet.as_view({"get": "list",})),
     path(
         "author/<uuid:id>",
