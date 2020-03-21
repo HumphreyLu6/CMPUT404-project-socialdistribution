@@ -27,7 +27,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
     lookup_field = "id"
 
     def get_permissions(self):
-        if self.action in ["update", "destroy", "partial_update", "create"]:
+        if self.action in [
+            "update",
+            "destroy",
+            "partial_update",
+            "create",
+            "github_token",
+        ]:
             # user can only access this view with valid token
             self.permission_classes = [OwnerOrAdminPermissions]
         elif self.action in ["current_user"]:
@@ -36,6 +42,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
             self.permission_classes = [AllowAny]
         return super(AuthorViewSet, self).get_permissions()
 
+    def perform_create(self):
+        serializer.save(displayName=self.get_object().username)
+
     @action(detail=False, methods=["GET"])
     def current_user(self, request, *args, **kwargs):
         if request.user.is_anonymous:
@@ -43,3 +52,16 @@ class AuthorViewSet(viewsets.ModelViewSet):
         serializer = AuthorSerializer(self.request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=["POST", "GET"])
+    def github_token(self, request, *args, **kwargs):
+        user = self.get_object()
+        if request.method == "GET":
+            return Response(
+                {"GithubToken": user.githubToken}, status=status.HTTP_200_OK
+            )
+        else:
+            token = request.data.pop("GithubToken", None)
+            if not token:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            User.objects.filter(id=user.id).update(githubToken=token)
+            return Response(status=status.HTTP_204_NO_CONTENT)

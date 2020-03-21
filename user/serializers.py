@@ -74,7 +74,6 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     id = serializers.SerializerMethodField(read_only=True)
     url = serializers.SerializerMethodField(read_only=True)
-    displayName = serializers.SerializerMethodField(read_only=True)
     friends = serializers.SerializerMethodField(read_only=True)
 
     def get_id(self, obj):
@@ -82,9 +81,6 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     def get_url(self, obj):
         return f"{obj.host}author/{obj.id}"
-
-    def get_displayName(self, obj):
-        return f"{obj.username}"
 
     def get_friends(self, obj):
         friend_ids = Friend.objects.filter(status="A", f1Id=obj.id).values_list(
@@ -99,6 +95,7 @@ class AuthorSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "host",
+            "username",
             "displayName",
             "url",
             "friends",
@@ -108,4 +105,5 @@ class AuthorSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "host",
+            "username",
         ]
