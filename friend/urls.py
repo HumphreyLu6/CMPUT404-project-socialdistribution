@@ -8,7 +8,7 @@ urlpatterns = [
         FriendViewSet.as_view({"get": "get_friends_of",}),
     ),
     path(
-        "author/<slug:AUTHOR_ID>/friendrequests/",
+        "author/<slug:AUTHOR_ID>/friendrequests",
         FriendViewSet.as_view({"get": "get_friends_requests_of",}),
     ),
     path(
