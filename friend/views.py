@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from .models import Friend
-from user.models import User
+from user.models import User, create_abstract_remote_user
 from .permissions import AdminOrF1Permissions, AdminOrF2Permissions
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -51,10 +51,10 @@ class FriendViewSet(viewsets.ModelViewSet):
                 )
                 author_data["email"] = str(uuid.UUID(author_data["id"])) + "@email.com"
                 author_data.pop("url")
-                author = User.objects.create_user(
-                    id=author_data["id"],
-                    username=author_data["diaplayName"],
-                    host=author_data["host"],
+                author = create_abstract_remote_user(
+                    uuid.UUID(author_data["id"]),
+                    author_data["host"],
+                    author_data["diaplayName"],
                 )
             else:
                 # request from local server
@@ -232,9 +232,9 @@ class FriendViewSet(viewsets.ModelViewSet):
             response_body["error"] = ("author does not exist.",)
             return Response(response_body, status=status.HTTP_404_NOT_FOUND)
 
-        friend_ids = Friend.objects.filter(f2Id=author.id, status="U",isCopy=False).values_list(
-            "f1Id", flat=True
-        )
+        friend_ids = Friend.objects.filter(
+            f2Id=author.id, status="U", isCopy=False
+        ).values_list("f1Id", flat=True)
         friends = User.objects.filter(id__in=list(friend_ids))
         for user in friends:
             response_body["authors"].append(f"{user.host}author/{user.id}")
