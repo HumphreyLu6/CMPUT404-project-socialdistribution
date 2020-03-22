@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import socket
 import django_heroku
 from corsheaders.defaults import default_methods
 
@@ -33,6 +34,7 @@ ALLOWED_HOSTS = [
     "spongebook-develop.herokuapp.com",
 ]
 
+APPEND_SLASH = False
 
 # Application definition
 
@@ -45,8 +47,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
-    # django rest auth
     "django.contrib.sites",
+    # django rest auth
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -171,11 +173,10 @@ CORS_ALLOW_HEADERS = [
 
 CORS_ALLOW_METHODS = list(default_methods)
 
-AUTH_USER_MODEL = "user.User"
-
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.TokenAuthentication",  # <-- And here
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
     ),
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
@@ -185,11 +186,16 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 
+AUTH_USER_MODEL = "user.User"
+
 REST_AUTH_SERIALIZERS = {
     "LOGIN_SERIALIZER": "user.serializers.CustomLoginSerializer",
 }
+
+DEFAULT_HOST = "https://spongebook.herokuapp.com/"
 
 if "HEROKU" in os.environ:
     django_heroku.settings(locals())
 else:
     django_heroku.settings(locals(), test_runner=False)
+
