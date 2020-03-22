@@ -6,7 +6,7 @@ import axios from 'axios';
 import './components/PostInput.css';
 import './components/Header.css';
 import cookie from 'react-cookies';
-import validateCookie from './utils/utils.js';
+import validateCookie from './utils/validate.js';
 import AuthorHeader from './components/AuthorHeader';
 import {reactLocalStorage} from 'reactjs-localstorage';
 import {POST_API, CURRENT_USER_API} from "./utils/constants.js";
@@ -99,10 +99,10 @@ class PostInput extends React.Component {
         if (!err) {              
           axios.post(POST_API,
             {
-              title: values.postTitle,
+                title: values.postTitle,
 	            description: "",            
 	            content: values.postContent,  
-          	  contentType: values.Type,      
+          	    contentType: values.Type,      
 	            isImage: false,                 
 	            visibility: values.Visibility,           
 	            visibleTo: "",                

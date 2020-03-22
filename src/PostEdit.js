@@ -7,7 +7,7 @@ import axios from 'axios';
 import './components/PostInput.css';
 import cookie from 'react-cookies';
 import AuthorHeader from './components/AuthorHeader'
-import validateCookie from './utils/utils.js';
+import validateCookie from './utils/validate.js';
 import {POST_API}  from "./utils/constants.js";
 const { TextArea } = Input;
 var id = '';

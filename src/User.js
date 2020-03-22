@@ -4,7 +4,7 @@ import { List, Avatar, Icon } from 'antd';
 import SimpleReactLightbox from "simple-react-lightbox";
 import { SRLWrapper } from "simple-react-lightbox"; 
 import './components/Header.css'
-import validateCookie from './utils/utils.js';
+import validateCookie from './utils/validate.js';
 import AuthorHeader from './components/AuthorHeader';
 import axios from 'axios';
 import cookie from 'react-cookies';
