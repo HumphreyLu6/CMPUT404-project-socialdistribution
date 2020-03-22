@@ -125,6 +125,7 @@ class FriendRequest extends React.Component {
                 itemLayout="horizontal"
                 dataSource={list}
                 style={liststyle}
+                locale={{ emptyText: "Currently No Friend Request"}}
                 renderItem={item => (
                 <List.Item>
                     <Skeleton avatar title={false} loading={item.loading} active>

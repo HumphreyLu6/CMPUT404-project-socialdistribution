@@ -128,6 +128,7 @@ class FriendsList extends React.Component {
             itemLayout="horizontal"
             dataSource={list}
             style={liststyle}
+            locale={{ emptyText: "Friend list is currently empty"}}
             renderItem={item => (
             <List.Item>
                 <Skeleton avatar title={false} loading={item.loading} active>
