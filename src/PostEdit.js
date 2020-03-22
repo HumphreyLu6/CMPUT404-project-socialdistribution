@@ -8,7 +8,7 @@ import './components/PostInput.css';
 import cookie from 'react-cookies';
 import AuthorHeader from './components/AuthorHeader'
 import validateCookie from './utils/validate.js';
-import {POST_API}  from "./utils/constants.js";
+import {SINGLE_POST_API, HOST}  from "./utils/constants.js";
 const { TextArea } = Input;
 var id = '';
 var urljoin;
@@ -93,7 +93,8 @@ class PostEdit extends React.Component {
     componentDidMount() {
         validateCookie();
         id = reactLocalStorage.get("postid");
-        axios.get(POST_API + String(id) + '/', { headers: { 'Authorization': 'Token ' + cookie.load('token')}})
+        console.log(id);
+        axios.get(SINGLE_POST_API(HOST, id), { headers: { 'Authorization': 'Token ' + cookie.load('token')}})
         .then(res => {
           const getPost = res.data;
           this.setState({
@@ -115,7 +116,7 @@ class PostEdit extends React.Component {
     handleSubmit = () => {
       this.props.form.validateFieldsAndScroll((err, values) => {
         if (!err) {                          
-          axios.patch(POST_API + String(id) + "/",
+          axios.patch(SINGLE_POST_API(HOST, id),
             {
               title: values.postTitle,
 	            description: "",            

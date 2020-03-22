@@ -43,7 +43,7 @@ class SearchPage extends React.Component{
     }
 
     handleClick = (usr) => {
-        document.location.replace("/author/".concat(usr).concat("/posts"))
+        document.location.replace("/author/profile")
     }
 
     usernameFilter = () => {
@@ -92,7 +92,7 @@ class SearchPage extends React.Component{
                                     </Avatar>
                                 }
                                 style={{width:"30%"}}
-                                title={<a href={"/author/".concat(item).concat("/posts")}>{item}</a>}
+                                title={<a href={"/author/profile"}>{item}</a>}
                                 onClick={() => document.location.replace("/author/".concat(item).concat("/posts"))}
                             />
                         </List.Item>

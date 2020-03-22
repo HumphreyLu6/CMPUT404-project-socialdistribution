@@ -9,16 +9,12 @@ import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
 import AuthorHeader from './components/AuthorHeader';
 import {reactLocalStorage} from 'reactjs-localstorage';
-import {POST_API, CURRENT_USER_API} from "./utils/constants.js";
+import {POST_API, CURRENT_USER_API, HOST} from "./utils/constants.js";
 
 const { TextArea } = Input;
 var urljoin;
 urljoin = require('url-join');
 var profileUrl='';
-//var encoding=[];
-
-//https://stackoverflow.com/questions/54845951/react-antdesign-add-uploaded-images-to-formdata
-
 
 function getBase64(file) {
 return new Promise((resolve, reject) => {
@@ -89,7 +85,6 @@ class PostInput extends React.Component {
 
     handleChange = ({ fileList }) => {
         this.setState({ fileList});
-        //encoding = fileList[0].thumbUrl;
         
     }
 
@@ -97,16 +92,15 @@ class PostInput extends React.Component {
     handleSubmit = e => {
       this.props.form.validateFieldsAndScroll((err, values) => {
         if (!err) {              
-          axios.post(POST_API,
+          axios.post(POST_API(HOST),
             {
                 title: values.postTitle,
-	            description: "",            
-	            content: values.postContent,  
-          	    contentType: values.Type,      
-	            isImage: false,                 
-	            visibility: values.Visibility,           
-	            visibleTo: "",                
-	            unlisted: false, 
+	              description: "",            
+	              content: values.postContent,  
+          	    contentType: values.Type,                      
+	              visibility: values.Visibility,           
+	              visibleTo: "",                
+	              unlisted: false, 
             },{ headers: { 'Authorization': 'Token ' + cookie.load('token') } }
             )
             .then(function (response) {

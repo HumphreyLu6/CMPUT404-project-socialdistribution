@@ -12,7 +12,8 @@ import ReactMarkdown from 'react-markdown';
 import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
 import convertTime from './utils/isoFormat.js';
-import {POST_API,AUTHOR_API,CURRENT_USER_API} from "./utils/constants.js";
+import getUserId from './utils/getUserId.js';
+import {CURRENT_USER_API, AUTHOR_POST_API, SINGLE_POST_API, HOST, AUTHOR_PROFILE_API} from "./utils/constants.js";
 
 const { confirm } = Modal;
 var urlpostid = '';
@@ -39,9 +40,9 @@ class UserSelf extends React.Component {
         okType: 'danger',
         cancelText: 'No',
         onOk() {
-            axios.delete(POST_API + String(postId) + '/', { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+            axios.delete(SINGLE_POST_API(HOST, postId), { headers: { 'Authorization': 'Token ' + cookie.load('token') } } )
             .then(function () {
-            document.location.replace("/author/".concat(author).concat("/posts"));
+            document.location.replace("/author/profile");
             })
         },
         onCancel() {
@@ -54,35 +55,35 @@ class UserSelf extends React.Component {
         validateCookie();
         const token = cookie.load('token');
         const headers = {'Authorization': 'Token '.concat(token)}
-        const pathArray = window.location.pathname.split('/');
-        let username = pathArray[2];
+        let authorId = reactLocalStorage.get("currentUserId");
         axios.get(CURRENT_USER_API, {headers : headers}).then(res => {
             this.setState({
-                currentUser: res.data.username,
+                currentUser: res.data.id,
             });
             var currentUser = this.state.currentUser;
-            if (username) {
-                if (username !== currentUser) {
+            if (authorId) {
+                if (authorId !== currentUser) {
                     this.setState({
                         isSelf: false,
                     });
                 }
             } else {
-                username = currentUser;
+                authorId = currentUser;
             }
-            this.getProfile(headers, username);
-            this.fetchPost(headers, username);
+            this.getProfile(headers, authorId);
+            this.fetchPost(headers, authorId);
         }).catch((error) => {
             console.log(error);
         });
     };
 
-    getProfile(headers, username) {
-        axios.get(AUTHOR_API.concat(username).concat("/"), 
+    getProfile(headers, userId) {
+        var parsedId = getUserId(userId);
+        axios.get(AUTHOR_PROFILE_API(parsedId), 
         {headers: headers}).then(res => {
             var userInfo = res.data;
             this.setState({
-                username: username,
+                username: userInfo.username,
                 email: userInfo.email,
                 displayName: userInfo.displayName,
                 github: userInfo.github,
@@ -90,7 +91,7 @@ class UserSelf extends React.Component {
             });
             if (this.state.github) {
                 var githubUsername = this.state.github.replace("https://github.com/", "");
-                this.pullGithubActivity(githubUsername, username);
+                //this.pullGithubActivity(githubUsername, username);
             }
         }).catch((error) => {
               console.log(error);
@@ -135,13 +136,12 @@ class UserSelf extends React.Component {
         });
     }
 
-    fetchPost(headers, username) {
-        axios.get(AUTHOR_API.concat(username).concat("/user_posts/"),{headers : headers}).then(res => {
-            res.data.forEach((item) => {
-                item.published = item.published.split(".")[0] + "-" + item.published.split("-", 4)[3];
-            });
+    fetchPost(headers, userId) {
+        var parsedId = getUserId(userId);
+        axios.get(AUTHOR_POST_API(HOST, parsedId),{headers : headers})
+        .then(res => {
             this.setState({
-                postData: this.state.postData.concat(res.data),
+                postData: res.data.posts,
                 isloading: false,
             });
         }).catch((error) => {
@@ -183,12 +183,14 @@ class UserSelf extends React.Component {
                         size="large"
                         pagination={{pageSize: 5, hideOnSinglePage:true}}
                         dataSource={sortedData}
+                        locale={{ emptyText: "You currently do not have any post"}}
                         renderItem={item => (
                             <List.Item
                                 key={item.title}
                                 actions={[
                                     <span>
-                                        <a href="#!" onClick={this.handleComment.bind(this, item.id)} style={{marginRight: 8}}><Icon type="message"/></a>{0}   
+                                        <a href="#!" onClick={this.handleComment.bind(this, item.id)} style={{marginRight: 8}}><Icon type="message"/></a>
+                                        {String(item.comments.length).concat(" comment(s)")} 
                                     </span>, 
                                     <span>
                                     {isSelf ?
@@ -197,7 +199,7 @@ class UserSelf extends React.Component {
                                     </span>,
                                     <span>
                                     {isSelf ?
-                                        <a href="#!" onClick={this.showDeleteConfirm.bind(this, item.id, item.author)} style={{marginRight: 8}}><Icon type="delete"/></a>
+                                        <a href="#!" onClick={this.showDeleteConfirm.bind(this, item.id, item.author.displayName)} style={{marginRight: 8}}><Icon type="delete"/></a>
                                     : null}
                                     </span>,
                                 ]}
@@ -208,16 +210,15 @@ class UserSelf extends React.Component {
                                             style={{
                                                 color: '#FFFFFF',
                                                 backgroundColor: '#3991F7',
-                                                
                                             }}
-                                        >{item.author[0].toUpperCase()}
+                                        >{item.author.displayName[0].toUpperCase()}
                                         </Avatar>
                                     }
-                                        title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
-                                        description={item.published}
+                                        title={<a href={"/author/profile"} style={{color: '#031528'}}>{item.author.displayName}</a>}
+                                        description={"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}
                                 />
-                                <h3>{"Title: ".concat(item.title)}</h3>
-                                {item.content}
+                                <h3>{"Title: ".concat(item.title)}</h3><p>  </p>
+                                {item.contentType === "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content} 
                                 <SimpleReactLightbox>
                                     <SRLWrapper>
                                         <img
@@ -252,7 +253,7 @@ class UserSelf extends React.Component {
 
                                     </SRLWrapper> 
                                 </SimpleReactLightbox>                      
-                                {item.contentType === "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content}                     
+                                                    
                             </List.Item>
                         )}
                     />

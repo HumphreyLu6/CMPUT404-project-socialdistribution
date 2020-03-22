@@ -4,7 +4,9 @@ import 'antd/dist/antd.css';
 import './Header.css';
 import cookie from 'react-cookies';
 import axios from 'axios';
+import {reactLocalStorage} from 'reactjs-localstorage';
 import {CURRENT_USER_API} from "../utils/constants.js";
+
 
 const { Header } = Layout;
 const { SubMenu } = Menu;
@@ -20,7 +22,9 @@ class AuthorHeader extends React.Component {
     handleMyProfile = () => {
         axios.get(CURRENT_USER_API, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
         .then(function (response) {
-            document.location.replace("/author/".concat(response.data.username).concat("/posts"));
+            var currentUserId = String(response.data.id);
+            reactLocalStorage.set("currentUserId", currentUserId);
+            document.location.replace("/author/profile");
         })
         .catch(function (error) {
           console.log(error);
@@ -30,6 +34,8 @@ class AuthorHeader extends React.Component {
     handleFriendsList = () => {
         axios.get(CURRENT_USER_API, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
         .then(function (response) {
+            var currentUserId = String(response.data.id);
+            reactLocalStorage.set("currentUserId", currentUserId);
             document.location.replace("/author/".concat(response.data.username).concat("/friends"));          
         })
         .catch(function (error) {
@@ -40,6 +46,8 @@ class AuthorHeader extends React.Component {
     handleFriendRequest = () => {
         axios.get(CURRENT_USER_API, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
         .then(function (response) {
+            var currentUserId = String(response.data.id);
+            reactLocalStorage.set("currentUserId", currentUserId);
             document.location.replace("/author/".concat(response.data.username).concat("/friendrequest"));          
         })
         .catch(function (error) {
