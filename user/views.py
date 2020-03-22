@@ -1,3 +1,4 @@
+from typing import Tuple
 from django.db.models import Q
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -11,97 +12,56 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 
+from mysite.settings import DEFAULT_HOST
 from friend.models import Friend
 from post.models import Post
 from post.serializers import PostSerializer
-from .serializers import AuthorSerializer, UserSerializer
+from .serializers import AuthorSerializer
 from .models import User
 from .permissions import OwnerOrAdminPermissions
 
-# Create your views here.
+
 class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
-    queryset = User.objects.filter(is_superuser=0)
-    lookup_field = "username"
+    queryset = User.objects.filter(is_superuser=0, host=DEFAULT_HOST)
+    lookup_field = "id"
 
     def get_permissions(self):
-        if self.action in ["update", "destroy", "partial_update", "create"]:
-            # user can only use this view with valid token
+        if self.action in [
+            "update",
+            "destroy",
+            "partial_update",
+            "create",
+            "github_token",
+        ]:
+            # user can only access this view with valid token
             self.permission_classes = [OwnerOrAdminPermissions]
+        elif self.action in ["current_user"]:
+            self.permission_classes = [IsAuthenticated]
         else:
             self.permission_classes = [AllowAny]
         return super(AuthorViewSet, self).get_permissions()
 
-    @action(detail=True, methods=["GET"])
-    def user_posts(self, request, *args, **kwargs):
-        author = self.get_object()
-        author_posts = Post.objects.filter(author=author)
-
-        # 1 visibility="PUBLIC"
-        q1 = Q(visibility="PUBLIC")
-
-        if self.request.user.is_authenticated:
-            # 2 visibility="FOAF"
-            user_f2_ids = self.request.user.f1Ids.filter(status="A").values_list(
-                "f2Id", flat=True
-            )
-            user_f1_ids = self.request.user.f2Ids.filter(status="A").values_list(
-                "f1Id", flat=True
-            )
-            friends = list(user_f2_ids) + list(user_f1_ids)
-            f2_foaf = Friend.objects.filter(
-                Q(status="A") & Q(f1Id__in=list(friends))
-            ).values_list("f2Id", flat=True)
-            f1_foaf = Friend.objects.filter(
-                Q(status="A") & Q(f2Id__in=list(friends))
-            ).values_list("f1Id", flat=True)
-            foaf = list(f1_foaf) + list(f2_foaf) + list(friends)
-            q2_1 = Q(visibility="FOAF")
-            q2_2 = Q(author__username__in=foaf)
-
-            # 3 visibility="FRIENDS"
-            user_f2_ids = self.request.user.f1Ids.filter(status="A").values_list(
-                "f2Id", flat=True
-            )
-            user_f1_ids = self.request.user.f2Ids.filter(status="A").values_list(
-                "f1Id", flat=True
-            )
-            friends = list(user_f2_ids) + list(user_f1_ids)
-            q3_1 = Q(visibility="FRIENDS")
-            q3_2 = Q(author__username__in=friends)
-
-            # q4: post is private but user is in post's visiableTo list.
-            q4_1 = Q(visibility="PRIVATE")
-            q4_2 = Q(
-                visibleTo__contains=self.request.user.username
-            )  # check if Json string contains user's email.
-
-            # q5: post's author is the user
-            q5 = Q(author=self.request.user)
-
-            posts = author_posts.filter(
-                q1 | (q2_1 & q2_2) | (q3_1 & q3_2) | (q4_1 & q4_2) | q5
-            )
-        else:  # anonymous user
-            posts = Post.objects.filter(q1)
-        serializer = PostSerializer(posts, many=True)
-
-        return Response(serializer.data, status=200)
+    def perform_create(self):
+        serializer.save(displayName=self.get_object().username)
 
     @action(detail=False, methods=["GET"])
     def current_user(self, request, *args, **kwargs):
         if request.user.is_anonymous:
-            return Response(status=401)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         serializer = AuthorSerializer(self.request.user)
-        return Response(serializer.data, status=200)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["GET"])
-    def username_list(self, request, *args, **kwargs):
-        usernames = User.objects.filter(is_superuser=0).values_list("username",flat=True)
-        return Response({"usernames" : usernames},status=status.HTTP_200_OK)
-        
-class UserViewSet(viewsets.ModelViewSet):
-    serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]
-    queryset = User.objects.all()
-    lookup_field = "username"
+    @action(detail=True, methods=["POST", "GET"])
+    def github_token(self, request, *args, **kwargs):
+        user = self.get_object()
+        if request.method == "GET":
+            return Response(
+                {"GithubToken": user.githubToken}, status=status.HTTP_200_OK
+            )
+        else:
+            token = request.data.pop("GithubToken", None)
+            if not token:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            User.objects.filter(id=user.id).update(githubToken=token)
+            return Response(status=status.HTTP_204_NO_CONTENT)

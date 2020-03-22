@@ -1,16 +1,17 @@
-from django.contrib import admin
-from rest_framework import routers
 from django.urls import path, include
-from .views import AuthorViewSet, UserViewSet
-
-router = routers.DefaultRouter()
-# Note: rest_auth.urls may clash with router.urls, name paths carefully.
-router.register("author", AuthorViewSet, basename="author")
-router.register("admin_users", UserViewSet, basename="user")
+from .views import AuthorViewSet
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("signup/", include("rest_auth.registration.urls")),
-    path("", include("rest_auth.urls")),
-    path("", include(router.urls)),
+    path("author", AuthorViewSet.as_view({"get": "list",})),
+    path(
+        "author/<uuid:id>",
+        AuthorViewSet.as_view(
+            {"get": "retrieve", "patch": "partial_update", "delete": "destroy",}
+        ),
+    ),
+    path("author/current_user", AuthorViewSet.as_view({"get": "current_user",})),
+    path(
+        "author/<uuid:id>/github_token",
+        AuthorViewSet.as_view({"get": "github_token", "post": "github_token",}),
+    ),
 ]
