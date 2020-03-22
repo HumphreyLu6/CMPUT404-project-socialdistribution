@@ -11,12 +11,13 @@ import cookie from 'react-cookies';
 import './UserSelf.css';
 import ReactMarkdown from 'react-markdown';
 import {reactLocalStorage} from 'reactjs-localstorage';
-import {POST_API} from "./utils/constants.js";
+import {VISIBLE_POST_API, HOST} from "./utils/constants.js";
 
 var urlpostid = '';
 var urljoin;
 urljoin = require('url-join');
 var commentUrl='';
+var publicPost=[];
 
 class User extends React.Component {
 
@@ -37,22 +38,24 @@ class User extends React.Component {
   };
 
   fetchData = () => {
-    axios.get(POST_API, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+    axios.get(VISIBLE_POST_API(HOST), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
       .then(res => {
-        var publicPost = res.data.slice().sort((a, b) => Date.parse(b.published) - Date.parse(a.published));
+        publicPost = res.data.posts;
         this.setState({
             isloading: false,
         })
-        if (publicPost) {
-            
-            this.setState({
-                PublicPostData : publicPost,
-                authorid: publicPost[0].author,
-            });
-        }
+        this.setState({
+            PublicPostData: res.data.posts,
+        });   
+    
         }).catch(function (error) {
         console.log(error);
       });
+  }
+
+  handleProfile = (authorId) => {
+    reactLocalStorage.set("currentUserId", authorId);
+    document.location.replace("/author/profile/");
   }
 
   handleComment = (postId) => {
@@ -61,10 +64,6 @@ class User extends React.Component {
     commentUrl = urljoin("/posts", urlpostid, "/comments");
     document.location.replace(commentUrl);
   }
-
-  onPageChange = (pageIndex) => {
-    console.log(pageIndex);
- }
   
   render() {  
       return(!this.state.isloading ? 
@@ -75,17 +74,15 @@ class User extends React.Component {
                     itemLayout="vertical"
                     size="large"
                     pagination={{pageSize: 5 , hideOnSinglePage:true}}
-                    dataSource={this.state.PublicPostData}
+                    dataSource={publicPost}
                     locale={{ emptyText: "Currently no visible post"}}
-                    onPageChange={this.onPageChange}
                     renderItem={item => (
                         <List.Item
                             key={item.title}
                             actions={[
                                 <span>
                                     <a href="#!" onClick={this.handleComment.bind(this, item.id)} style={{marginRight: 8}}><Icon type="message"/></a>
-                                    {String(item.comments_count).concat(" comment(s)")}
-
+                                    {String(item.comments.length).concat(" comment(s)")}
                                 </span>
                             ]}
                         >
@@ -96,15 +93,15 @@ class User extends React.Component {
                                             color: '#FFFFFF',
                                             backgroundColor: '#3991F7',   
                                         }}
-                                    >{item.author[0].toUpperCase()}
+                                    >{item.author.displayName[0].toUpperCase()}
                                     </Avatar>
                                 }
-                                title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
+                                title={<a href={"#!"} onClick={this.handleProfile.bind(this, item.author.id)} style={{color: '#031528'}}>{item.author.displayName}</a>}
                                 description={"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}
                             />
 
-                            {"Title: ".concat(item.title)}<p>  </p>
-                            {item.content}
+                            <h3>{"Title: ".concat(item.title)}</h3><p>  </p>
+                            {item.contentType === "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content}
                             <p>  </p>
                             <SimpleReactLightbox>
                               <SRLWrapper>
@@ -140,8 +137,6 @@ class User extends React.Component {
 
                               </SRLWrapper> 
                         </SimpleReactLightbox>   
-
-                            {item.contentType === "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content}
 
                         </List.Item>
                     )}

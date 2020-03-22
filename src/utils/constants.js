@@ -6,13 +6,13 @@ var host = slashes.concat(window.location.host);
 if (window.location.port) {
     host = host.replace("3000", "8000")
 }
-const HOST = host.concat("/");
+export const HOST = host.concat("/");
 // login and register api
 export const LOGIN_API = HOST + "login/";
 export const REGISTER_API = HOST + "signup/";
 
 // user api
-export const CURRENT_USER_API = HOST + "author/current_user/";
+export const CURRENT_USER_API = HOST + "author/current_user";
 export const AUTHOR_LIST_API = function (host){
     return `${host}author`;
 }
@@ -59,3 +59,9 @@ export const SINGLE_POST_API = function (host, postId) {
 export const COMMENT_API = function (host, postId){
     return `${host}posts/${postId}/comments`;
 }
+
+
+export const AUTHOR_API = HOST + "api/user/author/";
+export const FRIEND_API = HOST + "api/friend/my_friends/";
+export const FRIEND_BOOL = HOST + 'api/friend/if_friend/';
+export const USERNAME_LIST = HOST + 'api/user/author/username_list/';

@@ -8,7 +8,9 @@ import cookie from 'react-cookies';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import AuthorHeader from './components/AuthorHeader'
-import {POST_API}  from "./utils/constants.js";
+import {COMMENT_API, HOST, CURRENT_USER_API}  from "./utils/constants.js";
+import convertTime from "./utils/isoFormat.js";
+import uuidv4 from "./utils/getUUID.js";
 const { TextArea } = Input;
 var id = '';
 
@@ -17,29 +19,71 @@ class Comments extends React.Component {
   state = {
     commentInput:'',
     commentData:[],
+    commentsCount:'',
+    commentId: String(uuidv4()),
+
+    id:"",
+    host:"",
+	  displayName:"",
+    url:"",
+    github:"",
+    
+    currentTime: convertTime(new Date()),
   }
 
   componentDidMount() {
     id = reactLocalStorage.get("postid");
-    axios.get(POST_API + String(id) + '/get_comments/', { headers: { 'Authorization': 'Token ' + cookie.load('token')}})
+    axios.get(COMMENT_API(HOST, id), { headers: { 'Authorization': 'Token ' + cookie.load('token')}})
     .then(res => {
-      const getComment = res.data;
-      this.setState({commentData: getComment});
+      this.setState({
+        commentData: res.data.comments,
+        commentsCount: res.data.count,
+      });
     })
+    
     .catch(function (error) {
-    console.log(error);
+      console.log(error);
+    });
+
+    axios.get(CURRENT_USER_API, { headers: { 'Authorization': 'Token ' + cookie.load('token')}})
+    .then(res => {
+      this.setState({
+        id: res.data.id,
+        host: res.data.host,
+        displayName:res.data.displayName,
+        url:res.data.url,
+        github:res.data.github,
+      });
+    })
+    
+    .catch(function (error) {
+      console.log(error);
     });
 
   };
 
-
     handleSubmit = e => {
       this.props.form.validateFieldsAndScroll((err, values) => {
-        if (!err) {              
-          axios.post(POST_API + String(id) + '/post_comment/',
+        if (!err) {
+          console.log(this.state.commentId)             
+          axios.post(COMMENT_API(HOST, id),
             {
-              content: values.commentContent,  
-              contentType: values.commentType,      
+                query: "addComment",
+                post: HOST + "/posts/".concat(id),
+                comment:{
+                    author:{
+                            id:this.state.id,
+                            host:this.state.host,
+                            displayName:this.state.displayName,
+                            url:this.state.url,
+                            github: this.state.github,
+                    },
+                    
+                comment: values.commentContent,  
+                contentType: values.commentType,
+                published:this.state.currentTime,
+                id: this.state.commentId,
+              }
             },{ headers: { 'Authorization': 'Token ' + cookie.load('token') } }
             )
             .then(function (response) {
@@ -77,16 +121,16 @@ class Comments extends React.Component {
                 <Form.Item>
                     <List
                         className="comment-list"
-                        header={`${this.state.commentData.length} comment(s)`}
+                        header={`${this.state.commentsCount} comment(s)`}
                         itemLayout="horizontal"
                         dataSource={this.state.commentData}
                         locale={{ emptyText: "No comment yet"}}
                         renderItem={item => (
                             <li>
                                 <Comment
-                                    author={item.author}
+                                    author={item.author.displayName}
                                     avatar={<Avatar src={'https://cdn2.iconfinder.com/data/icons/user-icon-2-1/100/user_5-15-512.png'} />}                                    
-                                    content={item.contentType === "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content}
+                                    content={item.contentType === "text/markdown" ? (<ReactMarkdown source = {item.comment}/>) : item.comment}
                                     datetime={item.published}
                                 />
                             </li>

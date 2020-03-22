@@ -140,7 +140,7 @@ class FriendRequest extends React.Component {
                           {item.f1Id[0].toUpperCase()}
                         </Avatar>
                         }
-                        title={<a style={titlestyle} href={"/author/".concat(item.f1Id).concat("/posts")}>{item.f1Id}</a>}
+                        title={<a style={titlestyle} href={"/author/profile"}>{item.f1Id}</a>}
 
                     />
                     </Skeleton>
