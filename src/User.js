@@ -9,6 +9,7 @@ import AuthorHeader from './components/AuthorHeader';
 import axios from 'axios';
 import cookie from 'react-cookies';
 import './UserSelf.css';
+import ReactMarkdown from 'react-markdown';
 import {reactLocalStorage} from 'reactjs-localstorage';
 import {POST_API} from "./utils/constants.js";
 
@@ -101,6 +102,7 @@ class User extends React.Component {
                                 title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
                                 description={"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}
                             />
+
                             {"Title: ".concat(item.title)}<p>  </p>
                             {item.content}
                             <p>  </p>
@@ -138,6 +140,9 @@ class User extends React.Component {
 
                               </SRLWrapper> 
                         </SimpleReactLightbox>   
+
+                            {item.contentType === "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content}
+
                         </List.Item>
                     )}
                 />
