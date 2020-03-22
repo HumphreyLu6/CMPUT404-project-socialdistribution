@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { Form, Input, Button, Upload, Modal, Icon, Radio} from 'antd';
+import { Form, Input, Button, Upload, Modal, Icon, Radio, message} from 'antd';
 import axios from 'axios';
 import './components/PostInput.css';
 import './components/Header.css';
@@ -15,6 +15,9 @@ const { TextArea } = Input;
 var urljoin;
 urljoin = require('url-join');
 var profileUrl='';
+//var encoding=[];
+
+//https://stackoverflow.com/questions/54845951/react-antdesign-add-uploaded-images-to-formdata
 
 
 function getBase64(file) {
@@ -26,6 +29,14 @@ return new Promise((resolve, reject) => {
 });
 }
 
+function beforeUpload(file) {
+  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+  if (!isJpgOrPng) {
+    message.error('You can only upload JPG/PNG file!');
+  }
+  return isJpgOrPng;
+}
+
 class PostInput extends React.Component {
 
     state = {
@@ -34,32 +45,9 @@ class PostInput extends React.Component {
 
         previewVisible: false,
         previewImage: '',
-        fileList: [
-          {
-            uid: '-1',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-          },
-          {
-            uid: '-2',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-          },
-          {
-            uid: '-3',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-          },
-          {
-            uid: '-4',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-          },
-        ],
+       
+        fileList:[],
+        encoding:'',
     };
 
     componentDidMount () {
@@ -98,10 +86,13 @@ class PostInput extends React.Component {
         previewVisible: true,
       });
     };
-  
+
     handleChange = ({ fileList }) => {
-      this.setState({ fileList });
+        this.setState({ fileList});
+        //encoding = fileList[0].thumbUrl;
+        
     }
+
 
     handleSubmit = e => {
       this.props.form.validateFieldsAndScroll((err, values) => {
@@ -124,12 +115,17 @@ class PostInput extends React.Component {
             .catch(function (error) {
               console.log(error);
             });
+            // check if filelist is empty
+            /*var i;
+            for (i = 0; i < this.state.fileList.length; i++) {
+              encoding[i] = this.state.fileList[i].thumbUrl;
+            }
+            console.log(encoding);*/
         }
       });
     };  
 
     render(){
-
         const { getFieldDecorator } = this.props.form;
 
         const formItemLayout = {
@@ -155,7 +151,6 @@ class PostInput extends React.Component {
           }
         };
 
-  
         const { previewVisible, previewImage, fileList } = this.state;
 
         const uploadButton = (
@@ -165,7 +160,6 @@ class PostInput extends React.Component {
         </div>
         );
         
-
         return( 
             <div>
               <AuthorHeader/>
@@ -224,7 +218,6 @@ class PostInput extends React.Component {
                         </Radio.Group>
                     )}
                     </Form.Item>
-            
 
                     <Form.Item>
                     {getFieldDecorator("imageUpload", {
@@ -236,18 +229,17 @@ class PostInput extends React.Component {
                     })(<div><Upload
                         action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
                         listType="picture-card"
+                        beforeUpload={beforeUpload}
                         onPreview={this.handlePreview}
                         onChange={this.handleChange}
                         >
-                        {fileList.length >= 8 ? null : uploadButton}
+                        {fileList.length >= 4 ? null : uploadButton}
                         </Upload>
                         <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
                             <img alt="example" style={{ width: '100%' }} src={previewImage} />
                         </Modal></div>
                     )}
                     </Form.Item>
-
-
 
                     <Form.Item {...tailFormItemLayout}>
                     <Button type="primary" htmlType="button" onClick={this.handleSubmit}>

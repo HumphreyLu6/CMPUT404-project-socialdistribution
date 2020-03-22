@@ -8,6 +8,7 @@ import AuthorHeader from './components/AuthorHeader'
 import AuthorProfile from './components/AuthorProfile'
 import {reactLocalStorage} from 'reactjs-localstorage';
 import './UserSelf.css';
+import ReactMarkdown from 'react-markdown';
 import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
 import convertTime from './utils/isoFormat.js';
@@ -200,45 +201,65 @@ class UserSelf extends React.Component {
                                     : null}
                                     </span>,
                                 ]}
-                                extra={
-                                    <SimpleReactLightbox>
+                            >
+                                <List.Item.Meta
+                                    avatar={
+                                        <Avatar size="large"
+                                            style={{
+                                                color: '#FFFFFF',
+                                                backgroundColor: '#3991F7',
+                                                
+                                            }}
+                                        >{item.author[0].toUpperCase()}
+                                        </Avatar>
+                                    }
+                                        title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
+                                        description={item.published}
+                                />
+                                <h3>{"Title: ".concat(item.title)}</h3>
+                                {item.content}
+                                <SimpleReactLightbox>
                                     <SRLWrapper>
                                         <img
-                                        width={250}
-                                        alt=""
-                                        src="https://wallpaperaccess.com/full/628286.jpg"/>
+                                            width={150}
+                                            height={150}
+                                            hspace={3}
+                                            vspace={3}
+                                            alt=""
+                                            src="https://wallpaperaccess.com/full/628286.jpg"/>
                                         <img
-                                        width={250}
-                                        alt=""
-                                        src="https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg"/> 
+                                            width={150}
+                                            height={150}
+                                            hspace={3}
+                                            vspace={3}
+                                            alt=""
+                                            src="https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg"/>
+                                        <br></br>                        
+                                        <img
+                                            width={150}
+                                            height={150}
+                                            hspace={3}
+                                            vspace={3}
+                                            alt=""
+                                            src="https://wallpaperaccess.com/full/628286.jpg"/>
+                                        <img
+                                            width={150}
+                                            height={150}
+                                            hspace={3}
+                                            vspace={3}
+                                            alt=""
+                                            src="https://wallpaperaccess.com/full/628286.jpg"/> 
 
                                     </SRLWrapper> 
-                                    </SimpleReactLightbox>
-                                }
-                            >
-                            <List.Item.Meta
-                                avatar={
-                                    <Avatar size="large"
-                                        style={{
-                                            color: '#FFFFFF',
-                                            backgroundColor: '#3991F7',
-                                            
-                                        }}
-                                    >{item.author[0].toUpperCase()}
-                                    </Avatar>
-                                }
-                                    title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
-                                    description={item.published}
-                            />
-                            <h3>{"Title: ".concat(item.title)}</h3>
-                            {item.content}
+                                </SimpleReactLightbox>                      
+                                {item.contentType === "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content}                     
                             </List.Item>
                         )}
                     />
                 </div>
             </div> : null
         );
-        }
     }
-
+}
+                                
 export default UserSelf;

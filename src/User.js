@@ -9,6 +9,7 @@ import AuthorHeader from './components/AuthorHeader';
 import axios from 'axios';
 import cookie from 'react-cookies';
 import './UserSelf.css';
+import ReactMarkdown from 'react-markdown';
 import {reactLocalStorage} from 'reactjs-localstorage';
 import {POST_API} from "./utils/constants.js";
 
@@ -25,7 +26,8 @@ class User extends React.Component {
       size: 'large',
       PublicPostData:[],
       authorid:'',
-      isloading : true
+      isloading : true,
+    
     }
   }
 
@@ -46,7 +48,7 @@ class User extends React.Component {
             this.setState({
                 PublicPostData : publicPost,
                 authorid: publicPost[0].author,
-            })
+            });
         }
         }).catch(function (error) {
         console.log(error);
@@ -59,6 +61,10 @@ class User extends React.Component {
     commentUrl = urljoin("/posts", urlpostid, "/comments");
     document.location.replace(commentUrl);
   }
+
+  onPageChange = (pageIndex) => {
+    console.log(pageIndex);
+ }
   
   render() {  
       return(!this.state.isloading ? 
@@ -70,32 +76,20 @@ class User extends React.Component {
                     size="large"
                     pagination={{pageSize: 5 , hideOnSinglePage:true}}
                     dataSource={this.state.PublicPostData}
+                    locale={{ emptyText: "Currently no visible post"}}
+                    onPageChange={this.onPageChange}
                     renderItem={item => (
                         <List.Item
                             key={item.title}
                             actions={[
                                 <span>
-                                    <a href="#!" onClick={this.handleComment.bind(this, item.id)} style={{marginRight: 8}}><Icon type="message"/></a>{0}
+                                    <a href="#!" onClick={this.handleComment.bind(this, item.id)} style={{marginRight: 8}}><Icon type="message"/></a>
+                                    {String(item.comments_count).concat(" comment(s)")}
+
                                 </span>
                             ]}
-                            extra={
-                                <SimpleReactLightbox>
-                                    <SRLWrapper>
-                                        <img
-                                            width={250}
-                                            alt=""
-                                            src="https://wallpaperaccess.com/full/628286.jpg"/>
-                                        <img
-                                            width={250}
-                                            alt=""
-                                            src="https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg"/> 
-                                    </SRLWrapper> 
-                                </SimpleReactLightbox>
-                            }
                         >
                             <List.Item.Meta
-                            // avatar={<Avatar src={'https://cdn2.iconfinder.com/data/icons/user-icon-2-1/100/user_5-15-512.png'} />}
-                            // title={<a onClick={this.handleAuthorClick.bind(this, item.author)} href="#!">{item.author}</a>}
                                 avatar={
                                     <Avatar size="large"
                                         style={{
@@ -106,9 +100,49 @@ class User extends React.Component {
                                     </Avatar>
                                 }
                                 title={<a href={"/author/".concat(item.author).concat("/posts")} style={{color: '#031528'}}>{item.author}</a>}
-                                description={item.published}
+                                description={"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}
                             />
+
+                            {"Title: ".concat(item.title)}<p>  </p>
                             {item.content}
+                            <p>  </p>
+                            <SimpleReactLightbox>
+                              <SRLWrapper>
+                                <img
+                                  width={150}
+                                  height={150}
+                                  hspace={3}
+                                  vspace={3}
+                                  alt=""
+                                  src="https://wallpaperaccess.com/full/628286.jpg"/>
+                                <img
+                                  width={150}
+                                  height={150}
+                                  hspace={3}
+                                  vspace={3}
+                                  alt=""
+                                  src="https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg"/>
+                                <br></br>                        
+                                <img
+                                  width={150}
+                                  height={150}
+                                  hspace={3}
+                                  vspace={3}
+                                  alt=""
+                                  src="https://wallpaperaccess.com/full/628286.jpg"/>
+                                <img
+                                  width={150}
+                                  height={150}
+                                  hspace={3}
+                                  vspace={3}
+                                  alt=""
+                                  src="https://wallpaperaccess.com/full/628286.jpg"/> 
+
+                              </SRLWrapper> 
+                        </SimpleReactLightbox>   
+
+                            {item.contentType === "text/markdown" ? (<ReactMarkdown source = {item.content}/>) : item.content}
+
                         </List.Item>
                     )}
                 />
