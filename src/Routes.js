@@ -1,5 +1,5 @@
 import React from "react"
-import { Route,Switch } from "react-router"
+import { Route, Switch } from "react-router"
 import User from "./User"
 import UserSelf from "./UserSelf"
 import Settings from "./Settings"
@@ -20,20 +20,21 @@ import SearchPage from './SearchPage';
 import Error from './404'
 const Routes = () => {
   return (
-    <Switch>
+    <div>
       {/*author*/}
       <Route exact path="/" component={Login} />
       <Route path="/register" component={Register} />
-      <Route path="/author/posts/" component={User} />
+      <Route path="/demo/author/posts/" component={User} />
       <Route exact path="/author/profile/" component={UserSelf} />
       <Route path="/settings" component={Settings} />
-      <Route path="/posts/:postid/comments" component={Comments} /> 
-      <Route path="/author/:authorid/friends" component={FriendsList} />
-      <Route path="/author/:authorid/friendrequest" component={FriendRequest} />
-      <Route path="/author/search" component={SearchPage} />
+      {/* // */}
+      <Route path="/demo/posts/:postid/comments" component={Comments} />
+      <Route path="/demo/author/:authorid/friends" component={FriendsList} />
+      <Route path="/demo/author/:authorid/friendrequest" component={FriendRequest} />
+      <Route path="/demo/author/search" component={SearchPage} />
       <Route path="/new_post" component={PostInput} />
       <Route path="/posts/:postid/edit" component={PostEdit} />
-      
+
       {/*admin*/}
       <Route path="/sign-up-request" component={SignUpRequestPage} />
       <Route path="/nodes-request" component={NodesRequestPage} />
@@ -41,9 +42,7 @@ const Routes = () => {
       <Route path="/authors" component={AuthorPage} />
       <Route path="/profile" component={ProfilePage} />
       <Route path="/add-nodes" component={AddNodesPage} />
-
-      <Route path="*" component={Error} />
-    </Switch>
+    </div>
   )
 }
 
