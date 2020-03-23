@@ -25,5 +25,5 @@ urlpatterns = [
     path("", include("post.urls")),
     path("", include("comment.urls")),
     path("", include("friend.urls")),
-    # re_path(".*", TemplateView.as_view(template_name="index.html")),
+    re_path(".*", TemplateView.as_view(template_name="index.html")),
 ]
