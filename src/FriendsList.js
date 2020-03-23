@@ -23,7 +23,6 @@ class FriendsList extends React.Component {
   componentDidMount() {
     validateCookie();
     this.fetchData();
-    alert("reached");
   }
 
   showDeleteConfirm(friend) {
