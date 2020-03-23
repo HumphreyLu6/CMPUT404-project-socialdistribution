@@ -7,17 +7,16 @@ import AuthorHeader from './components/AuthorHeader'
 import cookie from 'react-cookies';
 import axios from 'axios';
 import validateCookie from './utils/validate.js';
-import {FRIEND_REQUEST_API,CURRENT_USER_API} from "./utils/constants.js";
+import {HOST,AUTHOR_FRIENDREQUEST_API, FRIEND_REQUEST_API,CURRENT_USER_API} from "./utils/constants.js";
+import getUserId from "./utils/getUserId";
 
 const { confirm } = Modal;
 
 class FriendRequest extends React.Component {
   state = {
-    initLoading: true,
-    loading: false,
     data: [],
     list: [],
-    current_user : "",
+    author : "",
     isloading : true
   };
 
@@ -26,44 +25,26 @@ class FriendRequest extends React.Component {
     this.fetchData();
   }
 
-  fetchData = () => {
-    this.getData(res => {
-      this.setState({
-        initLoading: false,
-        data: res.data,
-        list: res.data,
-        size: res.data.length
-      });
-    });
-    this.getUser();
-  }
-
-  getUser = () => {
-    const token = cookie.load('token');
-    const headers = {
-      'Authorization': 'Token '.concat(token)
-    }
-    
-    axios.get(CURRENT_USER_API,{headers : headers})
-    .then(res => {
-      this.setState({
-        current_user:res.data['username'],
-        isloading:false
-      })
-    } )
-    .catch(function (error) {
-      console.log(error)
-    });
-  }
-
-  showConfirm(decision,status,f1Id,friend_request_id) {
+  showConfirm(decision,status,friend) {
     const that = this;
     const token = cookie.load('token');
     const headers = {
       'Authorization': 'Token '.concat(token)
     }
     const data = {
-      "f1Id" : f1Id,
+      "query":"friendrequest",
+	    "friend": {
+		    "id":this.state.author.id,
+		    "host":this.state.author.host,
+		    "displayName":this.state.author.displayName,
+        "url":this.state.author.url
+	    },
+    	"author": {
+		    "id":friend.id,
+		    "host":friend.host,
+		    "displayName":friend.displayName,
+        "url":friend.url
+	    },
       "status" : status
     }
     confirm({
@@ -72,7 +53,7 @@ class FriendRequest extends React.Component {
       okType: 'danger',
       cancelText: 'No',
       onOk() {
-        axios.patch(FRIEND_REQUEST_API.concat(friend_request_id).concat('/'), data, {headers : headers})
+        axios.patch(FRIEND_REQUEST_API(HOST), data, {headers : headers})
         .then(res => {
           that.fetchData();
         }).catch(function (error) {
@@ -85,22 +66,39 @@ class FriendRequest extends React.Component {
     });
   }
 
-  getData = callback => {
+  fetchData = () => {
 
     const token = cookie.load('token');
     const headers = {
       'Authorization': 'Token '.concat(token)
     }
-    axios.get(FRIEND_REQUEST_API,{headers : headers})
-    .then(res => {
-      callback(res)
-    } )
-    .catch(function (error) {
-      console.log(error)
-    });
+
+    axios.get(CURRENT_USER_API,{headers : headers} ).then(
+      responseA =>
+        Promise.all([
+          responseA,
+          axios.get(AUTHOR_FRIENDREQUEST_API(getUserId(responseA.data['id'])),{headers : headers})
+        ])   
+    ).then(
+      ([responseA,responseB]) => {
+        let authors = [];
+        return Promise.all(responseB.data['authors'].map((author) => {
+          return axios.get(author,{headers : headers}).then((res) => {
+            authors.push(res.data);
+          })
+        })).then(() => {
+          this.setState({
+            author : responseA.data,
+            list : authors
+          })
+        }).catch((error) => {
+          console.log(error.message)
+        })
+    })
   };
 
   render() {
+    console.log(this.state.list)
     const liststyle = {
         backgroundColor: "white",
         padding: "1%",
@@ -114,21 +112,20 @@ class FriendRequest extends React.Component {
         fontSize : 18 
     }
 
-    const { initLoading, list } = this.state;
+    const {list} = this.state;
 
-    return (!this.state.isloading ? 
+    return (
         <div>
             <AuthorHeader/>
             <List
                 className="demo-loadmore-list"
-                loading={initLoading}
                 itemLayout="horizontal"
                 dataSource={list}
                 style={liststyle}
-                locale={{ emptyText: "Currently No Friend Request"}}
+                locale={{ emptyText: "You Currently Have No Friend Request"}}
                 renderItem={item => (
                 <List.Item>
-                    <Skeleton avatar title={false} loading={item.loading} active>
+                    <Skeleton avatar title={false} loading={item.loading} >
                     <List.Item.Meta
                         avatar={
                           <Avatar
@@ -137,19 +134,19 @@ class FriendRequest extends React.Component {
                             backgroundColor: '#3991F7',
                           }}
                         >
-                          {item.f1Id[0].toUpperCase()}
+                          {item.username[0].toUpperCase()}
                         </Avatar>
                         }
-                        title={<a style={titlestyle} href={"/author/profile"}>{item.f1Id}</a>}
+                        title={<a style={titlestyle} href={"/author/profile"}>{item.username}</a>}
 
                     />
                     </Skeleton>
-                    <Button type="primary" shape="round" size={'default'} style={buttonstyle} onClick={() => this.showConfirm("accept","A",item.f1Id,item.id)}>Accept</Button>
-                    <Button type="danger" shape="round"size={'default'} style={buttonstyle} onClick={() => this.showConfirm("reject","R",item.f1Id,item.id)}>Reject</Button>
+                    <Button type="primary" shape="round" size={'default'} style={buttonstyle} onClick={() => this.showConfirm("accept","A",item)}>Accept</Button>
+                    <Button type="danger" shape="round"size={'default'} style={buttonstyle} onClick={() => this.showConfirm("reject","R",item)}>Reject</Button>
                 </List.Item>
                 )}
             />
-        </div> : null
+        </div>
     );
   }
 }
