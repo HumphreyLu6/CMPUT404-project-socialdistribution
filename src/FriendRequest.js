@@ -9,7 +9,7 @@ import axios from 'axios';
 import validateCookie from './utils/validate.js';
 import {HOST,AUTHOR_FRIENDREQUEST_API, FRIEND_REQUEST_API,CURRENT_USER_API} from "./utils/constants.js";
 import getUserId from "./utils/getUserId";
-
+import {reactLocalStorage} from 'reactjs-localstorage';
 const { confirm } = Modal;
 
 class FriendRequest extends React.Component {
@@ -65,6 +65,11 @@ class FriendRequest extends React.Component {
     });
   }
 
+  handleProfile = (authorId) => {
+    reactLocalStorage.set("currentUserId", authorId);
+    document.location.replace("/author/profile/");
+  }
+
   fetchData = () => {
 
     const token = cookie.load('token');
@@ -98,6 +103,8 @@ class FriendRequest extends React.Component {
   };
 
   render() {
+    const {list,isloading} = this.state;
+
     const liststyle = {
         backgroundColor: "white",
         padding: "1%",
@@ -110,8 +117,6 @@ class FriendRequest extends React.Component {
     const titlestyle={
         fontSize : 18 
     }
-
-    const {list,isloading} = this.state;
 
     return (!isloading ? 
         <div>
@@ -133,10 +138,10 @@ class FriendRequest extends React.Component {
                             backgroundColor: '#3991F7',
                           }}
                         >
-                          {item.username[0].toUpperCase()}
+                          {item.displayName[0].toUpperCase()}
                         </Avatar>
                         }
-                        title={<a style={titlestyle} href={"/author/profile"}>{item.username}</a>}
+                        title={<a style={titlestyle} href={"#!"} onClick={this.handleProfile.bind(this, item.id)}>{item.displayName}</a>}
 
                     />
                     </Skeleton>
