@@ -24,7 +24,7 @@ class Comments extends React.Component {
 
     id:"",
     host:"",
-	  displayName:"",
+	displayName:"",
     url:"",
     github:"",
     

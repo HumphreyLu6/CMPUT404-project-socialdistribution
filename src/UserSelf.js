@@ -23,12 +23,18 @@ var commentUrl='';
 class UserSelf extends React.Component {
     state = {
         postData: [],
+        userId: "",
+        userHost: "",
         username : "",
-        currentUser: "",
-        email: "",
-        displayName: "",
-        github: "",
-        bio: "",
+        userDisplayName: "",
+        userUrl: "",
+        userGithub: "",
+        userEmail: "",
+        userBio: "",
+        currentUserId: "",
+        currentUserHost: "",
+        currentUserDisplayName: "",
+        currentUserUrl: "",
         isloading : true,
         isSelf: true,
     };
@@ -55,23 +61,27 @@ class UserSelf extends React.Component {
         validateCookie();
         const token = cookie.load('token');
         const headers = {'Authorization': 'Token '.concat(token)}
-        let authorId = reactLocalStorage.get("currentUserId");
+        let userId = reactLocalStorage.get("currentUserId");
         axios.get(CURRENT_USER_API, {headers : headers}).then(res => {
-            this.setState({
-                currentUser: res.data.id,
-            });
-            var currentUser = this.state.currentUser;
-            if (authorId) {
-                if (authorId !== currentUser) {
+            var currentUserId = res.data.id
+            if (userId) {
+                if (userId !== currentUserId) {
                     this.setState({
                         isSelf: false,
+                        currentUserId: currentUserId,
+                        currentUserHost: res.data.host,
+                        currentUserDisplayName: res.data.displayName,
+                        currentUserUrl: res.data.url,
+                    });
+                    this.setState({
+                        currentUserId: res.data.id,
                     });
                 }
             } else {
-                authorId = currentUser;
+                userId = currentUserId;
             }
-            this.getProfile(headers, authorId);
-            this.fetchPost(headers, authorId);
+            this.getProfile(headers, userId);
+            this.fetchPost(headers, userId);
         }).catch((error) => {
             console.log(error);
         });
@@ -83,11 +93,14 @@ class UserSelf extends React.Component {
         {headers: headers}).then(res => {
             var userInfo = res.data;
             this.setState({
+                userId: userId,
+                userHost: userInfo.host,
                 username: userInfo.username,
-                email: userInfo.email,
-                displayName: userInfo.displayName,
-                github: userInfo.github,
-                bio: userInfo.bio
+                userDisplayName: userInfo.displayName,
+                userUrl: userInfo.url,
+                userGithub: userInfo.github,
+                userEmail: userInfo.email,
+                userBio: userInfo.bio,
             });
             if (this.state.github) {
                 var githubUsername = this.state.github.replace("https://github.com/", "");
@@ -163,19 +176,27 @@ class UserSelf extends React.Component {
     }
 
     render() {
-        
-        const {postData, username, email, displayName, github, bio, isloading, isSelf} = this.state;
+
+        const {postData, userId, userHost, username, userDisplayName, userUrl, userGithub, userEmail, userBio, 
+              currentUserId, currentUserHost, currentUserDisplayName, currentUserUrl, isloading, isSelf} = this.state;
         var sortedData = postData.slice().sort((a, b) => Date.parse(b.published) - Date.parse(a.published));
         return(!isloading ? 
             <div>
                 <AuthorHeader/>
                 <div className="mystyle">
                     <AuthorProfile 
-                        username={username}
-                        email={email}
-                        displayName={displayName}
-                        github={github}
-                        bio={bio}
+                        userId = {userId}
+                        userHost = {userHost}
+                        username = {username}
+                        userDisplayName = {userDisplayName}
+                        userUrl = {userUrl}
+                        userGithub = {userGithub}
+                        userEmail = {userEmail}
+                        userBio = {userBio}
+                        currentUserId = {currentUserId}
+                        currentUserHost = {currentUserHost}
+                        currentUserDisplayName = {currentUserDisplayName}
+                        currentUserUrl = {currentUserUrl}
                         isSelf={isSelf}
                     />
                     <List
