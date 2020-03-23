@@ -96,19 +96,6 @@ class PostsViewSet(viewsets.ModelViewSet):
             self.permission_classes = [AllowAny]
         return super(PostsViewSet, self).get_permissions()
 
-    def list(self, request, *args, **kwargs):
-        hosts = Node.objects.all().values_list('host',flat=True)
-        for host in hosts:
-            response = requests.get(f"{host}posts/")
-            shared_posts = response.json()
-        visible_posts = Post.objects.filter(visibility='PUBLIC')
-        paged_posts = self.paginate_queryset(visible_posts.order_by("-published"))
-        serializer = PostSerializer(paged_posts, many=True)
-        posts = json.dumps(serializer.data)
-        posts = json.loads(posts)
-        posts += shared_posts['posts']
-        return self.get_paginated_response(posts)
-
     @action(detail=False, methods="GET")
     def visible_posts(self, request, *args, **kwargs):
         """
@@ -118,7 +105,14 @@ class PostsViewSet(viewsets.ModelViewSet):
         filtered_posts = get_visible_posts(Post.objects.all(), self.request.user)
         paged_posts = self.paginate_queryset(filtered_posts.order_by("-published"))
         serializer = PostSerializer(paged_posts, many=True)
-        return self.get_paginated_response(serializer.data)
+        posts = json.dumps(serializer.data)
+        posts = json.loads(posts)
+        hosts = Node.objects.all().values_list('host',flat=True)
+        for host in hosts:
+            response = requests.get(f"{host}posts/")
+            shared_posts = response.json()
+            posts += shared_posts['posts']
+        return self.get_paginated_response(posts)
 
     @action(detail=False, methods="POST")
     def author_visible_posts(self, request, *args, **kwargs):
