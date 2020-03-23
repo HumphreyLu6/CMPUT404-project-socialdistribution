@@ -22,6 +22,9 @@ export const AUTHOR_PROFILE_API = function (authorId) {
 export const AUTHOR_GITHUB_API = function (authorId) {
     return `${HOST}author/${authorId}/github_token`;
 }
+export const ALL_AUTHOR_API = function (host){
+    return `${host}allauthor/`;
+}
 
 // friend api
 export const AUTHOR_FRIENDREQUEST_API = function (authorId){
