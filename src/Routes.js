@@ -1,5 +1,5 @@
 import React from "react"
-import { Route } from "react-router"
+import { Route,Switch } from "react-router"
 import User from "./User"
 import UserSelf from "./UserSelf"
 import Settings from "./Settings"
@@ -17,10 +17,10 @@ import AuthorPage from './AuthorPage';
 import ProfilePage from './ProfilePage';
 import AddNodesPage from './AddNodesPage';
 import SearchPage from './SearchPage';
-
+import Error from './404'
 const Routes = () => {
   return (
-    <div>
+    <Switch>
       {/*author*/}
       <Route exact path="/" component={Login} />
       <Route path="/register" component={Register} />
@@ -41,7 +41,9 @@ const Routes = () => {
       <Route path="/authors" component={AuthorPage} />
       <Route path="/profile" component={ProfilePage} />
       <Route path="/add-nodes" component={AddNodesPage} />
-    </div>
+
+      <Route path="*" component={Error} />
+    </Switch>
   )
 }
 
