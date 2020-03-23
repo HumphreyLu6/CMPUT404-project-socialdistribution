@@ -1,0 +1,173 @@
+import React from 'react';
+import 'antd/dist/antd.css';
+import './index.css';
+import { List, Avatar, Button, Skeleton, Modal } from 'antd';
+import './components/Header.css'
+import AuthorHeader from './components/AuthorHeader'
+import cookie from 'react-cookies';
+import axios from 'axios';
+import validateCookie from './utils/validate.js';
+import {FRIEND_REQUEST_API,CURRENT_USER_API,AUTHOR_FRIENDREQUEST_API} from "./utils/constants.js";
+
+const { confirm } = Modal;
+
+class FriendRequest extends React.Component {
+  state = {
+    initLoading: true,
+    loading: false,
+    data: [],
+    list: [],
+    current_user : "",
+    isloading : true
+  };
+
+  componentDidMount() {
+    validateCookie();
+    this.fetchData();
+  }
+
+  fetchData = () => {
+    this.getData(res => {
+      this.setState({
+        initLoading: false,
+        data: res.data,
+        list: res.data,
+        size: res.data.length
+      });
+    });
+    this.getUser();
+  }
+
+  //得到当前user
+  getUser = () => {
+    const token = cookie.load('token');
+    const headers = {
+      'Authorization': 'Token '.concat(token)
+    }
+    
+    axios.get(CURRENT_USER_API,{headers : headers})
+    .then(res => {
+      // alert(res.data['username']);
+      this.setState({
+        current_user:res.data['username'],
+        isloading:false
+      })
+    } )
+    .catch(function (error) {
+      console.log(error)
+    });
+  }
+
+  showConfirm(decision,status,f1Id,friend_request_id) {
+    const that = this;
+    const token = cookie.load('token');
+    const headers = {
+      'Authorization': 'Token '.concat(token)
+    }
+    const data = {
+      "query":"friendrequest",
+      "author": {
+        "id":this.state.current_user,
+        "host":"http://127.0.0.1:5454/",
+        "displayName":"Greg Johnson",
+        "url":"http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
+      },
+      "friend": {
+        "id":"http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e637281",
+        "host":"http://127.0.0.1:5454/",
+        "displayName":"Lara Croft",
+        "url":"http://127.0.0.1:5454/author/de305d54-75b4-431b-adb2-eb6b9e546013",
+    
+      },
+      "status" : "A"
+    }
+    //同意并接受请求（不做修改）
+    confirm({
+      title: 'Are you sure you want to ' + decision + ' this friend request?',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk() {
+        axios.patch(FRIEND_REQUEST_API, data, {headers : headers})
+        .then(res => {
+          that.fetchData();
+        }).catch(function (error) {
+          console.log(error)
+        });
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  }
+
+  getData = callback => {
+
+    const token = cookie.load('token');
+    const headers = {
+      'Authorization': 'Token '.concat(token)
+    }
+    axios.get(FRIEND_REQUEST_API,{headers : headers})
+    .then(res => {
+      callback(res)
+    } )
+    .catch(function (error) {
+      console.log(error)
+    });
+  };
+
+  render() {
+    const liststyle = {
+        backgroundColor: "white",
+        padding: "1%",
+    }  
+
+    const buttonstyle={
+        marginRight: 30,
+    }
+
+    const titlestyle={
+        fontSize : 18 
+    }
+
+    const { initLoading, list } = this.state;
+
+    return (!this.state.isloading ? 
+        <div>
+            <AuthorHeader/>
+            <List
+                className="demo-loadmore-list"
+                loading={initLoading}
+                itemLayout="horizontal"
+                dataSource={list}
+                style={liststyle}
+                locale={{ emptyText: "Currently No Friend Request"}}
+                renderItem={item => (
+                <List.Item>
+                    <Skeleton avatar title={false} loading={item.loading} active>
+                    <List.Item.Meta
+                        avatar={
+                          <Avatar
+                          style={{
+                            color: '#FFFFFF',
+                            backgroundColor: '#3991F7',
+                          }}
+                        >
+                          {item.f1Id[0].toUpperCase()}
+                        </Avatar>
+                        }
+                        title={<a style={titlestyle} href={"/author/profile"}>{item.f1Id}</a>}
+
+                    />
+                    </Skeleton>
+                    <Button type="primary" shape="round" size={'default'} style={buttonstyle} onClick={() => this.showConfirm("accept","A",item.f1Id,item.id)}>Accept</Button>
+                    <Button type="danger" shape="round"size={'default'} style={buttonstyle} onClick={() => this.showConfirm("reject","R",item.f1Id,item.id)}>Reject</Button>
+                </List.Item>
+                )}
+            />
+        </div> : null
+    );
+  }
+}
+
+export default FriendRequest;
