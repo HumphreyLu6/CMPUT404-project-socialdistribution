@@ -104,7 +104,7 @@ class PostInput extends React.Component {
             },{ headers: { 'Authorization': 'Token ' + cookie.load('token') } }
             )
             .then(function (response) {
-              document.location.replace(profileUrl);
+              document.location.replace("/author/profile");
             })
             .catch(function (error) {
               console.log(error);

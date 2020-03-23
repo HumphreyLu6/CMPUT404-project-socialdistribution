@@ -5,22 +5,28 @@ import './AuthorProfile.css'
 import axios from 'axios';
 import cookie from 'react-cookies';
 import validateCookie from '../utils/validate.js';
-import {FRIEND_BOOL,FRIEND_REQUEST_API} from '../utils/constants.js';
+import getUserId from '../utils/getUserId.js';
+import {IF_AUTHOR_FRIEND_API, FRIEND_REQUEST_API, HOST} from '../utils/constants.js';
 
 class AuthorProfile extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            username: this.props.username,
-            email: this.props.email,
-            displayName: this.props.displayName,
-            github: this.props.github,
-            bio: this.props.bio,
-            isSelf: this.props.isSelf,
-            isFriend: false,
-            isPending: false,
+            userId: this.props.userId,
+            userHost: this.props.userHost,
+            username : this.props.username,
+            userDisplayName: this.props.userDisplayName,
+            userUrl: this.props.userUrl,
+            userGithub: this.props.userGithub,
+            userEmail: this.props.userEmail,
+            userBio: this.props.userBio,
+            currentUserId: this.props.currentUserId,
+            currentUserHost: this.props.currentUserHost,
+            currentUserDisplayName: this.props.currentUserDisplayName,
+            currentUserUrl: this.props.currentUserUrl,
         };
+
     }
 
     componentDidMount() {
@@ -28,59 +34,68 @@ class AuthorProfile extends Component {
         const token = cookie.load('token');
         const headers = {'Authorization': 'Token '.concat(token)};
 
-        if (!this.props.isSelf) {
-            axios.get(FRIEND_BOOL.concat(this.props.username).concat("/"), 
+        if ( !this.props.isSelf ) {
+            axios.get(IF_AUTHOR_FRIEND_API(HOST, getUserId(this.state.currentUserId), getUserId(this.state.userId)), 
             { headers: headers}).then(res => {
-                var status = res.data.status;
-                if (status === "friend") {
+                if (res.data.friends === 'true') {
                     this.setState({
-                        isFriend: true,
+                        profileOwner: 1, // current profile page is belong to current logged-in user's friend
                     })
-                } else if (status === "pending") {
+                } else {
                     this.setState({
-                        isPending: true,
-                    })
+                        profileOwner: 2, // current profile page owner is not current logged-in user's friend
+                    }) 
                 }
             }).catch((error) => {
                   console.log(error);
             });
+        } else {
+            this.setState({
+                profileOwner: 0, // current profile page is belong to current logged-in user
+            })
         }
     };
 
-    sendFriendRequest(username) {
+    sendFriendRequest() {
         const token = cookie.load('token');
         const headers = {
           'Authorization': 'Token '.concat(token)
         }
-        axios.post(FRIEND_REQUEST_API,
+        axios.post(FRIEND_REQUEST_API(HOST),
         {
-            f2Id: username,
-        },{headers: headers}
-        ).then(res => {
-            this.setState({
-                isPending: true,
-            })
-        })
+            "query":"friendrequest",
+            "author": {
+                "id": this.state.currentUserId,
+                "host": this.state.currentUserHost,
+                "displayName": this.state.currentUserDisplayName,
+                "url": this.state.currentUserUrl,
+            },
+            "friend": {
+                "id": this.state.userId,
+                "host": this.state.userHost,
+                "displayName": this.state.username,
+                "url": this.state.userUrl,
+            }
+        }, {headers: headers})
         .catch(function (error) {
-          console.log(error);
+            console.log(error);
         });
     }
 
     render() {
-        const {username, isSelf, isFriend, isPending} = this.state;
+        const {username, userDisplayName, userGithub, userEmail, userBio, profileOwner } = this.state;
         return (           
             <div className="user">
-                <span className="tag">User Name: <span className="info">{this.state.username}</span></span>
-                <span className="secondtag">Email: <span className="info">{this.state.email}</span></span>
+                <span className="tag">User Name: <span className="info">{username}</span></span>
+                <span className="secondtag">Email: <span className="info">{userEmail}</span></span>
                 <br/>
-                <span className="tag">Display Name: <span className="info">{this.state.displayName}</span></span>
-                <span className="secondtag">Github: <span className="info">{this.state.github}</span></span>
+                <span className="tag">Display Name: <span className="info">{userDisplayName}</span></span>
+                <span className="secondtag">Github: <span className="info">{userGithub}</span></span>
                 <br/>
-                <span className="tag">Bio: <span className="info">{this.state.bio}</span></span>
-                {isSelf ? <a className="self-edit" href="/settings"><Icon type="edit" /></a> : null}
-                {isFriend || isPending || isSelf ? null : <Button type="primary" shape="round" className="status" onClick={() => this.sendFriendRequest(username)}><Icon type="user-add"/><span>Add Friend</span></Button>}
-                {isPending ? <Button type="dashed" shape="round" disabled className="status"><Icon type="clock-circle"/><span>Pending...</span></Button> : null}
-                {isFriend ? <Button shape="round" ghost disabled className="status"><Icon type="check"/><span>Friends</span></Button> : null}
+                <span className="tag">Bio: <span className="info">{userBio}</span></span>
+                {profileOwner === 0 ? <a className="self-edit" href="/settings"><Icon type="edit"/></a> : null}
+                {profileOwner === 1 ? <Button shape="round" ghost disabled className="status"><Icon type="check"/><span>Friends</span></Button> : null}
+                {profileOwner === 2 ? <Button type="primary" shape="round" className="status" onClick={() => this.sendFriendRequest()}><Icon type="user-add"/><span>Add Friend</span></Button> : null}
                 <hr/>
             </div>
         );

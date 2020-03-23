@@ -37,7 +37,7 @@ export const FRIEND_REQUEST_API = function (host){
     return `${host}friendrequest`;
 }
 
-export const IF_AUTHOR_FRIEND_API = function (host, authorId,friendId){
+export const IF_AUTHOR_FRIEND_API = function (host, authorId, friendId){
     return `${host}author/${authorId}/friends/${friendId}`;
 }
 

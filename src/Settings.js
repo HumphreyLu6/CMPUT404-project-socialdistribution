@@ -8,8 +8,9 @@ import './components/Header.css';
 import AuthorHeader from './components/AuthorHeader';
 import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
-import { CURRENT_USER_API, AUTHOR_API } from "./utils/constants.js";
+import {CURRENT_USER_API, AUTHOR_PROFILE_API, AUTHOR_GITHUB_API} from "./utils/constants.js";
 import { CLIENT_ID, CLIENT_SECRET } from "./utils/githubOAuth";
+import getUserId from './utils/getUserId.js';
 
 const githubUrl = "https://github.com/";
 
@@ -18,11 +19,13 @@ class ProfileContent extends React.Component {
         super(props)
     
         this.state = {
+            id: null, 
             userName: null,
             email: null,
             displayName: null,
             github: null,
             bio: null,
+            accessToken: null,
             isValid: false,
             isRedirect: false,
         }
@@ -43,18 +46,30 @@ class ProfileContent extends React.Component {
     }
 
     componentDidMount() {
-        axios.get(CURRENT_USER_API, 
-        { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+        const token = cookie.load('token');
+        const headers = {'Authorization': 'Token '.concat(token)}
+        axios.get(CURRENT_USER_API, { headers: headers })
         .then(res => {
             var userInfo = res.data;
             this.setState({
+                id: getUserId(userInfo.id),
                 userName: userInfo.username,
                 email: userInfo.email,
                 displayName: userInfo.displayName,
                 github: userInfo.github ? userInfo.github.replace(githubUrl, "") : null,
                 bio: userInfo.bio
             });
-            if (!this.state.isRedirect) {
+            if (this.state.isRedirect) {
+                const token = cookie.load('token');
+                const headers = {'Authorization': 'Token '.concat(token)}
+                axios.post(AUTHOR_GITHUB_API(this.state.id),
+                {
+                    "GithubToken": this.state.accessToken,
+                } , { headers: headers })
+                .catch ((error) => {
+                    console.log(error);
+                });
+            } else {
                 if (this.state.github) {
                     this.setState({
                         isValid: true,
@@ -78,14 +93,16 @@ class ProfileContent extends React.Component {
                         return -1;
                     }
                 }
-                axios.patch(AUTHOR_API + userName + '/',
+                const token = cookie.load('token');
+                const headers = {'Authorization': 'Token '.concat(token)}
+                axios.patch(AUTHOR_PROFILE_API(this.state.id), 
                 {
                     "github": github,
                     "displayName": values.displayName,
                     "bio": values.bio,
-                },{ headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+                },{ headers: headers })
                 .then(() =>{
-                    document.location.replace("/author/".concat(userName).concat("/posts"));
+                    document.location.replace("/author/profile");
                 }).catch ((error) => {
                     console.log(error);
                 });
@@ -112,8 +129,6 @@ class ProfileContent extends React.Component {
         }}, {crossDomain: true})
         .then(res => {
             var accessToken = res.data.access_token;
-            console.log("access token: ", accessToken);
-            // need to store accessToken here
             this.setGithub(accessToken);
         }).catch(function (error) {
             console.log(error);
@@ -126,6 +141,7 @@ class ProfileContent extends React.Component {
         .then(res => {
             this.setState({
                 github: res.data.login,
+                accessToken: accessToken,
                 isValid: true,
             });
         }).catch((error) => {
