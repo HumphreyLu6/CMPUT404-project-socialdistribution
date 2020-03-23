@@ -14,7 +14,6 @@ const { confirm } = Modal;
 
 class FriendRequest extends React.Component {
   state = {
-    data: [],
     list: [],
     author : "",
     isloading : true
@@ -89,7 +88,8 @@ class FriendRequest extends React.Component {
         })).then(() => {
           this.setState({
             author : responseA.data,
-            list : authors
+            list : authors,
+            isloading : false
           })
         }).catch((error) => {
           console.log(error.message)
@@ -98,7 +98,6 @@ class FriendRequest extends React.Component {
   };
 
   render() {
-    console.log(this.state.list)
     const liststyle = {
         backgroundColor: "white",
         padding: "1%",
@@ -112,9 +111,9 @@ class FriendRequest extends React.Component {
         fontSize : 18 
     }
 
-    const {list} = this.state;
+    const {list,isloading} = this.state;
 
-    return (
+    return (!isloading ? 
         <div>
             <AuthorHeader/>
             <List
@@ -146,7 +145,7 @@ class FriendRequest extends React.Component {
                 </List.Item>
                 )}
             />
-        </div>
+        </div> : null
     );
   }
 }
