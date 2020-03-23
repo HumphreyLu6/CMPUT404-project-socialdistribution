@@ -3,14 +3,14 @@ import AuthorHeader from './components/AuthorHeader'
 import axios from 'axios';
 import cookie from 'react-cookies';
 import { Input, List, Avatar, message} from 'antd';
-import {USERNAME_LIST} from "./utils/constants.js";
-
+import {HOST, ALL_AUTHOR_API} from "./utils/constants.js";
+import {reactLocalStorage} from 'reactjs-localstorage';
 const {Search} = Input;
 
 class SearchPage extends React.Component{
 
     state = {
-        usernames : [],
+        authors : [],
         value : '',
         isloading : true
     }
@@ -20,10 +20,10 @@ class SearchPage extends React.Component{
     }
 
     fetchUsernames = () => {
-        axios.get(USERNAME_LIST, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+        axios.get(ALL_AUTHOR_API(HOST), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
         .then(response => {
             this.setState({
-                usernames : response.data["usernames"]
+                authors : response.data
             })        
         })
         .catch(function (error) {
@@ -42,15 +42,16 @@ class SearchPage extends React.Component{
         }
     }
 
-    handleClick = (usr) => {
-        document.location.replace("/author/profile")
-    }
+    handleProfile = (authorId) => {
+        reactLocalStorage.set("currentUserId", authorId);
+        document.location.replace("/author/profile/");
+      }
 
-    usernameFilter = () => {
+    authorFilter = () => {
         if(this.state.value){
-            return this.state.usernames.filter(
-                (username) => {
-                    return username.toLowerCase().indexOf(
+            return this.state.authors.filter(
+                (author) => {
+                    return author.displayName.toLowerCase().indexOf(
                         this.state.value.toLowerCase()) !== -1;
                 }
             );
@@ -60,6 +61,7 @@ class SearchPage extends React.Component{
     }
 
     render() {
+        console.log(this.state.authors)
         return (
             <div>
                 <AuthorHeader/>
@@ -80,20 +82,20 @@ class SearchPage extends React.Component{
                     locale={{ emptyText: "No result"}}
                     size="small"
                     bordered
-                    dataSource={this.usernameFilter().map((username) => {
-                        return username;
+                    dataSource={this.authorFilter().map((author) => {
+                        return author;
                     })}
                     renderItem={item => 
                         <List.Item>
                             <List.Item.Meta
                                 avatar={
                                     <Avatar size="small" style={{color: '#FFFFFF',backgroundColor: '#3991F7'}}
-                                    >{item[0].toUpperCase()}
+                                    >{item.displayName[0].toUpperCase()}
                                     </Avatar>
                                 }
                                 style={{width:"30%"}}
-                                title={<a href={"/author/profile"}>{item}</a>}
-                                onClick={() => document.location.replace("/author/".concat(item).concat("/posts"))}
+                                title={<a href="#!" onClick={this.handleProfile.bind(this, item.id)}>{item.displayName}</a>}
+                                onClick={this.handleProfile.bind(this, item.id)}
                             />
                         </List.Item>
                     }
