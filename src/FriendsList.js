@@ -7,64 +7,44 @@ import AuthorHeader from './components/AuthorHeader';
 import axios from 'axios';
 import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
-import {FRIEND_API, CURRENT_USER_API} from "./utils/constants.js";
+import {HOST, FRIENDS_API, CURRENT_USER_API, FRIEND_REQUEST_API} from "./utils/constants.js";
+import {reactLocalStorage} from 'reactjs-localstorage';
+import getUserId from "./utils/getUserId";
 const { confirm } = Modal;
+
 
 class FriendsList extends React.Component {
   state = {
-    initLoading: true,
-    loading: false,
-    data: [],
     list: [],
-    current_user : "",
+    author : "",
     isloading : true
   };
 
-  componentWillMount() {
-    validateCookie();
-  }
-
   componentDidMount() {
+    validateCookie();
     this.fetchData();
   }
 
-  fetchData = () => {
-    this.getData(res => {
-      this.setState({
-        initLoading: false,
-        data: res.data,
-        list: res.data,
-        size: res.data.length
-      });
-    });
-    this.getUser();
-  }
-
-  getUser = () => {
-    const token = cookie.load('token');
-    const headers = {
-      'Authorization': 'Token '.concat(token)
-    }
-    axios.get(CURRENT_USER_API,{headers : headers})
-    .then(res => {
-      this.setState({
-        current_user:res.data['username'],
-        isloading:false
-       })
-    } )
-    .catch(function (error) {
-      console.log(error)
-    });
-  }
-
-  showDeleteConfirm(friend_request_id, f1Id) {
+  showDeleteConfirm(friend) {
     const that = this;
     const token = cookie.load('token');
     const headers = {
       'Authorization': 'Token '.concat(token)
     }
     const data = {
-      "f1Id" : f1Id,
+      "query":"friendrequest",
+	    "friend": {
+		    "id":this.state.author.id,
+		    "host":this.state.author.host,
+		    "displayName":this.state.author.displayName,
+        "url":this.state.author.url
+	    },
+    	"author": {
+		    "id":friend.id,
+		    "host":friend.host,
+		    "displayName":friend.displayName,
+        "url":friend.url
+	    },
       "status" : "R"
     }
     confirm({
@@ -73,7 +53,7 @@ class FriendsList extends React.Component {
       okType: 'danger',
       cancelText: 'No',
       onOk() {
-        axios.patch(FRIEND_API.concat(friend_request_id).concat('/'), data, {headers : headers})
+        axios.patch(FRIEND_REQUEST_API(HOST), data, {headers : headers})
         .then(res => {
           that.fetchData();
         }).catch(function (error) {
@@ -86,22 +66,46 @@ class FriendsList extends React.Component {
     });
   }
 
-  getData = callback => {
+  handleProfile = (authorId) => {
+    reactLocalStorage.set("currentUserId", authorId);
+    document.location.replace("/author/profile/");
+  }
+
+  fetchData = () => {
 
     const token = cookie.load('token');
     const headers = {
       'Authorization': 'Token '.concat(token)
     }
-    axios.get(FRIEND_API,{headers : headers})
-    .then(res => {
-      callback(res)
-    } )
-    .catch(function (error) {
-      console.log(error)
-    });
+
+    axios.get(CURRENT_USER_API,{headers : headers} ).then(
+      responseA =>
+        Promise.all([
+          responseA,
+          axios.get(FRIENDS_API(HOST, getUserId(responseA.data['id'])),{headers : headers})
+        ])   
+    ).then(
+      ([responseA,responseB]) => {
+        let authors = [];
+        return Promise.all(responseB.data['authors'].map((author) => {
+          return axios.get(author,{headers : headers}).then((res) => {
+            authors.push(res.data);
+          })
+        })).then(() => {
+          this.setState({
+            author : responseA.data,
+            list : authors,
+            isloading : false
+          })
+        }).catch((error) => {
+          console.log(error.message)
+        })
+    })
   };
 
   render() {
+    const { list,isloading } = this.state;
+
     const liststyle = {
         backgroundColor: "white",
         padding: "1%",
@@ -117,14 +121,11 @@ class FriendsList extends React.Component {
       fontSize : 18 
     }
 
-    const { initLoading, list, current_user } = this.state;
-
-    return (!this.state.isloading ? 
+    return (!isloading ? 
         <div>
         <AuthorHeader/>
         <List
             className="demo-loadmore-list"
-            loading={initLoading}
             itemLayout="horizontal"
             dataSource={list}
             style={liststyle}
@@ -140,13 +141,13 @@ class FriendsList extends React.Component {
                         backgroundColor: '#3991F7',
                       }}
                     >
-                      {item.f1Id !== current_user ? item.f1Id[0].toUpperCase() : item.f2Id[0].toUpperCase()}
+                      {item.displayName[0].toUpperCase()}
                     </Avatar>
                     }
-                    title={<a style={titlestyle} href={"/author/profile"}>{item.f1Id !== current_user ? item.f1Id : item.f2Id}</a>}
+                    title={<a style={titlestyle} href={"#!"} onClick={this.handleProfile.bind(this, item.id)}>{item.displayName}</a>}
                 />
                 </Skeleton>
-                <div style={unfriendstyle} onClick={() => this.showDeleteConfirm(item.id,item.f1Id !== current_user ? item.f1Id : item.f2Id)}>
+                <div style={unfriendstyle} onClick={() => this.showDeleteConfirm(item)}>
                 <Button type="danger" shape="round" size={'default'} >Unfriend</Button>
                 </div>
             </List.Item>
