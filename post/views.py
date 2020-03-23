@@ -30,11 +30,10 @@ class PostPagination(PageNumberPagination):
     
 
     def get_paginated_response(self, data):
-        print(self.get_page_size(self.request))
         return Response(
             {
                 "query": "posts",
-                "count": len(data) % self.page_size,
+                "count": len(data),
                 "size": self.get_page_size(self.request),
                 "next": self.get_next_link(),
                 "previous": self.get_previous_link(),
