@@ -1,4 +1,6 @@
-
+//###########################################################################
+//BE-APIS
+//###########################################################################
 // https://stackoverflow.com/questions/6042007/how-to-get-the-host-url-using-javascript-from-the-current-page
 var protocol = window.location.protocol;
 var slashes = protocol.concat("//");
@@ -68,3 +70,41 @@ export const AUTHOR_API = HOST + "api/user/author/";
 export const FRIEND_API = HOST + "api/friend/my_friends/";
 export const FRIEND_BOOL = HOST + 'api/friend/if_friend/';
 export const USERNAME_LIST = HOST + 'api/user/author/username_list/';
+//###########################################################################
+
+
+
+
+
+//###########################################################################
+//FE-APIS
+//###########################################################################
+
+export const FE_LOGIN_API = "/fe/";
+export const FE_USER_API = "/feauthor/posts/";
+export const FE_REGISTER_API = "/fe/register";
+export const FE_NODES_API = HOST +"/fe/nodes-request";
+export const FE_MY_NODES_API= HOST +"/fe/my-nodes";
+export const FE_AUTHORS_API = "fe/authors";
+export const FE_PROFILE_API = "fe/profile";
+export const FE_USERPROFILE_API = "/fe/author/profile/";
+export const FE_ADDNODES_API = "/fe/add-nodes";
+export const FE_SEETING_API = "/fe/settings";
+export const FE_ADMIN_REGISTER_API = "/fe/sign-up-request";
+export const FE_ADD_POST_API = "/fe/new_post";
+export const FE_NODE_REQUEST_API = "/fe/nodes-request";
+export const FE_SEARCH_API = "/fe/author/search";
+
+//might need to be redone in functions
+export const FE_FREND_LIST_API = function (authorid){
+    return `/fe/author/${authorid}/friends`;}
+
+export const FE_FREND_REQUEST_API = function(authorid){
+    return `/fe/author/${authorid}/friendrequest`;}
+
+export const FE_POST_EDIT_API = function(postid){
+    return `/fe/posts/${postid}/edit`;}
+
+export const FE_POST_COMMENTS_API = function(postid){
+    return `/fe/posts/${postid}/comments`;}
+//###########################################################################

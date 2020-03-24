@@ -4,14 +4,14 @@ import "antd/dist/antd.css";
 import cookie from 'react-cookies'
 import "./components/Login.css"
 import axios from 'axios';
-import { LOGIN_API } from "./utils/constants.js";
+import { LOGIN_API,FE_USER_API } from "./utils/constants.js";
 
 class NormalLoginForm extends React.Component {
 
   checkCookie = () => {
 
     if (cookie.load('token')) {
-      document.location.replace("/demo/author/posts")
+      document.location.replace(FE_USER_API)
       return true;
     } else return false;
   }
@@ -29,18 +29,14 @@ class NormalLoginForm extends React.Component {
           }, config
         ).then(function (response) {
           cookie.save('token', response.data['key'], { path: '/' })
-          document.location.replace("/demo/author/posts")
+          document.location.replace(FE_USER_API)
         }).catch((error) => {
           if (error.response) {
-            let msg = JSON.parse(error.response.request.response);
-            if (message.error(msg['non_field_errors'][0])) {
+            if(error.response){
+              let msg = JSON.parse(error.response.request.response);
               message.error(msg['non_field_errors'][0])
+            }else console.log(error);
             }
-            else {
-              message.error(msg['username'][0])
-            }
-
-          } else console.log(error);
         });
       }
     })
