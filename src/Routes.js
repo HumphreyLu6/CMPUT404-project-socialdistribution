@@ -29,12 +29,12 @@ const Routes = () => {
       <Route path= {FE_USER_API} component={User} />
       <Route exact path= {FE_USERPROFILE_API} component={UserSelf} />
       <Route path= {FE_SEETING_API} component={Settings} />
-      <Route path={FE_POST_COMMENTS_API} component={Comments} /> 
-      <Route path={FE_FREND_LIST_API} component={FriendsList} />
-      <Route path= {FE_FREND_REQUEST_API} component={FriendRequest} />
+      <Route path={FE_POST_COMMENTS_API(':postid')} component={Comments} /> 
+      <Route path={FE_FREND_LIST_API(':authorid')} component={FriendsList} />
+      <Route path= {FE_FREND_REQUEST_API(':authorid')} component={FriendRequest} />
       <Route path={FE_SEARCH_API} component={SearchPage} />
       <Route path={FE_ADD_POST_API} component={PostInput} />
-      <Route path={FE_POST_EDIT_API} component={PostEdit} />
+      <Route path={FE_POST_EDIT_API(':postid')} component={PostEdit} />
       
       {/*admin*/}
       <Route path={FE_ADMIN_REGISTER_API} component={SignUpRequestPage} />
