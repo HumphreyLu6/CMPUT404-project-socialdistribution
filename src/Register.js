@@ -3,9 +3,9 @@ import React from "react";
 import "antd/dist/antd.css";
 import './components/Register.css';
 import { Form, Input, Button, Checkbox } from 'antd';
-import axios from 'axios' ;
+import axios from 'axios';
 import _ from "lodash"
-import {REGISTER_API} from "./utils/constants.js";
+import { BE_REGISTER_API_URL, FE_LOGIN_URL } from "./utils/constants.js";
 
 class RegistrationForm extends React.Component {
   state = {
@@ -17,31 +17,31 @@ class RegistrationForm extends React.Component {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         let config = {
-          "Content-type":"application/json"
-        }  
-        axios.post(REGISTER_API,
+          "Content-type": "application/json"
+        }
+        axios.post(BE_REGISTER_API_URL,
           {
-            "username":values.username,
-            "email":values.email.toLowerCase(),
-            "password1":values.password,
-            "password2":values.confirm
-          },config
-          )
+            "username": values.username,
+            "email": values.email.toLowerCase(),
+            "password1": values.password,
+            "password2": values.confirm
+          }, config
+        )
           .then(function (response) {
-            document.location.replace("./")
+            document.location.replace(FE_LOGIN_URL)
           })
           .catch(function (error) {
             if (error.response) {
               let msg = "";
-              _.each(error.response.data,warnings=>{
-                _.each(warnings,w=>{
+              _.each(error.response.data, warnings => {
+                _.each(warnings, w => {
                   msg += w + "\n"
                 })
               })
               alert(msg)
             }
-            
-          });   
+
+          });
       }
     });
   };
@@ -60,7 +60,7 @@ class RegistrationForm extends React.Component {
     }
   };
 
-  validateToNextPassword = (rule,value, callback) => {
+  validateToNextPassword = (rule, value, callback) => {
     const { form } = this.props;
     if (value && this.state.confirmDirty) {
       form.validateFields(["confirm"], { force: true });
@@ -96,85 +96,85 @@ class RegistrationForm extends React.Component {
     };
 
     return (
-      <div className = 'register'>
-      <Form {...formItemLayout}>
-        
-      <Form.Item
-          label={
-            <span>
-              Username&nbsp;
+      <div className='register'>
+        <Form {...formItemLayout}>
+
+          <Form.Item
+            label={
+              <span>
+                Username&nbsp;
             </span>
-          }
-        >
-          {getFieldDecorator("username", {
-            rules: [
-              {
-                required: true,
-                message: "Please input your username!",
-                whitespace: true
-              }
-            ]
-          })(<Input />)}
-        </Form.Item>
-        
-        <Form.Item label="E-mail">
-          {getFieldDecorator("email", {
-            rules: [
-              {
-                type: "email",
-                message: "The input is not valid E-mail!"
-              },
-              {
-                required: true,
-                message: "Please input your E-mail!"
-              }
-            ]
-          })(<Input />)}
-        </Form.Item>
+            }
+          >
+            {getFieldDecorator("username", {
+              rules: [
+                {
+                  required: true,
+                  message: "Please input your username!",
+                  whitespace: true
+                }
+              ]
+            })(<Input />)}
+          </Form.Item>
 
-        <Form.Item label="Password" hasFeedback>
-          {getFieldDecorator("password", {
-            rules: [
-              {
-                required: true,
-                message: "Please input your password!"
-              },
-              {
-                validator: this.validateToNextPassword
-              }
-            ]
-          })(<Input.Password />)}
-        </Form.Item>
-        <Form.Item label="Confirm Password" hasFeedback>
-          {getFieldDecorator("confirm", {
-            rules: [
-              {
-                required: true,
-                message: "Please confirm your password!"
-              },
-              {
-                validator: this.compareToFirstPassword
-              }
-            ]
-          })(<Input.Password onBlur={this.handleConfirmBlur} />)}
-        </Form.Item>
+          <Form.Item label="E-mail">
+            {getFieldDecorator("email", {
+              rules: [
+                {
+                  type: "email",
+                  message: "The input is not valid E-mail!"
+                },
+                {
+                  required: true,
+                  message: "Please input your E-mail!"
+                }
+              ]
+            })(<Input />)}
+          </Form.Item>
 
-        <Form.Item {...tailFormItemLayout}>
-          {getFieldDecorator("agreement", {
-            valuePropName: "checked"
-          })(
-            <Checkbox>
-              I have read the <a href="!#">agreement</a>
-            </Checkbox>
-          )}
-        </Form.Item>
-        <Form.Item {...tailFormItemLayout}>
-          <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
-                Register
+          <Form.Item label="Password" hasFeedback>
+            {getFieldDecorator("password", {
+              rules: [
+                {
+                  required: true,
+                  message: "Please input your password!"
+                },
+                {
+                  validator: this.validateToNextPassword
+                }
+              ]
+            })(<Input.Password />)}
+          </Form.Item>
+          <Form.Item label="Confirm Password" hasFeedback>
+            {getFieldDecorator("confirm", {
+              rules: [
+                {
+                  required: true,
+                  message: "Please confirm your password!"
+                },
+                {
+                  validator: this.compareToFirstPassword
+                }
+              ]
+            })(<Input.Password onBlur={this.handleConfirmBlur} />)}
+          </Form.Item>
+
+          <Form.Item {...tailFormItemLayout}>
+            {getFieldDecorator("agreement", {
+              valuePropName: "checked"
+            })(
+              <Checkbox>
+                I have read the <a href="!#">agreement</a>
+              </Checkbox>
+            )}
+          </Form.Item>
+          <Form.Item {...tailFormItemLayout}>
+            <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
+              Register
           </Button>
-        </Form.Item>
-      </Form>
-    </div>
+          </Form.Item>
+        </Form>
+      </div>
     );
   }
 }

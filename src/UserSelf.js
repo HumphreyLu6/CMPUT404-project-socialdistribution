@@ -13,7 +13,7 @@ import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
 import convertTime from './utils/isoFormat.js';
 import getUserId from './utils/getUserId.js';
-import { CURRENT_USER_API, AUTHOR_POST_API, SINGLE_POST_API, HOST, AUTHOR_PROFILE_API } from "./utils/constants.js";
+import { BE_CURRENT_USER_API_URL, BE_AUTHOR_POST_API_URL, BE_SINGLE_POST_API_URL, HOST, BE_AUTHOR_PROFILE_API_URL } from "./utils/constants.js";
 
 const { confirm } = Modal;
 var urlpostid = '';
@@ -46,7 +46,7 @@ class UserSelf extends React.Component {
             okType: 'danger',
             cancelText: 'No',
             onOk() {
-                axios.delete(SINGLE_POST_API(HOST, postId), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+                axios.delete(BE_SINGLE_POST_API_URL(HOST, postId), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
                     .then(function () {
                         document.location.replace("/author/profile");
                     })
@@ -62,7 +62,7 @@ class UserSelf extends React.Component {
         const token = cookie.load('token');
         const headers = { 'Authorization': 'Token '.concat(token) }
         let userId = reactLocalStorage.get("currentUserId");
-        axios.get(CURRENT_USER_API, { headers: headers }).then(res => {
+        axios.get(BE_CURRENT_USER_API_URL, { headers: headers }).then(res => {
             var currentUserId = res.data.id
             if (userId) {
                 if (userId !== currentUserId) {
@@ -89,7 +89,7 @@ class UserSelf extends React.Component {
 
     getProfile(headers, userId) {
         var parsedId = getUserId(userId);
-        axios.get(AUTHOR_PROFILE_API(parsedId),
+        axios.get(BE_AUTHOR_PROFILE_API_URL(parsedId),
             { headers: headers }).then(res => {
                 var userInfo = res.data;
                 this.setState({
@@ -103,7 +103,7 @@ class UserSelf extends React.Component {
                     userBio: userInfo.bio,
                 });
                 if (this.state.github) {
-                    var githubUsername = this.state.github.replace("https://github.com/", "");
+                    // var githubUsername = this.state.github.replace("https://github.com/", "");
                     //this.pullGithubActivity(githubUsername, username);
                 }
             }).catch((error) => {
@@ -151,7 +151,7 @@ class UserSelf extends React.Component {
 
     fetchPost(headers, userId) {
         var parsedId = getUserId(userId);
-        axios.get(AUTHOR_POST_API(HOST, parsedId), { headers: headers })
+        axios.get(BE_AUTHOR_POST_API_URL(HOST, parsedId), { headers: headers })
             .then(res => {
                 this.setState({
                     postData: res.data.posts,

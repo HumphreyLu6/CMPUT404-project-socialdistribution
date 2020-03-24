@@ -8,7 +8,7 @@ import './components/Header.css';
 import AuthorHeader from './components/AuthorHeader';
 import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
-import {CURRENT_USER_API, AUTHOR_PROFILE_API, AUTHOR_GITHUB_API} from "./utils/constants.js";
+import { BE_CURRENT_USER_API_URL, BE_AUTHOR_PROFILE_API_URL, BE_AUTHOR_GITHUB_API_URL } from "./utils/constants.js";
 import { CLIENT_ID, CLIENT_SECRET } from "./utils/githubOAuth";
 import getUserId from './utils/getUserId.js';
 
@@ -17,9 +17,9 @@ const githubUrl = "https://github.com/";
 class ProfileContent extends React.Component {
     constructor(props) {
         super(props)
-    
+
         this.state = {
-            id: null, 
+            id: null,
             userName: null,
             email: null,
             displayName: null,
@@ -47,40 +47,40 @@ class ProfileContent extends React.Component {
 
     componentDidMount() {
         const token = cookie.load('token');
-        const headers = {'Authorization': 'Token '.concat(token)}
-        axios.get(CURRENT_USER_API, { headers: headers })
-        .then(res => {
-            var userInfo = res.data;
-            this.setState({
-                id: getUserId(userInfo.id),
-                userName: userInfo.username,
-                email: userInfo.email,
-                displayName: userInfo.displayName,
-                github: userInfo.github ? userInfo.github.replace(githubUrl, "") : null,
-                bio: userInfo.bio
-            });
-            if (this.state.isRedirect) {
-                const token = cookie.load('token');
-                const headers = {'Authorization': 'Token '.concat(token)}
-                axios.post(AUTHOR_GITHUB_API(this.state.id),
-                {
-                    "GithubToken": this.state.accessToken,
-                } , { headers: headers })
-                .catch ((error) => {
-                    console.log(error);
+        const headers = { 'Authorization': 'Token '.concat(token) }
+        axios.get(BE_CURRENT_USER_API_URL, { headers: headers })
+            .then(res => {
+                var userInfo = res.data;
+                this.setState({
+                    id: getUserId(userInfo.id),
+                    userName: userInfo.username,
+                    email: userInfo.email,
+                    displayName: userInfo.displayName,
+                    github: userInfo.github ? userInfo.github.replace(githubUrl, "") : null,
+                    bio: userInfo.bio
                 });
-            } else {
-                if (this.state.github) {
-                    this.setState({
-                        isValid: true,
-                    })
+                if (this.state.isRedirect) {
+                    const token = cookie.load('token');
+                    const headers = { 'Authorization': 'Token '.concat(token) }
+                    axios.post(BE_AUTHOR_GITHUB_API_URL(this.state.id),
+                        {
+                            "GithubToken": this.state.accessToken,
+                        }, { headers: headers })
+                        .catch((error) => {
+                            console.log(error);
+                        });
+                } else {
+                    if (this.state.github) {
+                        this.setState({
+                            isValid: true,
+                        })
+                    }
                 }
-            }
-        }).catch((error) => {
-            console.log(error);
-        });
+            }).catch((error) => {
+                console.log(error);
+            });
     };
-    
+
     handleSubmit = e => {
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
@@ -94,21 +94,21 @@ class ProfileContent extends React.Component {
                     }
                 }
                 const token = cookie.load('token');
-                const headers = {'Authorization': 'Token '.concat(token)}
-                axios.patch(AUTHOR_PROFILE_API(this.state.id), 
-                {
-                    "github": github,
-                    "displayName": values.displayName,
-                    "bio": values.bio,
-                },{ headers: headers })
-                .then(() =>{
-                    document.location.replace("/author/profile");
-                }).catch ((error) => {
-                    console.log(error);
-                });
+                const headers = { 'Authorization': 'Token '.concat(token) }
+                axios.patch(BE_AUTHOR_PROFILE_API_URL(this.state.id),
+                    {
+                        "github": github,
+                        "displayName": values.displayName,
+                        "bio": values.bio,
+                    }, { headers: headers })
+                    .then(() => {
+                        document.location.replace("/author/profile");
+                    }).catch((error) => {
+                        console.log(error);
+                    });
             }
         });
-    };  
+    };
 
     redirectToAuth() {
         const githubAuthUrl = "https://github.com/login/oauth/authorize"
@@ -120,33 +120,35 @@ class ProfileContent extends React.Component {
         const urlParams = new URLSearchParams(window.location.search);
         const CODE = urlParams.get('code');
         axios.post("/login/oauth/access_token", {
-            client_id: CLIENT_ID,  
+            client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET,
             code: CODE,
-        }, { headers: {
-            'Access-Control-Allow-Origin': '*',
-            "Accept": 'application/json',
-        }}, {crossDomain: true})
-        .then(res => {
-            var accessToken = res.data.access_token;
-            this.setGithub(accessToken);
-        }).catch(function (error) {
-            console.log(error);
-        });
-    };  
+        }, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                "Accept": 'application/json',
+            }
+        }, { crossDomain: true })
+            .then(res => {
+                var accessToken = res.data.access_token;
+                this.setGithub(accessToken);
+            }).catch(function (error) {
+                console.log(error);
+            });
+    };
 
     setGithub(accessToken) {
         axios.get("https://api.github.com/user",
-        { headers: { 'Authorization': 'token ' + accessToken } })
-        .then(res => {
-            this.setState({
-                github: res.data.login,
-                accessToken: accessToken,
-                isValid: true,
+            { headers: { 'Authorization': 'token ' + accessToken } })
+            .then(res => {
+                this.setState({
+                    github: res.data.login,
+                    accessToken: accessToken,
+                    isValid: true,
+                });
+            }).catch((error) => {
+                console.log(error);
             });
-        }).catch((error) => {
-            console.log(error);
-        });
     }
 
     needToAuth() {
@@ -155,28 +157,28 @@ class ProfileContent extends React.Component {
         })
     }
 
-    render(){
+    render() {
         const { getFieldDecorator } = this.props.form;
         const { userName, email, displayName, github, bio, isValid, isRedirect } = this.state;
         const layout = {
             labelCol: {
-              span: 8,
+                span: 8,
             },
             wrapperCol: {
-              span: 16,
-            },
-          };
-        
-        const tailLayout = {
-            wrapperCol: {
-              offset: 8,
-              span: 16,
+                span: 16,
             },
         };
-        return(
+
+        const tailLayout = {
+            wrapperCol: {
+                offset: 8,
+                span: 16,
+            },
+        };
+        return (
             <div>
-                <AuthorHeader/>
-                <Form {...layout} className = "user-info">
+                <AuthorHeader />
+                <Form {...layout} className="user-info">
                     <Form.Item label="User Name">
                         {userName}
                     </Form.Item>
@@ -188,22 +190,22 @@ class ProfileContent extends React.Component {
                             initialValue: displayName,
                         })(<Input />)}
                     </Form.Item>
-                    
+
                     <Form.Item label="GitHub">
                         <span>{githubUrl}</span>
                         {getFieldDecorator('github', {
                             initialValue: github,
                         })
-                        (isValid && isRedirect ? 
-                            <Input style={{ width: 620 }} disabled/> : 
-                            <Input onChange={this.needToAuth} style={{ width: 620 }}/>
-                        )}
+                            (isValid && isRedirect ?
+                                <Input style={{ width: 620 }} disabled /> :
+                                <Input onChange={this.needToAuth} style={{ width: 620 }} />
+                            )}
                         {isValid ?
                             <Button type="link">
-                                <Icon type="check"/>
+                                <Icon type="check" />
                                 Validated
                             </Button>
-                        :
+                            :
                             <Tooltip title="You need to validate first">
                                 <Button type="link" onClick={this.redirectToAuth}>
                                     Validate
@@ -215,9 +217,9 @@ class ProfileContent extends React.Component {
                     <Form.Item label="Bio">
                         {getFieldDecorator('bio', {
                             initialValue: bio,
-                        })(<Input.TextArea autoSize={true}/>)}
+                        })(<Input.TextArea autoSize={true} />)}
                     </Form.Item>
-            
+
                     <Form.Item {...tailLayout}>
                         <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
                             Save
