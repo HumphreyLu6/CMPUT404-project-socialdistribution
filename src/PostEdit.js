@@ -8,7 +8,7 @@ import './components/PostInput.css';
 import cookie from 'react-cookies';
 import AuthorHeader from './components/AuthorHeader'
 import validateCookie from './utils/validate.js';
-import { SINGLE_POST_API, HOST } from "./utils/constants.js";
+import { BE_SINGLE_POST_API_URL, HOST } from "./utils/constants.js";
 const { TextArea } = Input;
 var id = '';
 var urljoin;
@@ -94,7 +94,7 @@ class PostEdit extends React.Component {
     validateCookie();
     id = reactLocalStorage.get("postid");
     console.log(id);
-    axios.get(SINGLE_POST_API(HOST, id), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+    axios.get(BE_SINGLE_POST_API_URL(HOST, id), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
       .then(res => {
         const getPost = res.data;
         this.setState({
@@ -116,7 +116,7 @@ class PostEdit extends React.Component {
   handleSubmit = () => {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        axios.patch(SINGLE_POST_API(HOST, id),
+        axios.patch(BE_SINGLE_POST_API_URL(HOST, id),
           {
             title: values.postTitle,
             description: "",
