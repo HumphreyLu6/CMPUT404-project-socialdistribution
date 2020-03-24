@@ -103,7 +103,7 @@ class UserSelf extends React.Component {
                     userBio: userInfo.bio,
                 });
                 if (this.state.github) {
-                    var githubUsername = this.state.github.replace("https://github.com/", "");
+                    // var githubUsername = this.state.github.replace("https://github.com/", "");
                     //this.pullGithubActivity(githubUsername, username);
                 }
             }).catch((error) => {

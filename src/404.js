@@ -1,6 +1,6 @@
 import React from 'react';
 import "./404.css"
-
+import {FE_LOGIN_API} from "./utils/constants.js"
 class Error extends React.Component {
 	constructor(props){
 		super(props)
@@ -13,7 +13,7 @@ class Error extends React.Component {
 					<div>
 						<h1>This page does not exist</h1>
 						<br></br>
-						<a href='/'> Click here to return to main page</a>
+						<a href={FE_LOGIN_API}> Click here to return to main page</a>
 					</div>
 				</div>
 			</div>

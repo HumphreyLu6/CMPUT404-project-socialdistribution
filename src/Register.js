@@ -5,7 +5,7 @@ import './components/Register.css';
 import { Form, Input, Button, Checkbox } from 'antd';
 import axios from 'axios' ;
 import _ from "lodash"
-import {REGISTER_API} from "./utils/constants.js";
+import {REGISTER_API,FE_LOGIN_API} from "./utils/constants.js";
 
 class RegistrationForm extends React.Component {
   state = {
@@ -28,7 +28,7 @@ class RegistrationForm extends React.Component {
           },config
           )
           .then(function (response) {
-            document.location.replace("./")
+            document.location.replace(FE_LOGIN_API)
           })
           .catch(function (error) {
             if (error.response) {
