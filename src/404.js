@@ -10,10 +10,12 @@ class Error extends React.Component {
 			<div className="background" id='page-wrapper'>
 				<title title='Wrong！'></title>
 				<div className="row">
-					<div>
+					<div className='TEXT'>
 						<h1>This page does not exist</h1>
 						<br></br>
-						<a href={FE_LOGIN_API}> Click here to return to main page</a>
+						<br></br>
+						<br></br>
+						<a class = "link" href={FE_LOGIN_API}> Click here to return to main page</a>
 					</div>
 				</div>
 			</div>
