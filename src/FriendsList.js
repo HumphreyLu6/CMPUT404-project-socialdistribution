@@ -17,7 +17,6 @@ class FriendsList extends React.Component {
   state = {
     list: [],
     author: "",
-    isloading: true
   };
 
   componentDidMount() {
@@ -95,7 +94,6 @@ class FriendsList extends React.Component {
           this.setState({
             author: responseA.data,
             list: authors,
-            isloading: false
           })
         }).catch((error) => {
           console.log(error.message)
@@ -104,7 +102,7 @@ class FriendsList extends React.Component {
   };
 
   render() {
-    const { list, isloading } = this.state;
+    const { list } = this.state;
 
     const liststyle = {
       backgroundColor: "white",
@@ -121,7 +119,7 @@ class FriendsList extends React.Component {
       fontSize: 18
     }
 
-    return (!isloading ?
+    return (
       <div>
         <AuthorHeader />
         <List
@@ -153,7 +151,7 @@ class FriendsList extends React.Component {
             </List.Item>
           )}
         />
-      </div> : null
+      </div>
     );
   }
 }

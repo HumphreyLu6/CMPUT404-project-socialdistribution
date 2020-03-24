@@ -109,9 +109,15 @@ class PostsViewSet(viewsets.ModelViewSet):
         posts = json.loads(posts)
         hosts = Node.objects.all().values_list('host',flat=True)
         for host in hosts:
-            response = requests.get(f"{host}posts/")
-            shared_posts = response.json()
-            posts += shared_posts['posts']
+            try:
+                response = requests.get(f"{host}posts/")
+                shared_posts = response.json()
+                posts += shared_posts['posts']
+            except:
+                response = requests.get(f"{host}posts")
+                shared_posts = response.json()
+                posts += shared_posts['posts']
+            
         return self.get_paginated_response(posts)
 
     @action(detail=False, methods="POST")
