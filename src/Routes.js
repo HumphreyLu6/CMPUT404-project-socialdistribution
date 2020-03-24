@@ -1,6 +1,5 @@
 import React from "react"
-import { Route,Switch} from "react-router"
-import {FE_POST_EDIT_API,FE_FREND_REQUEST_API,FE_FREND_LIST_API,FE_SEARCH_API,FE_POST_COMMENTS_API,FE_ADDNODES_API,FE_PROFILE_API,FE_AUTHORS_API,FE_LOGIN_API,FE_MY_NODES_API,FE_REGISTER_API,FE_NODE_REQUEST_API,FE_SEETING_API,FE_USER_API,FE_USERPROFILE_API,FE_ADMIN_REGISTER_API,FE_ADD_POST_API} from "./utils/constants.js"
+import { Route, Switch } from "react-router"
 import User from "./User"
 import UserSelf from "./UserSelf"
 import Settings from "./Settings"
@@ -18,33 +17,52 @@ import AuthorPage from './AuthorPage';
 import ProfilePage from './ProfilePage';
 import AddNodesPage from './AddNodesPage';
 import SearchPage from './SearchPage';
-import Error from './404'
+import Error404 from './404'
+import {
+  FE_POST_EDIT_URL,
+  FE_FREND_REQUEST_URL,
+  FE_FREND_LIST_URL,
+  FE_SEARCH_URL,
+  FE_POST_COMMENTS_URL,
+  FE_ADDNODES_URL,
+  FE_PROFILE_URL,
+  FE_AUTHORS_URL,
+  FE_LOGIN_URL,
+  FE_MY_NODES_URL,
+  FE_REGISTER_URL,
+  FE_NODE_REQUEST_URL,
+  FE_SEETING_URL,
+  FE_USER_URL,
+  FE_USERPROFILE_URL,
+  FE_ADMIN_REGISTER_URL,
+  FE_ADD_POST_URL
+} from "./utils/constants.js"
 
 const Routes = () => {
   return (
     <Switch>
       {/*author*/}
-      <Route exact path = {FE_LOGIN_API} component={Login} />
-      <Route path = {FE_REGISTER_API} component={Register} />
-      <Route path= {FE_USER_API} component={User} />
-      <Route exact path= {FE_USERPROFILE_API} component={UserSelf} />
-      <Route path= {FE_SEETING_API} component={Settings} />
-      <Route path={FE_POST_COMMENTS_API(':postid')} component={Comments} /> 
-      <Route path={FE_FREND_LIST_API(':authorid')} component={FriendsList} />
-      <Route path= {FE_FREND_REQUEST_API(':authorid')} component={FriendRequest} />
-      <Route path={FE_SEARCH_API} component={SearchPage} />
-      <Route path={FE_ADD_POST_API} component={PostInput} />
-      <Route path={FE_POST_EDIT_API(':postid')} component={PostEdit} />
-      
+      <Route exact path={FE_LOGIN_URL} component={Login} />
+      <Route path={FE_REGISTER_URL} component={Register} />
+      <Route path={FE_USER_URL} component={User} />
+      <Route exact path={FE_USERPROFILE_URL} component={UserSelf} />
+      <Route path={FE_SEETING_URL} component={Settings} />
+      <Route path={FE_POST_COMMENTS_URL(':postid')} component={Comments} />
+      <Route path={FE_FREND_LIST_URL(':authorid')} component={FriendsList} />
+      <Route path={FE_FREND_REQUEST_URL(':authorid')} component={FriendRequest} />
+      <Route path={FE_SEARCH_URL} component={SearchPage} />
+      <Route path={FE_ADD_POST_URL} component={PostInput} />
+      <Route path={FE_POST_EDIT_URL(':postid')} component={PostEdit} />
+
       {/*admin*/}
-      <Route path={FE_ADMIN_REGISTER_API} component={SignUpRequestPage} />
-      <Route path={FE_NODE_REQUEST_API} component={NodesRequestPage} />
-      <Route path={FE_MY_NODES_API} component={NodesPage} />
-      <Route path={FE_AUTHORS_API} component={AuthorPage} />
-      <Route path={FE_PROFILE_API} component={ProfilePage} />
-      <Route path={FE_ADDNODES_API} component={AddNodesPage} />
-      <Route path="*" status={404} component={Error}/>
-      
+      <Route path={FE_ADMIN_REGISTER_URL} component={SignUpRequestPage} />
+      <Route path={FE_NODE_REQUEST_URL} component={NodesRequestPage} />
+      <Route path={FE_MY_NODES_URL} component={NodesPage} />
+      <Route path={FE_AUTHORS_URL} component={AuthorPage} />
+      <Route path={FE_PROFILE_URL} component={ProfilePage} />
+      <Route path={FE_ADDNODES_URL} component={AddNodesPage} />
+      <Route path="*" status={404} component={Error404} />
+
     </Switch>
   )
 }

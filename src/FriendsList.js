@@ -7,7 +7,7 @@ import AuthorHeader from './components/AuthorHeader';
 import axios from 'axios';
 import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
-import { HOST, FRIENDS_API, CURRENT_USER_API, FRIEND_REQUEST_API } from "./utils/constants.js";
+import { HOST, BE_FRIENDS_API_URL, BE_CURRENT_USER_API_URL, BE_FRIEND_REQUEST_API_URL } from "./utils/constants.js";
 import { reactLocalStorage } from 'reactjs-localstorage';
 import getUserId from "./utils/getUserId";
 const { confirm } = Modal;
@@ -53,7 +53,7 @@ class FriendsList extends React.Component {
       okType: 'danger',
       cancelText: 'No',
       onOk() {
-        axios.patch(FRIEND_REQUEST_API(HOST), data, { headers: headers })
+        axios.patch(BE_FRIEND_REQUEST_API_URL(HOST), data, { headers: headers })
           .then(res => {
             that.fetchData();
           }).catch(function (error) {
@@ -78,11 +78,11 @@ class FriendsList extends React.Component {
       'Authorization': 'Token '.concat(token)
     }
 
-    axios.get(CURRENT_USER_API, { headers: headers }).then(
+    axios.get(BE_CURRENT_USER_API_URL, { headers: headers }).then(
       responseA =>
         Promise.all([
           responseA,
-          axios.get(FRIENDS_API(HOST, getUserId(responseA.data['id'])), { headers: headers })
+          axios.get(BE_FRIENDS_API_URL(HOST, getUserId(responseA.data['id'])), { headers: headers })
         ])
     ).then(
       ([responseA, responseB]) => {

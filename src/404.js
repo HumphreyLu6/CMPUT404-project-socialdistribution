@@ -1,11 +1,11 @@
 import React from 'react';
 import "./404.css"
-import {FE_LOGIN_API} from "./utils/constants.js"
-class Error extends React.Component {
-	constructor(props){
+import { FE_LOGIN_URL } from "./utils/constants.js"
+class Error404 extends React.Component {
+	constructor(props) {
 		super(props)
 	}
-	render(){
+	render() {
 		return (
 			<div className="background" id='page-wrapper'>
 				<title title='Wrong！'></title>
@@ -15,11 +15,11 @@ class Error extends React.Component {
 						<br></br>
 						<br></br>
 						<br></br>
-						<a class = "link" href={FE_LOGIN_API}> Click here to return to main page</a>
+						<a class="link" href={FE_LOGIN_URL}> Click here to return to main page</a>
 					</div>
 				</div>
 			</div>
 		)
 	}
 }
-export default Error
+export default Error404

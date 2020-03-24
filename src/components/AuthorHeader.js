@@ -5,7 +5,7 @@ import './Header.css';
 import cookie from 'react-cookies';
 import axios from 'axios';
 import { reactLocalStorage } from 'reactjs-localstorage';
-import { CURRENT_USER_API } from "../utils/constants.js";
+import { BE_CURRENT_USER_API_URL } from "../utils/constants.js";
 
 
 const { Header } = Layout;
@@ -20,7 +20,7 @@ class AuthorHeader extends React.Component {
     }
 
     handleMyProfile = () => {
-        axios.get(CURRENT_USER_API, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+        axios.get(BE_CURRENT_USER_API_URL, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
             .then(function (response) {
                 var currentUserId = String(response.data.id);
                 reactLocalStorage.set("currentUserId", currentUserId);
@@ -32,7 +32,7 @@ class AuthorHeader extends React.Component {
     }
 
     handleFriendsList = () => {
-        axios.get(CURRENT_USER_API, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+        axios.get(BE_CURRENT_USER_API_URL, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
             .then(function (response) {
                 var currentUserId = String(response.data.id);
                 reactLocalStorage.set("currentUserId", currentUserId);
@@ -46,7 +46,7 @@ class AuthorHeader extends React.Component {
     }
 
     handleFriendRequest = () => {
-        axios.get(CURRENT_USER_API, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+        axios.get(BE_CURRENT_USER_API_URL, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
             .then(function (response) {
                 var currentUserId = String(response.data.id);
                 reactLocalStorage.set("currentUserId", currentUserId);

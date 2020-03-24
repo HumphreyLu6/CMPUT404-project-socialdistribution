@@ -11,7 +11,7 @@ import cookie from 'react-cookies';
 import './UserSelf.css';
 import ReactMarkdown from 'react-markdown';
 import { reactLocalStorage } from 'reactjs-localstorage';
-import { VISIBLE_POST_API, HOST } from "./utils/constants.js";
+import { BE_VISIBLE_POST_API_URL, HOST } from "./utils/constants.js";
 
 var urlpostid = '';
 var urljoin;
@@ -38,7 +38,7 @@ class User extends React.Component {
   };
 
   fetchData = () => {
-    axios.get(VISIBLE_POST_API(HOST), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+    axios.get(BE_VISIBLE_POST_API_URL(HOST), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
       .then(res => {
         publicPost = res.data.posts;
         this.setState({
