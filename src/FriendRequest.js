@@ -7,7 +7,6 @@ import AuthorHeader from './components/AuthorHeader'
 import cookie from 'react-cookies';
 import axios from 'axios';
 import validateCookie from './utils/validate.js';
-<<<<<<< HEAD
 import getUserId from "./utils/getUserId";
 import { reactLocalStorage } from 'reactjs-localstorage';
 import {
@@ -16,21 +15,12 @@ import {
   BE_FRIEND_REQUEST_API_URL,
   BE_CURRENT_USER_API_URL
 } from "./utils/constants.js";
-=======
-import { HOST, BE_AUTHOR_FRIENDREQUEST_API_URL, BE_FRIEND_REQUEST_API_URL, BE_CURRENT_USER_API_URL } from "./utils/constants.js";
-import getUserId from "./utils/getUserId";
-import { reactLocalStorage } from 'reactjs-localstorage';
->>>>>>> 87328c156087db2ab63afe7a07818f3343345c23
 const { confirm } = Modal;
 
 class FriendRequest extends React.Component {
   state = {
     list: [],
     author: "",
-<<<<<<< HEAD
-=======
-    isloading: true
->>>>>>> 87328c156087db2ab63afe7a07818f3343345c23
   };
 
   componentDidMount() {
@@ -108,10 +98,6 @@ class FriendRequest extends React.Component {
           this.setState({
             author: responseA.data,
             list: authors,
-<<<<<<< HEAD
-=======
-            isloading: false
->>>>>>> 87328c156087db2ab63afe7a07818f3343345c23
           })
         }).catch((error) => {
           console.log(error.message)
@@ -120,11 +106,7 @@ class FriendRequest extends React.Component {
   };
 
   render() {
-<<<<<<< HEAD
     const { list } = this.state;
-=======
-    const { list, isloading } = this.state;
->>>>>>> 87328c156087db2ab63afe7a07818f3343345c23
 
     const liststyle = {
       backgroundColor: "white",
@@ -139,11 +121,7 @@ class FriendRequest extends React.Component {
       fontSize: 18
     }
 
-<<<<<<< HEAD
     return (
-=======
-    return (!isloading ?
->>>>>>> 87328c156087db2ab63afe7a07818f3343345c23
       <div>
         <AuthorHeader />
         <List
@@ -175,11 +153,7 @@ class FriendRequest extends React.Component {
             </List.Item>
           )}
         />
-<<<<<<< HEAD
       </div>
-=======
-      </div> : null
->>>>>>> 87328c156087db2ab63afe7a07818f3343345c23
     );
   }
 }
