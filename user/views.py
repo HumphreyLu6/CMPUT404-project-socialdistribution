@@ -78,12 +78,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
         users = json.dumps(serializer.data)
         users = json.loads(users)
         for host in hosts:
-            try:
-                response = requests.get(f"{host}author")
+            if host == "https://cloud-align-server.herokuapp.com/":
+                headers = {'Authorization': 'Token 2929f7a098f5aed699a385779892b0a0cc4ec254'}
+                response = requests.get(f"{host}author",headers=headers)
                 remote_users = response.json()
                 users += remote_users
-            except:
-                response = requests.get(f"{host}author/")
+            elif host == "https://cmput404-socialdistribution.herokuapp.com/":
+                response = requests.get(f"{host}author")
                 remote_users = response.json()
                 users += remote_users
         return Response(users,status=status.HTTP_200_OK)
