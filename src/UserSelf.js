@@ -248,6 +248,7 @@ class UserSelf extends React.Component {
                                     description={"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}
                                 />
                                 <h3>{"Title: ".concat(item.title)}</h3><p>  </p>
+                                {(<ReactMarkdown source={item.content} />)}
                                 {item.contentType === "text/plain" ? item.content : (<ReactMarkdown source={item.content} />)}
                                 <SimpleReactLightbox>
                                     <SRLWrapper>
