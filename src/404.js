@@ -2,9 +2,6 @@ import React from 'react';
 import "./404.css"
 import { FE_LOGIN_URL } from "./utils/constants.js"
 class Error404 extends React.Component {
-	constructor(props) {
-		super(props)
-	}
 	render() {
 		return (
 			<div className="background" id='page-wrapper'>

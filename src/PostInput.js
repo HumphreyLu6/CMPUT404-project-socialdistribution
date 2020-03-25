@@ -9,12 +9,9 @@ import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
 import AuthorHeader from './components/AuthorHeader';
 import { reactLocalStorage } from 'reactjs-localstorage';
-import { BE_POST_API_URL, BE_CURRENT_USER_API_URL, HOST } from "./utils/constants.js";
+import { BE_POST_API_URL, BE_CURRENT_USER_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
 
 const { TextArea } = Input;
-var urljoin;
-urljoin = require('url-join');
-var profileUrl = '';
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -55,8 +52,6 @@ class PostInput extends React.Component {
       axios.get(BE_CURRENT_USER_API_URL, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
         .then(function (response) {
           reactLocalStorage.set("urlauthorid", response.data.username);
-          urljoin = require('url-join');
-          profileUrl = urljoin("/author", response.data.username, "/posts");
         })
         .catch(function (error) {
           console.log(error);
@@ -104,7 +99,7 @@ class PostInput extends React.Component {
           }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
         )
           .then(function (response) {
-            document.location.replace("/author/profile");
+            document.location.replace(FE_USERPROFILE_URL);
           })
           .catch(function (error) {
             console.log(error);

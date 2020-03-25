@@ -8,13 +8,9 @@ import './components/PostInput.css';
 import cookie from 'react-cookies';
 import AuthorHeader from './components/AuthorHeader'
 import validateCookie from './utils/validate.js';
-import { BE_SINGLE_POST_API_URL, HOST } from "./utils/constants.js";
+import { BE_SINGLE_POST_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
 const { TextArea } = Input;
 var id = '';
-var urljoin;
-urljoin = require('url-join');
-var profileUrl = '';
-var authorid = '';
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -105,7 +101,6 @@ class PostEdit extends React.Component {
           postVisibility: getPost.visibility,
           isloading: false
         });
-        authorid = String(getPost.author);
       }).catch(function (error) {
         console.log(error);
       });
@@ -129,9 +124,7 @@ class PostEdit extends React.Component {
           }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
         )
           .then(function (response) {
-            //reactLocalStorage.set("urlauthorid", authorid);
-            //profileUrl = urljoin("/author", authorid, "/posts");
-            document.location.replace("/author/profile/");
+            document.location.replace(FE_USERPROFILE_URL);
           })
           .catch(function (error) {
             console.log(error);

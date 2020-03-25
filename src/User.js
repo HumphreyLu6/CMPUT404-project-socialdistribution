@@ -11,12 +11,8 @@ import cookie from 'react-cookies';
 import './UserSelf.css';
 import ReactMarkdown from 'react-markdown';
 import { reactLocalStorage } from 'reactjs-localstorage';
-import { BE_VISIBLE_POST_API_URL, HOST } from "./utils/constants.js";
+import { BE_VISIBLE_POST_API_URL, HOST, FE_POST_COMMENTS_URL, FE_USERPROFILE_URL } from "./utils/constants.js";
 
-var urlpostid = '';
-var urljoin;
-urljoin = require('url-join');
-var commentUrl = '';
 var publicPost = [];
 
 class User extends React.Component {
@@ -55,14 +51,12 @@ class User extends React.Component {
 
   handleProfile = (authorId) => {
     reactLocalStorage.set("currentUserId", authorId);
-    document.location.replace("/author/profile/");
+    document.location.replace(FE_USERPROFILE_URL);
   }
 
   handleComment = (postId) => {
     reactLocalStorage.set("postid", postId);
-    urlpostid = reactLocalStorage.set("urlpostid", postId);
-    commentUrl = urljoin("/demo/posts", urlpostid, "/comments");
-    document.location.replace(commentUrl);
+    document.location.replace(FE_POST_COMMENTS_URL(postId));
   }
 
   render() {
