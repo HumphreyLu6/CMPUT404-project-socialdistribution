@@ -1,0 +1,24 @@
+.background{  
+    font-family: sans-serif;
+    width: 100%;
+    height: 100%;
+    position: absolute; 
+    background-size: cover;
+    background-image: url("bimg1.jpg");
+}
+.row{
+    position: fixed;
+    margin:10% 10%;
+   
+}
+.TEXT{
+    
+    background-image: url("bimg2.jpg");
+    background-size: cover;
+    width: 100%;
+    height: 100%;
+}
+.link{
+    background-color: #A0EEE1;
+}
+/* reference: https://kicksdigitalmarketing.com/2019/09/10/how-do-i-fix-a-404-error/ */

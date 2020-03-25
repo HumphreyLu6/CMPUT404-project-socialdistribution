@@ -6,66 +6,45 @@ import './components/Header.css';
 import AuthorHeader from './components/AuthorHeader';
 import axios from 'axios';
 import cookie from 'react-cookies';
-import validateCookie from './utils/utils.js';
-import {FRIEND_API, CURRENT_USER_API} from "./utils/constants.js";
+import validateCookie from './utils/validate.js';
+import { HOST, BE_FRIENDS_API_URL, BE_CURRENT_USER_API_URL, BE_FRIEND_REQUEST_API_URL, FE_USERPROFILE_URL } from "./utils/constants.js";
+import { reactLocalStorage } from 'reactjs-localstorage';
+import getUserId from "./utils/getUserId";
 const { confirm } = Modal;
+
 
 class FriendsList extends React.Component {
   state = {
-    initLoading: true,
-    loading: false,
-    data: [],
     list: [],
-    current_user : "",
-    isloading : true
+    author: "",
   };
 
-  componentWillMount() {
-    validateCookie();
-  }
-
   componentDidMount() {
+    validateCookie();
     this.fetchData();
   }
 
-  fetchData = () => {
-    this.getData(res => {
-      this.setState({
-        initLoading: false,
-        data: res.data,
-        list: res.data,
-        size: res.data.length
-      });
-    });
-    this.getUser();
-  }
-
-  getUser = () => {
-    const token = cookie.load('token');
-    const headers = {
-      'Authorization': 'Token '.concat(token)
-    }
-    axios.get(CURRENT_USER_API,{headers : headers})
-    .then(res => {
-      this.setState({
-        current_user:res.data['username'],
-        isloading:false
-       })
-    } )
-    .catch(function (error) {
-      console.log(error)
-    });
-  }
-
-  showDeleteConfirm(friend_request_id, f1Id) {
+  showDeleteConfirm(friend) {
     const that = this;
     const token = cookie.load('token');
     const headers = {
       'Authorization': 'Token '.concat(token)
     }
     const data = {
-      "f1Id" : f1Id,
-      "status" : "R"
+      "query": "friendrequest",
+      "friend": {
+        "id": this.state.author.id,
+        "host": this.state.author.host,
+        "displayName": this.state.author.displayName,
+        "url": this.state.author.url
+      },
+      "author": {
+        "id": friend.id,
+        "host": friend.host,
+        "displayName": friend.displayName,
+        "url": friend.url
+      },
+      "status": "R"
     }
     confirm({
       title: 'Are you sure you want to unfriend this friend?',
@@ -73,12 +52,12 @@ class FriendsList extends React.Component {
       okType: 'danger',
       cancelText: 'No',
       onOk() {
-        axios.patch(FRIEND_API.concat(friend_request_id).concat('/'), data, {headers : headers})
-        .then(res => {
-          that.fetchData();
-        }).catch(function (error) {
-          console.log(error)
-        });
+        axios.patch(BE_FRIEND_REQUEST_API_URL(HOST), data, { headers: headers })
+          .then(res => {
+            that.fetchData();
+          }).catch(function (error) {
+            console.log(error)
+          });
       },
       onCancel() {
         console.log('Cancel');
@@ -86,72 +65,93 @@ class FriendsList extends React.Component {
     });
   }
 
-  getData = callback => {
+  handleProfile = (authorId) => {
+    reactLocalStorage.set("currentUserId", authorId);
+    document.location.replace(FE_USERPROFILE_URL);
+  }
+
+  fetchData = () => {
 
     const token = cookie.load('token');
     const headers = {
       'Authorization': 'Token '.concat(token)
     }
-    axios.get(FRIEND_API,{headers : headers})
-    .then(res => {
-      callback(res)
-    } )
-    .catch(function (error) {
-      console.log(error)
-    });
+
+    axios.get(BE_CURRENT_USER_API_URL, { headers: headers }).then(
+      responseA =>
+        Promise.all([
+          responseA,
+          axios.get(BE_FRIENDS_API_URL(HOST, getUserId(responseA.data['id'])), { headers: headers })
+        ])
+    ).then(
+      ([responseA, responseB]) => {
+        let authors = [];
+        return Promise.all(responseB.data['authors'].map((author) => {
+          return axios.get(author, { headers: headers }).then((res) => {
+            authors.push(res.data);
+          })
+        })).then(() => {
+          this.setState({
+            author: responseA.data,
+            list: authors,
+          })
+        }).catch((error) => {
+          console.log(error.message)
+        })
+      })
   };
 
   render() {
-    const liststyle = {
-        backgroundColor: "white",
-        padding: "1%",
-    }  
+    const { list } = this.state;
 
-    const unfriendstyle={
+    const liststyle = {
+      backgroundColor: "white",
+      padding: "1%",
+    }
+
+    const unfriendstyle = {
       height: "3%",
       width: "10%",
       right: "1%",
     }
 
-    const titlestyle={
-      fontSize : 18 
+    const titlestyle = {
+      fontSize: 18
     }
 
-    const { initLoading, list, current_user } = this.state;
-
-    return (!this.state.isloading ? 
-        <div>
-        <AuthorHeader/>
+    return (
+      <div>
+        <AuthorHeader />
         <List
-            className="demo-loadmore-list"
-            loading={initLoading}
-            itemLayout="horizontal"
-            dataSource={list}
-            style={liststyle}
-            renderItem={item => (
+          className="demo-loadmore-list"
+          itemLayout="horizontal"
+          dataSource={list}
+          style={liststyle}
+          locale={{ emptyText: "Friend list is currently empty" }}
+          renderItem={item => (
             <List.Item>
-                <Skeleton avatar title={false} loading={item.loading} active>
+              <Skeleton avatar title={false} loading={item.loading} active>
                 <List.Item.Meta
-                    avatar={
-                      <Avatar
+                  avatar={
+                    <Avatar
                       style={{
                         color: '#FFFFFF',
                         backgroundColor: '#3991F7',
                       }}
                     >
-                      {item.f1Id !== current_user ? item.f1Id[0].toUpperCase() : item.f2Id[0].toUpperCase()}
+                      {item.displayName[0].toUpperCase()}
                     </Avatar>
-                    }
-                    title={<a style={titlestyle} href={"/author/".concat(item.f1Id !== current_user ? item.f1Id : item.f2Id).concat("/posts")}>{item.f1Id !== current_user ? item.f1Id : item.f2Id}</a>}
+                  }
+                  title={<a style={titlestyle} href={"#!"} onClick={this.handleProfile.bind(this, item.id)}>{item.displayName}</a>}
                 />
-                </Skeleton>
-                <div style={unfriendstyle} onClick={() => this.showDeleteConfirm(item.id,item.f1Id !== current_user ? item.f1Id : item.f2Id)}>
+              </Skeleton>
+              <div style={unfriendstyle} onClick={() => this.showDeleteConfirm(item)}>
                 <Button type="danger" shape="round" size={'default'} >Unfriend</Button>
-                </div>
+              </div>
             </List.Item>
-            )}
+          )}
         />
-      </div> : null
+      </div>
     );
   }
 }

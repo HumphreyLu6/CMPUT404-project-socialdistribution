@@ -44,6 +44,6 @@ def create_abstract_remote_user(id: uuid.UUID, host: str, displayName: str) -> U
         host=host,
         email=str(id) + "@email.com",
         username=str(id),
-        displayName=str(id) + displayName,
+        displayName=displayName,
     )
     return user

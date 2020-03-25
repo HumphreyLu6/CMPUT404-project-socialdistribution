@@ -2,103 +2,106 @@ import React from 'react';
 import AuthorHeader from './components/AuthorHeader'
 import axios from 'axios';
 import cookie from 'react-cookies';
-import { Input, List, Avatar, message} from 'antd';
-import {USERNAME_LIST} from "./utils/constants.js";
+import { Input, List, Avatar, message } from 'antd';
+import { HOST, BE_ALL_AUTHOR_API_URL, FE_USERPROFILE_URL } from "./utils/constants.js";
+import { reactLocalStorage } from 'reactjs-localstorage';
+const { Search } = Input;
 
-const {Search} = Input;
-
-class SearchPage extends React.Component{
+class SearchPage extends React.Component {
 
     state = {
-        usernames : [],
-        value : '',
-        isloading : true
+        authors: [],
+        value: '',
+        isloading: true
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.fetchUsernames();
     }
 
     fetchUsernames = () => {
-        axios.get(USERNAME_LIST, { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
-        .then(response => {
-            this.setState({
-                usernames : response.data["usernames"]
-            })        
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+        axios.get(BE_ALL_AUTHOR_API_URL(HOST), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+            .then(response => {
+                this.setState({
+                    authors: response.data
+                })
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     }
 
     updateSearch = (val) => {
-        if(/\s/.test(val) | !val){
-            message.error('The author name cannot be empty!',1)
-        }else{
+        if (/\s/.test(val) | !val) {
+            message.error('The author name cannot be empty!', 1)
+        } else {
             this.setState({
-                value : val,
-                isloading : false
+                value: val,
+                isloading: false
             })
         }
     }
 
-    handleClick = (usr) => {
-        document.location.replace("/author/".concat(usr).concat("/posts"))
+    handleProfile = (authorId) => {
+        reactLocalStorage.set("currentUserId", authorId);
+        document.location.replace(FE_USERPROFILE_URL);
     }
 
-    usernameFilter = () => {
-        if(this.state.value){
-            return this.state.usernames.filter(
-                (username) => {
-                    return username.toLowerCase().indexOf(
+    authorFilter = () => {
+        if (this.state.value) {
+            return this.state.authors.filter(
+                (author) => {
+                    return author.displayName.toLowerCase().indexOf(
                         this.state.value.toLowerCase()) !== -1;
                 }
             );
-        }else{
+        } else {
             return [];
         }
     }
 
     render() {
+        console.log(this.state.authors)
         return (
             <div>
-                <AuthorHeader/>
-                <div style={{textAlign:"center",marginTop:"10px"}}>
-                <Search
-                    style={{width:"30%"}}
-                    placeholder="Enter to search author"
-                    enterButton="Search"
-                    size="large"
-                    onChange={() => this.setState({isloading : true})}
-                    onSearch={value => this.updateSearch(value)}
-                />
+                <AuthorHeader />
+                <div style={{ textAlign: "center", marginTop: "10px" }}>
+                    <Search
+                        style={{ width: "30%" }}
+                        placeholder="Enter to search author"
+                        enterButton="Search"
+                        size="large"
+                        onChange={() => this.setState({ isloading: true })}
+                        onSearch={value => this.updateSearch(value)}
+                    />
                 </div>
                 <div>
                     {!this.state.isloading ?
-                 <List
-                    style={{marginLeft:"34.9%",width:"30%"}}
-                    size="small"
-                    bordered
-                    dataSource={this.usernameFilter().map((username) => {
-                        return username;
-                    })}
-                    renderItem={item => 
-                        <List.Item>
-                            <List.Item.Meta
-                                avatar={
-                                    <Avatar size="small" style={{color: '#FFFFFF',backgroundColor: '#3991F7'}}
-                                    >{item[0].toUpperCase()}
-                                    </Avatar>
-                                }
-                                style={{width:"30%"}}
-                                title={<a href={"/author/".concat(item).concat("/posts")}>{item}</a>}
-                                onClick={() => document.location.replace("/author/".concat(item).concat("/posts"))}
-                            />
-                        </List.Item>
-                    }
-                /> : null}
+                        <List
+                            style={{ marginLeft: "34.9%", width: "30%" }}
+                            locale={{ emptyText: "No result" }}
+                            size="small"
+                            bordered
+                            dataSource={this.authorFilter().map((author) => {
+                                return author;
+                            })}
+                            renderItem={item =>
+                                <List.Item>
+                                    <List.Item.Meta
+                                        avatar={
+                                            <Avatar size="small" style={{ color: '#FFFFFF', backgroundColor: '#3991F7' }}
+                                            >{item.displayName[0].toUpperCase()}
+                                            </Avatar>
+                                        }
+                                        style={{ width: "30%" }}
+                                        title={<a href="#!" onClick={this.handleProfile.bind(this, item.id)}>{item.displayName}</a>}
+                                        onClick={this.handleProfile.bind(this, item.id)}
+                                    />
+                                </List.Item>
+                            }
+                        /> : null}
                 </div>
-                
+
             </div>
         )
 

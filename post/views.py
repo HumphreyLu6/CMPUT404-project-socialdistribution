@@ -1,6 +1,7 @@
 import uuid
 import json
 from typing import Tuple, List
+import requests
 from django.db.models import Q
 from django.urls import resolve
 from rest_framework import viewsets, status
@@ -13,7 +14,7 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 from rest_framework.decorators import action
-
+from node.models import Node
 from user.models import User
 from friend.models import Friend
 from comment.models import Comment
@@ -26,12 +27,13 @@ from .permissions import OwnerOrAdminPermissions
 class PostPagination(PageNumberPagination):
     page_size = 50
     page_size_query_param = "size"
+    
 
     def get_paginated_response(self, data):
         return Response(
             {
                 "query": "posts",
-                "count": self.page.paginator.count,
+                "count": len(data),
                 "size": self.get_page_size(self.request),
                 "next": self.get_next_link(),
                 "previous": self.get_previous_link(),
@@ -103,7 +105,20 @@ class PostsViewSet(viewsets.ModelViewSet):
         filtered_posts = get_visible_posts(Post.objects.all(), self.request.user)
         paged_posts = self.paginate_queryset(filtered_posts.order_by("-published"))
         serializer = PostSerializer(paged_posts, many=True)
-        return self.get_paginated_response(serializer.data)
+        posts = json.dumps(serializer.data)
+        posts = json.loads(posts)
+        hosts = Node.objects.all().values_list('host',flat=True)
+        for host in hosts:
+            try:
+                response = requests.get(f"{host}posts/")
+                shared_posts = response.json()
+                posts += shared_posts['posts']
+            except:
+                response = requests.get(f"{host}posts")
+                shared_posts = response.json()
+                posts += shared_posts['posts']
+            
+        return self.get_paginated_response(posts)
 
     @action(detail=False, methods="POST")
     def author_visible_posts(self, request, *args, **kwargs):

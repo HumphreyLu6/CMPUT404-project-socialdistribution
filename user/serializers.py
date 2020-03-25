@@ -45,18 +45,9 @@ class BriefAuthorSerializer(serializers.ModelSerializer):
 
     id = serializers.SerializerMethodField(read_only=True)
     url = serializers.SerializerMethodField(read_only=True)
-    displayName = serializers.SerializerMethodField(read_only=True)
 
     def get_id(self, obj):
         return f"{obj.host}author/{obj.id}"
-
-    def get_displayName(self, obj):
-        name = obj.username
-        if obj.host != DEFAULT_HOST:
-            print(name, obj.id)
-            # https://stackoverflow.com/questions/1038824/how-do-i-remove-a-substring-from-the-end-of-a-string-in-python
-            name = re.sub(obj.id, "", name)
-        return f"{name}"
 
     def get_url(self, obj):
         return f"{obj.host}author/{obj.id}"

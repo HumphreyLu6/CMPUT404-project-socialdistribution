@@ -11,13 +11,15 @@ from rest_framework.permissions import (
     IsAdminUser,
     IsAuthenticatedOrReadOnly,
 )
-
+import requests
+import json
 from mysite.settings import DEFAULT_HOST
 from friend.models import Friend
 from post.models import Post
 from post.serializers import PostSerializer
 from .serializers import AuthorSerializer
 from .models import User
+from node.models import Node
 from .permissions import OwnerOrAdminPermissions
 
 
@@ -65,3 +67,18 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             User.objects.filter(id=user.id).update(githubToken=token)
             return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+    
+    @action(detail=True, methods=["GET"])
+    def get_all_user(self, request, *args, **kwargs):
+        local_users = User.objects.filter(is_superuser=0)
+        hosts = Node.objects.all().values_list('host',flat=True)
+        serializer = AuthorSerializer(instance=local_users,many=True)
+        users = json.dumps(serializer.data)
+        users = json.loads(users)
+        for host in hosts:
+            response = requests.get(f"{host}author/")
+            remote_users = response.json()
+            users += remote_users
+        return Response(users,status=status.HTTP_200_OK)
