@@ -1,6 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { List, Avatar, Icon } from 'antd';
+import { List, Avatar, Icon, Drawer} from 'antd';
 import SimpleReactLightbox from "simple-react-lightbox";
 import { SRLWrapper } from "simple-react-lightbox";
 import './components/Header.css'
@@ -11,7 +11,8 @@ import cookie from 'react-cookies';
 import './UserSelf.css';
 import ReactMarkdown from 'react-markdown';
 import { reactLocalStorage } from 'reactjs-localstorage';
-import { BE_VISIBLE_POST_API_URL, HOST, FE_POST_COMMENTS_URL, FE_USERPROFILE_URL } from "./utils/constants.js";
+import WrappedComments from './Comment';
+import { BE_VISIBLE_POST_API_URL, HOST, FE_USERPROFILE_URL, FE_USER_URL} from "./utils/constants.js";
 
 var publicPost = [];
 
@@ -24,6 +25,7 @@ class User extends React.Component {
       PublicPostData: [],
       authorid: '',
       isloading: true,
+      drawerVisible: false,
 
     }
   }
@@ -56,7 +58,15 @@ class User extends React.Component {
 
   handleComment = (postId) => {
     reactLocalStorage.set("postid", postId);
-    document.location.replace(FE_POST_COMMENTS_URL(postId));
+    this.setState({
+      drawerVisible: true,
+      postId: postId,
+    });
+  }
+
+  onClose = () => {
+    this.setState({drawerVisible: false,});
+    document.location.replace(FE_USER_URL);
   }
 
   render() {
@@ -64,6 +74,16 @@ class User extends React.Component {
       <div>
         <AuthorHeader />
         <div className="mystyle">
+          <Drawer
+            width={500}
+            height={700}
+            visible={this.state.drawerVisible}
+            onClose={this.onClose}
+            bodyStyle={{ paddingBottom: 80 }}
+            placement={"bottom"}
+          >
+            <WrappedComments/>
+          </Drawer>
           <List
             itemLayout="vertical"
             size="large"
