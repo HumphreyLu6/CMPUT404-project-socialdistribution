@@ -110,11 +110,11 @@ class PostsViewSet(viewsets.ModelViewSet):
         hosts = Node.objects.all().values_list('host',flat=True)
         for host in hosts:
             try:
-                response = requests.get(f"{host}posts/")
+                response = requests.get(f"{host}posts")
                 shared_posts = response.json()
                 posts += shared_posts['posts']
             except:
-                response = requests.get(f"{host}posts")
+                response = requests.get(f"{host}posts/")
                 shared_posts = response.json()
                 posts += shared_posts['posts']
             
