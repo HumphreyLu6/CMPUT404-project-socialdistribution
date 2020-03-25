@@ -3,7 +3,7 @@ import AuthorHeader from './components/AuthorHeader'
 import axios from 'axios';
 import cookie from 'react-cookies';
 import { Input, List, Avatar, message } from 'antd';
-import { HOST, BE_ALL_AUTHOR_API_URL } from "./utils/constants.js";
+import { HOST, BE_ALL_AUTHOR_API_URL, FE_USERPROFILE_URL } from "./utils/constants.js";
 import { reactLocalStorage } from 'reactjs-localstorage';
 const { Search } = Input;
 
@@ -44,7 +44,7 @@ class SearchPage extends React.Component {
 
     handleProfile = (authorId) => {
         reactLocalStorage.set("currentUserId", authorId);
-        document.location.replace("/author/profile/");
+        document.location.replace(FE_USERPROFILE_URL);
     }
 
     authorFilter = () => {

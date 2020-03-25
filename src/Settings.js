@@ -8,7 +8,7 @@ import './components/Header.css';
 import AuthorHeader from './components/AuthorHeader';
 import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
-import { BE_CURRENT_USER_API_URL, BE_AUTHOR_PROFILE_API_URL, BE_AUTHOR_GITHUB_API_URL } from "./utils/constants.js";
+import { BE_CURRENT_USER_API_URL, BE_AUTHOR_PROFILE_API_URL, BE_AUTHOR_GITHUB_API_URL, FE_USERPROFILE_URL } from "./utils/constants.js";
 import { CLIENT_ID, CLIENT_SECRET } from "./utils/githubOAuth";
 import getUserId from './utils/getUserId.js';
 
@@ -84,7 +84,7 @@ class ProfileContent extends React.Component {
     handleSubmit = e => {
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
-                var { userName, isValid } = this.state;
+                var { isValid } = this.state;
                 var github = null;
                 if (values.github) {
                     github = githubUrl + values.github;
@@ -102,7 +102,7 @@ class ProfileContent extends React.Component {
                         "bio": values.bio,
                     }, { headers: headers })
                     .then(() => {
-                        document.location.replace("/author/profile");
+                        document.location.replace(FE_USERPROFILE_URL);
                     }).catch((error) => {
                         console.log(error);
                     });
