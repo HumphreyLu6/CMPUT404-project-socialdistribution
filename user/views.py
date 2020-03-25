@@ -78,7 +78,12 @@ class AuthorViewSet(viewsets.ModelViewSet):
         users = json.dumps(serializer.data)
         users = json.loads(users)
         for host in hosts:
-            response = requests.get(f"{host}author/")
-            remote_users = response.json()
-            users += remote_users
+            try:
+                response = requests.get(f"{host}author")
+                remote_users = response.json()
+                users += remote_users
+            except:
+                response = requests.get(f"{host}author/")
+                remote_users = response.json()
+                users += remote_users
         return Response(users,status=status.HTTP_200_OK)
