@@ -7,7 +7,7 @@ import AuthorHeader from './components/AuthorHeader';
 import axios from 'axios';
 import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
-import { HOST, BE_FRIENDS_API_URL, BE_CURRENT_USER_API_URL, BE_FRIEND_REQUEST_API_URL } from "./utils/constants.js";
+import { HOST, BE_FRIENDS_API_URL, BE_CURRENT_USER_API_URL, BE_FRIEND_REQUEST_API_URL, FE_USERPROFILE_URL } from "./utils/constants.js";
 import { reactLocalStorage } from 'reactjs-localstorage';
 import getUserId from "./utils/getUserId";
 const { confirm } = Modal;
@@ -67,7 +67,7 @@ class FriendsList extends React.Component {
 
   handleProfile = (authorId) => {
     reactLocalStorage.set("currentUserId", authorId);
-    document.location.replace("/author/profile/");
+    document.location.replace(FE_USERPROFILE_URL);
   }
 
   fetchData = () => {

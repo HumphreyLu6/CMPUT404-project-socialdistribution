@@ -77,7 +77,7 @@ export const BE_COMMENT_API_URL = function (host, postId) {
 //FE-URLS
 //###########################################################################
 
-export const FE_LOGIN_URL = "/fe/";
+export const FE_LOGIN_URL = "/";
 export const FE_USER_URL = "/fe/author/posts/";
 export const FE_REGISTER_URL = "/fe/register";
 export const FE_NODES_URL = HOST + "/fe/nodes-request";

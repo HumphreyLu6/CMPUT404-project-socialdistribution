@@ -13,7 +13,16 @@ import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
 import convertTime from './utils/isoFormat.js';
 import getUserId from './utils/getUserId.js';
-import { BE_CURRENT_USER_API_URL, BE_AUTHOR_POST_API_URL, BE_SINGLE_POST_API_URL, HOST, BE_AUTHOR_PROFILE_API_URL } from "./utils/constants.js";
+import { 
+    HOST, 
+    BE_CURRENT_USER_API_URL, 
+    BE_AUTHOR_POST_API_URL, 
+    BE_SINGLE_POST_API_URL, 
+    BE_AUTHOR_PROFILE_API_URL,
+    FE_USERPROFILE_URL,
+    FE_POST_EDIT_URL,
+    FE_POST_COMMENTS_URL,
+} from "./utils/constants.js";
 
 const { confirm } = Modal;
 var urlpostid = '';
@@ -48,7 +57,7 @@ class UserSelf extends React.Component {
             onOk() {
                 axios.delete(BE_SINGLE_POST_API_URL(HOST, postId), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
                     .then(function () {
-                        document.location.replace("/author/profile");
+                        document.location.replace(FE_USERPROFILE_URL);
                     })
             },
             onCancel() {
@@ -164,14 +173,14 @@ class UserSelf extends React.Component {
 
     handleEdit = (postId) => {
         reactLocalStorage.set("postid", postId);
-        document.location.replace("/posts/".concat(postId).concat("/edit"));
+        document.location.replace(FE_POST_EDIT_URL(postId));
     }
 
     handleComment = (postId) => {
         reactLocalStorage.set("postid", postId);
         urlpostid = reactLocalStorage.set("urlpostid", postId);
         urljoin = require('url-join');
-        commentUrl = urljoin("/demo/posts", urlpostid, "/comments");
+        commentUrl = urljoin(FE_POST_COMMENTS_URL(urlpostid));
         document.location.replace(commentUrl);
     }
 
@@ -235,7 +244,7 @@ class UserSelf extends React.Component {
                                         >{item.author.displayName[0].toUpperCase()}
                                         </Avatar>
                                     }
-                                    title={<a href={"/author/profile"} style={{ color: '#031528' }}>{item.author.displayName}</a>}
+                                    title={<a href={FE_USERPROFILE_URL} style={{ color: '#031528' }}>{item.author.displayName}</a>}
                                     description={"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}
                                 />
                                 <h3>{"Title: ".concat(item.title)}</h3><p>  </p>

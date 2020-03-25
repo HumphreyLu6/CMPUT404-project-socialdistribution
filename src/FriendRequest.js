@@ -13,7 +13,8 @@ import {
   HOST,
   BE_AUTHOR_FRIENDREQUEST_API_URL,
   BE_FRIEND_REQUEST_API_URL,
-  BE_CURRENT_USER_API_URL
+  BE_CURRENT_USER_API_URL,
+  FE_USERPROFILE_URL
 } from "./utils/constants.js";
 const { confirm } = Modal;
 
@@ -71,7 +72,7 @@ class FriendRequest extends React.Component {
 
   handleProfile = (authorId) => {
     reactLocalStorage.set("currentUserId", authorId);
-    document.location.replace("/author/profile/");
+    document.location.replace(FE_USERPROFILE_URL);
   }
 
   fetchData = () => {
