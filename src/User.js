@@ -75,12 +75,11 @@ class User extends React.Component {
         <AuthorHeader />
         <div className="mystyle">
           <Drawer
-            width={500}
+            width={600}
             height={700}
             visible={this.state.drawerVisible}
             onClose={this.onClose}
             bodyStyle={{ paddingBottom: 80 }}
-            placement={"bottom"}
           >
             <WrappedComments/>
           </Drawer>
