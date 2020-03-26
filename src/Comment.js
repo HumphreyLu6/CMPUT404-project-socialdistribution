@@ -152,7 +152,7 @@ class Comments extends React.Component {
                 rules: [
                   {
                     required: true,
-                    message:"PLease select a comment type",
+                    message:"Please select a comment type",
                   },
                 ],
               })(<Radio.Group>
