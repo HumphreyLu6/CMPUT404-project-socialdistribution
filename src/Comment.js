@@ -130,7 +130,7 @@ class Comments extends React.Component {
                     <Comment
                       author={item.author.displayName}
                       avatar={<Avatar src={'https://cdn2.iconfinder.com/data/icons/user-icon-2-1/100/user_5-15-512.png'} />}
-                      content={item.contentType === "text/markdown" ? (<ReactMarkdown source={item.comment} />) : item.comment}
+                      content={item.contentType === "text/plain" ? item.content : (<ReactMarkdown source={item.content} />)}
                       datetime={item.published}
                     />
                   </li>
