@@ -126,8 +126,10 @@ class Comments extends React.Component {
                   <li>
                     <Comment
                       author={item.author.displayName}
-                      avatar={<Avatar size="small"style={{color: '#FFFFFF',backgroundColor: '#3991F7',}}>{item.author.displayName[0].toUpperCase()}</Avatar>}
-                      content={item.contentType === "text/markdown" ? (<ReactMarkdown source={item.comment} />) : item.comment}
+
+                      avatar={<Avatar size="small"style={{color: '#FFFFFF',backgroundColor: '#3991F7',}}>{item.author.displayName[0].toUpperCase()}</Avatar>}            
+                      content={item.contentType === "text/plain" ? item.content : (<ReactMarkdown source={item.content} />)}
+
                       datetime={item.published}
                     />
                   </li>

@@ -61,7 +61,6 @@ class SearchPage extends React.Component {
     }
 
     render() {
-        console.log(this.state.authors)
         return (
             <div>
                 <AuthorHeader />
@@ -89,12 +88,13 @@ class SearchPage extends React.Component {
                                 <List.Item>
                                     <List.Item.Meta
                                         avatar={
-                                            <Avatar size="small" style={{ color: '#FFFFFF', backgroundColor: '#3991F7' }}
+                                            <Avatar size="medium" style={{ color: '#FFFFFF', backgroundColor: '#3991F7' }}
                                             >{item.displayName[0].toUpperCase()}
                                             </Avatar>
                                         }
                                         style={{ width: "30%" }}
                                         title={<a href="#!" onClick={this.handleProfile.bind(this, item.id)}>{item.displayName}</a>}
+                                        description={item.host ? `Host: ${item.host}` : null}
                                         onClick={this.handleProfile.bind(this, item.id)}
                                     />
                                 </List.Item>

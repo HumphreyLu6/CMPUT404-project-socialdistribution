@@ -110,11 +110,11 @@ class PostsViewSet(viewsets.ModelViewSet):
         hosts = Node.objects.all().values_list('host',flat=True)
         for host in hosts:
             try:
-                response = requests.get(f"{host}posts/")
+                response = requests.get(f"{host}posts")
                 shared_posts = response.json()
                 posts += shared_posts['posts']
             except:
-                response = requests.get(f"{host}posts")
+                response = requests.get(f"{host}posts/")
                 shared_posts = response.json()
                 posts += shared_posts['posts']
             
@@ -220,4 +220,3 @@ def get_visibleTo_Q(user: User) -> Tuple[Q, Q]:
         visibleToStr__icontains=f"{user.host}author/{str(user.id)}"
     )  # check if Json string contains user's email.
     return (q1, q2)
-

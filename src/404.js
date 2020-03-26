@@ -12,11 +12,12 @@ class Error404 extends React.Component {
 						<br></br>
 						<br></br>
 						<br></br>
-						<a class="link" href={FE_LOGIN_URL}> Click here to return to main page</a>
+						<a className="link" href={FE_LOGIN_URL}> Click here to return to main page</a>
 					</div>
 				</div>
 			</div>
 		)
 	}
 }
+
 export default Error404

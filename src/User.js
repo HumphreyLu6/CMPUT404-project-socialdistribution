@@ -115,7 +115,7 @@ class User extends React.Component {
                 />
 
                 <h3>{"Title: ".concat(item.title)}</h3><p>  </p>
-                {item.contentType === "text/markdown" ? (<ReactMarkdown source={item.content} />) : item.content}
+                {item.contentType === "text/plain" ? item.content : (<ReactMarkdown source={item.content} />)}
                 <p>  </p>
                 <SimpleReactLightbox>
                   <SRLWrapper>
