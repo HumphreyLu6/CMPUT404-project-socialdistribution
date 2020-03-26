@@ -220,4 +220,3 @@ def get_visibleTo_Q(user: User) -> Tuple[Q, Q]:
         visibleToStr__icontains=f"{user.host}author/{str(user.id)}"
     )  # check if Json string contains user's email.
     return (q1, q2)
-
