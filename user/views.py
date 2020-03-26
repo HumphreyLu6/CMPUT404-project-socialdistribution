@@ -1,7 +1,11 @@
+import requests
+import json
 from typing import Tuple
+
 from django.db.models import Q
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -11,21 +15,23 @@ from rest_framework.permissions import (
     IsAdminUser,
     IsAuthenticatedOrReadOnly,
 )
-import requests
-import json
+
 from mysite.settings import DEFAULT_HOST
+import mysite.utils as utils
 from friend.models import Friend
 from post.models import Post
 from post.serializers import PostSerializer
+from node.models import Node, get_nodes_user_ids, update_db
 from .serializers import AuthorSerializer
 from .models import User
-from node.models import Node
 from .permissions import OwnerOrAdminPermissions
 
 
 class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
-    queryset = User.objects.filter(is_superuser=0, host=DEFAULT_HOST)
+    queryset = User.objects.filter(is_superuser=0, host=DEFAULT_HOST).exclude(
+        id__in=get_nodes_user_ids()
+    )
     lookup_field = "id"
 
     def get_permissions(self):
@@ -43,9 +49,6 @@ class AuthorViewSet(viewsets.ModelViewSet):
         else:
             self.permission_classes = [AllowAny]
         return super(AuthorViewSet, self).get_permissions()
-
-    def perform_create(self):
-        serializer.save(displayName=self.get_object().username)
 
     @action(detail=False, methods=["GET"])
     def current_user(self, request, *args, **kwargs):
@@ -67,24 +70,15 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             User.objects.filter(id=user.id).update(githubToken=token)
             return Response(status=status.HTTP_204_NO_CONTENT)
-    
 
-    
     @action(detail=True, methods=["GET"])
     def get_all_user(self, request, *args, **kwargs):
-        local_users = User.objects.filter(is_superuser=0)
-        hosts = Node.objects.all().values_list('host',flat=True)
-        serializer = AuthorSerializer(instance=local_users,many=True)
-        users = json.dumps(serializer.data)
-        users = json.loads(users)
-        for host in hosts:
-            if host == "https://cloud-align-server.herokuapp.com/":
-                headers = {'Authorization': 'Token 2929f7a098f5aed699a385779892b0a0cc4ec254'}
-                response = requests.get(f"{host}author",headers=headers)
-                remote_users = response.json()
-                users += remote_users
-            elif host == "https://cmput404-socialdistribution.herokuapp.com/":
-                response = requests.get(f"{host}author")
-                remote_users = response.json()
-                users += remote_users
-        return Response(users,status=status.HTTP_200_OK)
+        """
+        Get local and remote users.
+        """
+        update_db(True, False, False, False)
+        queryset = User.objects.filter(is_superuser=0).exclude(
+            id__in=get_nodes_user_ids()
+        )
+        serializer = AuthorSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
