@@ -67,7 +67,7 @@ def update_remote_comments(host: str, auth: str):
                     continue
                 else:
                     valid, comment_dict = tidy_comment_data(
-                        raw_comment_dict, host, author.id, remote_post.id
+                        raw_comment_dict, host, author, remote_post
                     )
                     if valid:
                         comments_dict_list.append(comment_dict)
@@ -77,16 +77,14 @@ def update_remote_comments(host: str, auth: str):
             utils.print_warning(f"{type(e).__name__} {str(e)}")
 
 
-def tidy_comment_data(
-    data: dict, host: str, author_id: uuid.UUID, post_id: uuid.UUID
-) -> (bool, dict):
+def tidy_comment_data(data: dict, host: str, author: User, post: Post) -> (bool, dict):
     """
     Tidy up the comment data received from other servers
     """
     new_data = {}
     try:
-        new_data["author"] = str(author_id)
-        new_data["post"] = str(post_id)
+        new_data["author"] = author
+        new_data["post"] = post
         new_data["id"] = data["id"]
         new_data["comment"] = data["comment"]
         new_data["published"] = data["published"]
