@@ -6,7 +6,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_auth.serializers import LoginSerializer
 from django.utils.translation import ugettext_lazy as _
 
-from mysite.settings import DEFAULT_HOST
+from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
 from friend.models import Friend
 from .models import User
 from django.http import JsonResponse
@@ -47,9 +47,13 @@ class BriefAuthorSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField(read_only=True)
 
     def get_id(self, obj):
+        if obj.host == REMOTE_HOST1:
+            return f"{obj.host}author/{obj.non_uuid_id}"
         return f"{obj.host}author/{obj.id}"
 
     def get_url(self, obj):
+        if obj.host == REMOTE_HOST1:
+            return f"{obj.host}author/{obj.non_uuid_id}"
         return f"{obj.host}author/{obj.id}"
 
     class Meta:

@@ -1,7 +1,9 @@
 import uuid
+
 from django.db.models import Q
+
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.permissions import (
@@ -10,11 +12,12 @@ from rest_framework.permissions import (
     IsAdminUser,
     IsAuthenticatedOrReadOnly,
 )
-from rest_framework.decorators import action
 
-from user.models import User, create_abstract_remote_user
+import mysite.utils as utils
+from user.models import User
 from post.models import Post
 from post.views import is_post_visible_to
+from node.models import Node, update_db
 from .models import Comment
 from .serializers import CommentSerializer
 
@@ -48,8 +51,8 @@ class CommentPagination(PageNumberPagination):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    lookup_field = "id"
     pagination_class = CommentPagination
+    lookup_field = "id"
 
     def get_queryset(self):
         return self.request.user.comments.all()
@@ -115,13 +118,10 @@ class CommentViewSet(viewsets.ModelViewSet):
                         raise Exception("Comment id already exists.")
                     author_data = comment.pop("author")
                     author_data["id"] = author_data["id"].split("/")[-1]
+                    update_db(True, False, False, False)
                     author = User.objects.filter(id=author_data["id"]).first()
                     if not author:
-                        author = create_abstract_remote_user(
-                            uuid.UUID(author_data["id"]),
-                            author_data["host"],
-                            author_data["displayName"],
-                        )
+                        raise Exception("Author not found")
                     serializer = CommentSerializer(data=comment)
                     if serializer.is_valid():
                         serializer.save(author=author, post=post)
@@ -138,4 +138,3 @@ class CommentViewSet(viewsets.ModelViewSet):
                 response_data["success"] = "false"
                 response_data["message"] = "Comment not allowed"
                 return Response(response_data, status=status.HTTP_403_FORBIDDEN)
-

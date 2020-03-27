@@ -28,6 +28,11 @@ SECRET_KEY = "*nrwg9l-r03ndz_3s9&p$^bcyzs!o8cg=p_hxqbh!f_vvh!+wr"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+DEFAULT_HOST = "https://spongebook.herokuapp.com/"
+
+# Yuxuan Group's Host
+REMOTE_HOST1 = "https://cmput404-socialdistribution.herokuapp.com/"
+
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "spongebook.herokuapp.com",
@@ -157,6 +162,8 @@ CORS_ORIGIN_WHITELIST = (
     "http://localhost:3000",
     "https://spongebook.herokuapp.com",
     "https://spongebook-develop.herokuapp.com",
+    # connected nodes
+    "https://cmput404-socialdistribution.herokuapp.com",
 )
 
 CORS_ALLOW_HEADERS = [
@@ -192,10 +199,8 @@ REST_AUTH_SERIALIZERS = {
     "LOGIN_SERIALIZER": "user.serializers.CustomLoginSerializer",
 }
 
-DEFAULT_HOST = "https://spongebook.herokuapp.com/"
 
 if "HEROKU" in os.environ:
     django_heroku.settings(locals())
 else:
     django_heroku.settings(locals(), test_runner=False)
-
