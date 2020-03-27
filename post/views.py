@@ -71,17 +71,13 @@ class PostsViewSet(viewsets.ModelViewSet):
         """
         help method for create or update Post object
         """
+        serializer.save(author=self.request.user)
         categories = self.request.data.pop("categories", None)
         if categories:
-            serializer.save(
-                author=self.request.user, categoriesStr=json.dumps(categories)
-            )
+            serializer.save(categoriesStr=json.dumps(categories))
         visibleTo = self.request.data.pop("visibleTo", None)
         if visibleTo:
-            serializer.save(
-                author=self.request.user, visibleToStr=json.dumps(visibleTo)
-            )
-        return
+            serializer.save(visibleToStr=json.dumps(visibleTo))
 
     def perform_create(self, serializer):
         self.customize_update(serializer)
