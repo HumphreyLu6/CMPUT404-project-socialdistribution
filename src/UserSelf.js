@@ -1,6 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { List, Icon, Modal, Avatar } from 'antd';
+import { List, Icon, Modal, Avatar, Drawer } from 'antd';
 import SimpleReactLightbox from "simple-react-lightbox";
 import { SRLWrapper } from "simple-react-lightbox";
 import axios from 'axios';
@@ -13,6 +13,7 @@ import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
 import convertTime from './utils/isoFormat.js';
 import getUserId from './utils/getUserId.js';
+import WrappedComments from './Comment';
 import { 
     HOST, 
     BE_CURRENT_USER_API_URL, 
@@ -21,13 +22,9 @@ import {
     BE_AUTHOR_PROFILE_API_URL,
     FE_USERPROFILE_URL,
     FE_POST_EDIT_URL,
-    FE_POST_COMMENTS_URL,
 } from "./utils/constants.js";
 
 const { confirm } = Modal;
-var urlpostid = '';
-var urljoin;
-var commentUrl = '';
 
 class UserSelf extends React.Component {
     state = {
@@ -46,6 +43,7 @@ class UserSelf extends React.Component {
         currentUserUrl: "",
         isloading: true,
         isSelf: true,
+        drawerVisible: false,
     };
 
     showDeleteConfirm = (postId, author) => {
@@ -139,7 +137,6 @@ class UserSelf extends React.Component {
             };
         }
         axios(config).then(res => {
-            console.log(res.data);
             res.data.forEach((item) => {
                 var data = {
                     author: username,
@@ -178,12 +175,17 @@ class UserSelf extends React.Component {
 
     handleComment = (postId) => {
         reactLocalStorage.set("postid", postId);
-        urlpostid = reactLocalStorage.set("urlpostid", postId);
-        urljoin = require('url-join');
-        commentUrl = urljoin(FE_POST_COMMENTS_URL(urlpostid));
-        document.location.replace(commentUrl);
-    }
-
+        this.setState({
+          drawerVisible: true,
+          postId: postId,
+        });
+      
+      }
+    
+      onClose = () => {
+        this.setState({drawerVisible: false,});
+        document.location.replace(FE_USERPROFILE_URL);
+      }
     render() {
 
         const { postData, userId, userHost, username, userDisplayName, userUrl, userGithub, userEmail, userBio,
@@ -208,6 +210,15 @@ class UserSelf extends React.Component {
                         currentUserUrl={currentUserUrl}
                         isSelf={isSelf}
                     />
+                    <Drawer
+                        width={600}
+                        height={700}
+                        visible={this.state.drawerVisible}
+                        onClose={this.onClose}
+                        bodyStyle={{ paddingBottom: 80 }}
+                    >
+                        <WrappedComments/>
+                    </Drawer>
                     <List
                         itemLayout="vertical"
                         size="large"
@@ -248,7 +259,7 @@ class UserSelf extends React.Component {
                                     description={"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}
                                 />
                                 <h3>{"Title: ".concat(item.title)}</h3><p>  </p>
-                                {item.contentType === "text/markdown" ? (<ReactMarkdown source={item.content} />) : item.content}
+                                {item.contentType === "text/plain" ? item.content : (<ReactMarkdown source={item.content} />)}
                                 <SimpleReactLightbox>
                                     <SRLWrapper>
                                         <img

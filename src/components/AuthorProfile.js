@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import 'antd/dist/antd.css';
-import { Icon, Button } from 'antd';
+import { Icon, Button, message } from 'antd';
 import './AuthorProfile.css'
 import axios from 'axios';
 import cookie from 'react-cookies';
 import validateCookie from '../utils/validate.js';
 import getUserId from '../utils/getUserId.js';
-import { BE_IF_TWO_AUTHORS_FRIENDS_API_URL, BE_FRIEND_REQUEST_API_URL, HOST } from '../utils/constants.js';
+import { BE_IF_TWO_AUTHORS_FRIENDS_API_URL, BE_FRIEND_REQUEST_API_URL, HOST, FE_SEETING_URL } from '../utils/constants.js';
 
 class AuthorProfile extends Component {
 
@@ -76,8 +76,9 @@ class AuthorProfile extends Component {
                     "displayName": this.state.username,
                     "url": this.state.userUrl,
                 }
-            }, { headers: headers })
-            .catch(function (error) {
+            }, { headers: headers }).then(() => {
+                message.success(`You have sent friend request to ${this.state.username}`,2);
+            }).catch(function (error) {
                 console.log(error);
             });
     }
@@ -93,7 +94,7 @@ class AuthorProfile extends Component {
                 <span className="secondtag">Github: <span className="info">{userGithub}</span></span>
                 <br />
                 <span className="tag">Bio: <span className="info">{userBio}</span></span>
-                {profileOwner === 0 ? <a className="self-edit" href="/settings"><Icon type="edit" /></a> : null}
+                {profileOwner === 0 ? <a className="self-edit" href={FE_SEETING_URL}><Icon type="edit" /></a> : null}
                 {profileOwner === 1 ? <Button shape="round" ghost disabled className="status"><Icon type="check" /><span>Friends</span></Button> : null}
                 {profileOwner === 2 ? <Button type="primary" shape="round" className="status" onClick={() => this.sendFriendRequest()}><Icon type="user-add" /><span>Add Friend</span></Button> : null}
                 <hr />

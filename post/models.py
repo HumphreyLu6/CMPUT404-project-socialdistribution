@@ -1,9 +1,11 @@
 import uuid
-
-# from mysite.settings import DEFAULT_HOST
+import requests
+import json
 from django.db import models
-from mysite.settings import DEFAULT_HOST
+from django.utils import timezone
 from user.models import User
+from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
+import mysite.utils as utils
 
 VISIBILITYCHOICES = (
     ("PUBLIC", "PUBLIC: visible to PUBLIC"),
@@ -23,7 +25,7 @@ CONTENTTYPE = (
 
 class Post(models.Model):
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     title = models.CharField(max_length=256)
     source = models.URLField(default=DEFAULT_HOST)
     origin = models.URLField(default=DEFAULT_HOST)
@@ -35,8 +37,7 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     # A list of category dumps into str
     categoriesStr = models.TextField(default="[]")
-    published = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    published = models.DateTimeField(default=timezone.now)
     visibility = models.CharField(
         max_length=16, choices=VISIBILITYCHOICES, default="PUBLIC"
     )

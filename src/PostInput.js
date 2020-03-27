@@ -152,7 +152,7 @@ class PostInput extends React.Component {
     return (
       <div>
         <AuthorHeader />
-        <div className={'postInput'} style={{ display: 'flex', justifyContent: 'center' }} >
+        <div class={'postInput'} style={{justifyContent: 'center' }} >
           <Form {...formItemLayout}>
 
             <Form.Item>

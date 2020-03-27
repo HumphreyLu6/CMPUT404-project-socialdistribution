@@ -7,7 +7,6 @@ import { reactLocalStorage } from 'reactjs-localstorage';
 import cookie from 'react-cookies';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
-import AuthorHeader from './components/AuthorHeader'
 import { BE_COMMENT_API_URL, HOST, BE_CURRENT_USER_API_URL } from "./utils/constants.js";
 import convertTime from "./utils/isoFormat.js";
 import uuidv4 from "./utils/getUUID.js";
@@ -39,6 +38,7 @@ class Comments extends React.Component {
           commentData: res.data.comments,
           commentsCount: res.data.count,
         });
+        console.log(this.state.commentData);
       })
 
       .catch(function (error) {
@@ -65,7 +65,6 @@ class Comments extends React.Component {
   handleSubmit = e => {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        console.log(this.state.commentId)
         axios.post(BE_COMMENT_API_URL(HOST, id),
           {
             query: "addComment",
@@ -88,7 +87,6 @@ class Comments extends React.Component {
         )
           .then(function (response) {
             window.location.reload(false);
-
           })
           .catch(function (error) {
             console.log(error);
@@ -115,7 +113,6 @@ class Comments extends React.Component {
 
     return (
       <div>
-        <AuthorHeader />
         <div className={'comment'} style={{ justifyContent: 'center', padding: '2%', width: '100%' }} >
           <Form >
             <Form.Item>
@@ -129,7 +126,7 @@ class Comments extends React.Component {
                   <li>
                     <Comment
                       author={item.author.displayName}
-                      avatar={<Avatar src={'https://cdn2.iconfinder.com/data/icons/user-icon-2-1/100/user_5-15-512.png'} />}
+                      avatar={<Avatar size="small"style={{color: '#FFFFFF',backgroundColor: '#3991F7',}}>{item.author.displayName[0].toUpperCase()}</Avatar>}            
                       content={item.contentType === "text/markdown" ? (<ReactMarkdown source={item.comment} />) : item.comment}
                       datetime={item.published}
                     />
@@ -154,7 +151,8 @@ class Comments extends React.Component {
               {getFieldDecorator("commentType", {
                 rules: [
                   {
-                    required: false,
+                    required: true,
+                    message:"Please select a comment type",
                   },
                 ],
               })(<Radio.Group>

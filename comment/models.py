@@ -1,7 +1,10 @@
 import uuid
+import requests
 from django.db import models
 from user.models import User
 from post.models import Post
+from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
+import mysite.utils as utils
 
 CONTENTTYPE = (
     ("text/plain", "plain text"),
@@ -10,7 +13,7 @@ CONTENTTYPE = (
 
 
 class Comment(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     post = models.ForeignKey(
         Post, on_delete=models.CASCADE, related_name="comments", blank=True
     )

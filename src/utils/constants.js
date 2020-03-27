@@ -27,7 +27,7 @@ export const BE_AUTHOR_GITHUB_API_URL = function (authorId) {
     return `${HOST}author/${authorId}/github_token`;
 }
 export const BE_ALL_AUTHOR_API_URL = function (host) {
-    return `${host}allauthor/`;
+    return `${host}all_author/`;
 }
 
 // friend api

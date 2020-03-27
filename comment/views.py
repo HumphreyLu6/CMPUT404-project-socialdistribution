@@ -1,7 +1,11 @@
 import uuid
+import json
+import requests
+
 from django.db.models import Q
+
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.permissions import (
@@ -10,11 +14,13 @@ from rest_framework.permissions import (
     IsAdminUser,
     IsAuthenticatedOrReadOnly,
 )
-from rest_framework.decorators import action
 
-from user.models import User, create_abstract_remote_user
+from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
+import mysite.utils as utils
+from user.models import User
 from post.models import Post
 from post.views import is_post_visible_to
+from node.models import Node, update_db
 from .models import Comment
 from .serializers import CommentSerializer
 
@@ -48,8 +54,8 @@ class CommentPagination(PageNumberPagination):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    lookup_field = "id"
     pagination_class = CommentPagination
+    lookup_field = "id"
 
     def get_queryset(self):
         return self.request.user.comments.all()
@@ -115,19 +121,30 @@ class CommentViewSet(viewsets.ModelViewSet):
                         raise Exception("Comment id already exists.")
                     author_data = comment.pop("author")
                     author_data["id"] = author_data["id"].split("/")[-1]
+                    update_db(True, False, False)
                     author = User.objects.filter(id=author_data["id"]).first()
                     if not author:
-                        author = create_abstract_remote_user(
-                            uuid.UUID(author_data["id"]),
-                            author_data["host"],
-                            author_data["displayName"],
-                        )
+                        raise Exception("Author not found")
                     serializer = CommentSerializer(data=comment)
                     if serializer.is_valid():
-                        serializer.save(author=author, post=post)
-                        response_data["success"] = "true"
-                        response_data["message"] = "Comment Added"
-                        return Response(response_data, status=status.HTTP_201_CREATED)
+                        if post.origin == DEFAULT_HOST:
+                            serializer.save(author=author, post=post)
+                            response_data["success"] = "true"
+                            response_data["message"] = "Comment Added"
+                            return Response(
+                                response_data, status=status.HTTP_201_CREATED
+                            )
+                        else:
+                            # send request
+                            if send_remote_comments(comment, post, author):
+                                response_data["success"] = "true"
+                                response_data["message"] = "Comment Added"
+                                return Response(
+                                    response_data, status=status.HTTP_201_CREATED
+                                )
+                            else:
+                                raise Exception("Remote server failed.")
+
                     else:
                         raise Exception("Bad request body")
                 except Exception as e:
@@ -139,3 +156,46 @@ class CommentViewSet(viewsets.ModelViewSet):
                 response_data["message"] = "Comment not allowed"
                 return Response(response_data, status=status.HTTP_403_FORBIDDEN)
 
+
+def send_remote_comments(comment, post, author) -> bool:
+    try:
+        if author.host == REMOTE_HOST1:
+            author_id = author.non_uuid_id
+        else:
+            author_id = author.id
+        author_dict = {
+            "id": f"{author.host}author/{author_id}",
+            "host": f"{author.host}",
+            "displayName": f"{author.displayName}",
+            "url": f"{author.host}author/{author_id}",
+            "github": f"{author.github}",
+        }
+        comment_dict = {
+            "author": author_dict,
+            "comment": comment["comment"],
+            "contentType": comment["contentType"],
+            "published": comment["published"],
+            "id": comment["id"],
+        }
+        request_data = {
+            "query": "addComment",
+            "post": f"{post.origin}posts/{post.id}",
+            "comment": comment_dict,
+        }
+        url = f"{post.origin}posts/{str(post.id)}/comments"
+        node = Node.objects.filter(host=post.origin).first()
+        response = requests.post(
+            url,
+            data=json.dumps(request_data),
+            headers={
+                "Authorization": f"Basic {node.auth}",
+                "Content-Type": "application/json",
+            },
+        )
+        print(json.dumps(request_data))
+        if response.status_code not in range(200, 300):
+            raise Exception(response.text)
+        return True
+    except Exception as e:
+        utils.print_warning(e)
+        return False

@@ -1,6 +1,12 @@
-from django.db import models
-from user.models import User
+import requests
 import uuid
+import time
+
+from django.db import models
+import mysite.utils as utils
+from user.models import User
+from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
+
 
 # Create your models here.
 class Friend(models.Model):
@@ -13,7 +19,7 @@ class Friend(models.Model):
     class Meta:
         unique_together = (("f1Id", "f2Id"),)
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     date = models.DateField(auto_now_add=True)
     f1Id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="f2friends")
     f2Id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="f1friends")

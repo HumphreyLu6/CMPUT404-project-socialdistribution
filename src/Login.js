@@ -4,7 +4,7 @@ import "antd/dist/antd.css";
 import cookie from 'react-cookies'
 import "./components/Login.css"
 import axios from 'axios';
-import { BE_LOGIN_API_URL, FE_USER_URL } from "./utils/constants.js";
+import { BE_LOGIN_API_URL, FE_USER_URL,FE_REGISTER_URL } from "./utils/constants.js";
 
 class NormalLoginForm extends React.Component {
 
@@ -82,7 +82,7 @@ class NormalLoginForm extends React.Component {
             })(<Checkbox>Remember me</Checkbox>)}
           </Form.Item>
         </Form>
-        <a className="login-to-register" href="./register">Register</a>
+        <a className="login-to-register" href={FE_REGISTER_URL}>Register</a>
         <Button type="primary" htmlType="button" className="login-form-button" onClick={this.handleSubmit}>
           Log in
         </Button>

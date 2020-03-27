@@ -14,7 +14,8 @@ import {
   BE_AUTHOR_FRIENDREQUEST_API_URL,
   BE_FRIEND_REQUEST_API_URL,
   BE_CURRENT_USER_API_URL,
-  FE_USERPROFILE_URL
+  FE_USERPROFILE_URL,
+  BE_AUTHOR_PROFILE_API_URL
 } from "./utils/constants.js";
 const { confirm } = Modal;
 
@@ -92,7 +93,8 @@ class FriendRequest extends React.Component {
       ([responseA, responseB]) => {
         let authors = [];
         return Promise.all(responseB.data['authors'].map((author) => {
-          return axios.get(author, { headers: headers }).then((res) => {
+          let parsedId = getUserId(author);
+          return axios.get(BE_AUTHOR_PROFILE_API_URL(parsedId), { headers: headers }).then((res) => {
             authors.push(res.data);
           })
         })).then(() => {
