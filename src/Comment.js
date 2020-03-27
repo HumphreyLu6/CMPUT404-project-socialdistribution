@@ -38,6 +38,7 @@ class Comments extends React.Component {
           commentData: res.data.comments,
           commentsCount: res.data.count,
         });
+        console.log(this.state.commentData);
       })
 
       .catch(function (error) {
@@ -64,7 +65,6 @@ class Comments extends React.Component {
   handleSubmit = e => {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        console.log(this.state.commentId)
         axios.post(BE_COMMENT_API_URL(HOST, id),
           {
             query: "addComment",
@@ -126,10 +126,8 @@ class Comments extends React.Component {
                   <li>
                     <Comment
                       author={item.author.displayName}
-
                       avatar={<Avatar size="small"style={{color: '#FFFFFF',backgroundColor: '#3991F7',}}>{item.author.displayName[0].toUpperCase()}</Avatar>}            
-                      content={item.contentType === "text/plain" ? item.content : (<ReactMarkdown source={item.content} />)}
-
+                      content={item.contentType === "text/markdown" ? (<ReactMarkdown source={item.comment} />) : item.comment}
                       datetime={item.published}
                     />
                   </li>
@@ -153,7 +151,8 @@ class Comments extends React.Component {
               {getFieldDecorator("commentType", {
                 rules: [
                   {
-                    required: false,
+                    required: true,
+                    message:"Please select a comment type",
                   },
                 ],
               })(<Radio.Group>
