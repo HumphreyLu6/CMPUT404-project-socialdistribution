@@ -175,7 +175,7 @@ class PostEdit extends React.Component {
       <div>
         <AuthorHeader />
 
-        <div className={'postInput'} style={{ display: 'flex', justifyContent: 'center' }} >
+        <div class={'postInput'} style={{justifyContent: 'center' }} >
           <Form {...formItemLayout}>
 
             <Form.Item>
