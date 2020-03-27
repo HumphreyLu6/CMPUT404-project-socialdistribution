@@ -17,6 +17,7 @@ from rest_framework.permissions import (
 )
 from rest_framework.decorators import action
 
+from mysite.settings import DEFAULT_HOST
 import mysite.utils as utils
 from node.models import Node, get_nodes_user_ids, update_db
 from user.models import User
@@ -94,7 +95,11 @@ class PostsViewSet(viewsets.ModelViewSet):
         http://service/author/posts (posts that are visible to the currently 
         authenticated user)
         """
-        update_db(True, True, True, True)
+        if (
+            not request.user.is_anonymous
+            and request.user.id not in get_nodes_user_ids()
+        ):
+            update_db(True, True, True, True, request.user)
         filtered_posts = get_visible_posts(Post.objects.all(), self.request.user)
         paged_posts = self.paginate_queryset(filtered_posts.order_by("-published"))
         serializer = PostSerializer(paged_posts, many=True)
@@ -106,7 +111,11 @@ class PostsViewSet(viewsets.ModelViewSet):
         http://service/author/{AUTHOR_ID}/posts (all posts made by {AUTHOR_ID}
         visible to the currently authenticated user)
         """
-        update_db(True, True, True, True)
+        if (
+            not request.user.is_anonymous
+            and request.user.id not in get_nodes_user_ids()
+        ):
+            update_db(True, True, True, True, request.user)
         try:
             authot_id = kwargs["AUTHOR_ID"]
             author = User.objects.filter(id=authot_id).first()
@@ -137,7 +146,7 @@ def is_post_visible_to(post: Post, user: User) -> bool:
 
 def get_visible_posts(posts, user):
     if user.id in get_nodes_user_ids():
-        return posts
+        return posts.filter(origin=DEFAULT_HOST)
     else:
         # 1 visibility = "PUBLIC"
         q1 = Q(visibility="PUBLIC")

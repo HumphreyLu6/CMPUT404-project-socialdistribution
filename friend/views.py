@@ -18,7 +18,7 @@ import mysite.utils as utils
 from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
 from user.models import User
 from user.serializers import BriefAuthorSerializer
-from node.models import Node, update_db
+from node.models import Node, update_db, get_nodes_user_ids
 from .models import Friend
 from .serializers import FriendSerializer
 
@@ -49,50 +49,58 @@ class FriendViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-        # update User and Friend tables.
-            update_db(True, True, False, False)
             author_data = request.data["author"]
             author_data["id"] = author_data["id"].split("/")[-1]
-            author = None
-            if author_data["host"] == REMOTE_HOST1:
-                author = User.objects.filter(non_uuid_id=author_data["id"]).first()
-            else:
-                author = User.objects.filter(id=author_data["id"]).first()
-
-            if not author:
-                raise Exception("Author does not exist")
-            else:
-                if author != request.user:
-                    if not Node.objects.filter(user=request.user).exists():
-                        # allow requests sent from other node
-                        return Response(status=status.HTTP_403_FORBIDDEN)
-
             friend_data = request.data["friend"]
             friend_data["id"] = friend_data["id"].split("/")[-1]
+
+            author = None
             friend = None
-            if friend_data["host"] == REMOTE_HOST1:
-                friend = User.objects.filter(non_uuid_id=friend_data["id"]).first()
-            else:
+            node = Node.objects.filter(user=self.request.user).first()
+            if node:
+                # request from remote node
+                if node.host == REMOTE_HOST1:
+                    author = User.objects.filter(non_uuid_id=author_data["id"]).first()
+                else:
+                    author = User.objects.filter(id=author_data["id"]).first()
                 friend = User.objects.filter(id=friend_data["id"]).first()
-            if not friend:
-                raise Exception("Friend does not exist")
+
+                if not author or author.host != node.host:
+                    raise Exception("Author does not exist")
+                if not friend or friend.host != DEFAULT_HOST:
+                    raise Exception("Friend does not exist")
+            else:
+                # request from local user
+                author = User.objects.filter(id=author_data["id"]).first()
+                friend = User.objects.filter(id=friend_data["id"]).first()
+                if not author:
+                    raise Exception("Author does not exist")
+                if not friend:
+                    raise Exception("Friend does not exist")
+                if author != self.request.user:
+                    return Response(status=status.HTTP_403_FORBIDDEN)
+
+            if author == friend:
+                raise Exception("Author and Friend can not be the same user")
 
             # check if author and friend are already friends
-            if Friend.objects.filter(f1Id=author, f2Id=friend, isCopy=False).exists():
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+            if Friend.objects.filter(f1Id=author, f2Id=friend, status="A").exists():
+                raise Exception("Author and Friend are already friends")
+
+            # check if author already sent friend request to friend
+            if Friend.objects.filter(
+                f1Id=author, f2Id=friend, status="U", isCopy=False
+            ).exists():
+                raise Exception("Author already sent friend request to Friend")
 
             data = {"status": "U"}
             if Friend.objects.filter(f1Id=friend, f2Id=author, isCopy=False).exists():
-                # they both sent request to each other
+                # they both sent request to each other, automatically accept
                 data = {"status": "A"}
             else:
-                if (
-                    author.host == DEFAULT_HOST
-                    and friend.host != DEFAULT_HOST
-                    and request.user.host == DEFAULT_HOST
-                ):
+                if not node and friend.host != DEFAULT_HOST:
                     # request is sending from local user to remote user
-                    if not send_friend_request(author, friend, request.user):
+                    if not send_friend_request(author, friend):
                         raise Exception("Bad Request")
 
             serializer1 = FriendSerializer(data=data)
@@ -103,16 +111,15 @@ class FriendViewSet(viewsets.ModelViewSet):
                 serializer1.save(f1Id=author, f2Id=friend, isCopy=False)
                 serializer2.save(f1Id=friend, f2Id=author, isCopy=True)
                 return Response(status=status.HTTP_201_CREATED)
-            else:
-                raise Exception("Bad body format")
+
         except Exception as e:
-            print(e)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            response_body = {"error": str(e)}
+            return Response(data=response_body, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["PATCH"])
     def update_friendship(self, request, *args, **kwargs):
         try:
-            update_db(True, True, False, False)
+            update_db(True, True, False, False, request.user)
             friend_data = request.data["friend"]
             friend_data["id"] = friend_data["id"].split("/")[-1]
             friend = User.objects.filter(id=friend_data["id"]).first()
@@ -164,7 +171,6 @@ class FriendViewSet(viewsets.ModelViewSet):
         Ask if 2 authors are friends
         GET http://service/author/<authorid>/friends/<authorid2>
         """
-        update_db(True, True, False, False)
         response_body = {"query": "friends"}
         try:
             author1_id = kwargs["AUTHOR1_ID"]
@@ -178,6 +184,7 @@ class FriendViewSet(viewsets.ModelViewSet):
             response_body["friends"] = "false"
             return Response(response_body, status=status.HTTP_400_BAD_REQUEST)
         else:
+            update_db(True, True, False, False, author1)
             response_body["authors"] = [
                 f"{author1.host}author/{author1.id}",
                 f"{author2.host}author/{author2.id}",
@@ -197,7 +204,6 @@ class FriendViewSet(viewsets.ModelViewSet):
         ask a service if anyone in the list is a friend
         POST to http://service/author/<authorid>/friends
         """
-        update_db(True, True, False, False)
         response_body = {"query": "friends", "authors": []}
 
         try:
@@ -206,6 +212,8 @@ class FriendViewSet(viewsets.ModelViewSet):
             if not author:
                 response_body["author"] = ("author does not exist.",)
                 return Response(response_body, status=status.HTTP_404_NOT_FOUND)
+            else:
+                update_db(True, True, False, False, author)
 
             response_body["author"] = []
             candidates_data = request.data["authors"]
@@ -230,7 +238,6 @@ class FriendViewSet(viewsets.ModelViewSet):
         get all friends of a user
         ask a service GET http://service/author/<authorid>/friends/
         """
-        update_db(True, True, False, False)
         response_body = {"query": "friends", "authors": []}
 
         author_id = kwargs["AUTHOR_ID"]
@@ -238,7 +245,8 @@ class FriendViewSet(viewsets.ModelViewSet):
         if not author:
             response_body["error"] = ("author does not exist.",)
             return Response(response_body, status=status.HTTP_404_NOT_FOUND)
-
+        else:
+            update_db(True, True, False, False, author)
         friend_ids = Friend.objects.filter(f1Id=author.id, status="A").values_list(
             "f2Id", flat=True
         )
@@ -270,7 +278,7 @@ class FriendViewSet(viewsets.ModelViewSet):
         return Response(response_body, status=status.HTTP_200_OK)
 
 
-def send_friend_request(author: User, friend: User, request_user: User) -> bool:
+def send_friend_request(author: User, friend: User) -> bool:
     """
     send friend request to remote user
     Params:
@@ -282,19 +290,40 @@ def send_friend_request(author: User, friend: User, request_user: User) -> bool:
             raise Exception("Node does not exist")
 
         url = f"{node.host}friendrequest"
-        author_dict = BriefAuthorSerializer(instance=author).data
-        friend_dict = BriefAuthorSerializer(instance=friend).data
+        author_dict = {
+            "id": f"{author.host}author/{author.id}",
+            "host": author.host,
+            "displayName": author.displayName,
+            "url": f"{author.host}author/{author.id}",
+        }
+        if friend.host == REMOTE_HOST1:
+            friend_dict = {
+                "id": f"{friend.host}author/{friend.non_uuid_id}",
+                "host": friend.host,
+                "displayName": friend.displayName,
+                "url": f"{friend.host}author/{friend.non_uuid_id}",
+            }
+        else:
+            friend_dict = {
+                "id": f"{friend.host}author/{friend.id}",
+                "host": friend.host,
+                "displayName": friend.displayName,
+                "url": f"{friend.host}author/{friend.id}",
+            }
         request_body = {
             "query": "friendrequest",
             "author": author_dict,
             "friend": friend_dict,
         }
-
         response = requests.post(
             url,
-            json=json.dumps(request_body),
-            headers={"Authorization": f"Basic {node.auth}"},
+            data=json.dumps(request_body),
+            headers={
+                "Authorization": f"Basic {node.auth}",
+                "Content-Type": "application/json",
+            },
         )
+        print(json.dumps(request_body))
         print(response.status_code)
         if response.status_code not in range(200, 300):
             raise Exception(response.text)

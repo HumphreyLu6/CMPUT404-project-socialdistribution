@@ -74,7 +74,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         # http://service/posts/{post_id}/comments access to the comments in a post
         """
         try:
-            update_db(True, True, True, True)
             post_id = kwargs["POST_ID"]
             post = Post.objects.filter(id=post_id).first()
             if not post:
@@ -103,7 +102,6 @@ class CommentViewSet(viewsets.ModelViewSet):
             "message": "",
         }
         try:
-            update_db(True, True, True, False)
             post_id = kwargs["POST_ID"]
             post = Post.objects.filter(id=post_id).first()
             if not post:
