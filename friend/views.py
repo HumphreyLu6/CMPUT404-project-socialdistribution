@@ -119,7 +119,7 @@ class FriendViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["PATCH"])
     def update_friendship(self, request, *args, **kwargs):
         try:
-            update_db(True, True, False, False, request.user)
+            update_db(True, True, False, request.user)
             friend_data = request.data["friend"]
             friend_data["id"] = friend_data["id"].split("/")[-1]
             friend = User.objects.filter(id=friend_data["id"]).first()
@@ -184,7 +184,7 @@ class FriendViewSet(viewsets.ModelViewSet):
             response_body["friends"] = "false"
             return Response(response_body, status=status.HTTP_400_BAD_REQUEST)
         else:
-            update_db(True, True, False, False, author1)
+            update_db(True, True, False, author1)
             response_body["authors"] = [
                 f"{author1.host}author/{author1.id}",
                 f"{author2.host}author/{author2.id}",
@@ -213,7 +213,7 @@ class FriendViewSet(viewsets.ModelViewSet):
                 response_body["author"] = ("author does not exist.",)
                 return Response(response_body, status=status.HTTP_404_NOT_FOUND)
             else:
-                update_db(True, True, False, False, author)
+                update_db(True, True, False, author)
 
             response_body["author"] = []
             candidates_data = request.data["authors"]
@@ -246,7 +246,7 @@ class FriendViewSet(viewsets.ModelViewSet):
             response_body["error"] = ("author does not exist.",)
             return Response(response_body, status=status.HTTP_404_NOT_FOUND)
         else:
-            update_db(True, True, False, False, author)
+            update_db(True, True, False, author)
         friend_ids = Friend.objects.filter(f1Id=author.id, status="A").values_list(
             "f2Id", flat=True
         )
