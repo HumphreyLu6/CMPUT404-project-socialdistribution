@@ -85,6 +85,8 @@ def create_or_update_remote_users(host: str, author_dict_list: list):
                     non_uuid_id=int(author_dict["non_uuid_id"])
                 ).exists():
                     author_dict.pop("id")
+                    author_dict.pop("username")
+                    author_dict.pop("email")
                     obj, created = User.objects.update_or_create(
                         non_uuid_id=int(author_dict["non_uuid_id"]),
                         defaults=author_dict,

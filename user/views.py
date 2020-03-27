@@ -29,10 +29,25 @@ from .permissions import OwnerOrAdminPermissions
 
 class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
-    queryset = User.objects.filter(is_superuser=0, host=DEFAULT_HOST).exclude(
-        id__in=get_nodes_user_ids()
-    )
     lookup_field = "id"
+
+    def get_queryset(self):
+        if self.action in ["retrieve"]:
+            if (
+                self.request.user.id in get_nodes_user_ids()
+                or self.request.user.is_anonymous
+            ):
+                return User.objects.filter(is_superuser=0, host=DEFAULT_HOST).exclude(
+                    id__in=get_nodes_user_ids()
+                )
+            else:
+                return User.objects.filter(is_superuser=0).exclude(
+                    id__in=get_nodes_user_ids()
+                )
+        else:
+            return User.objects.filter(is_superuser=0, host=DEFAULT_HOST).exclude(
+                id__in=get_nodes_user_ids()
+            )
 
     def get_permissions(self):
         if self.action in [

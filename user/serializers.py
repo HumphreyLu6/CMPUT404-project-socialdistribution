@@ -47,13 +47,9 @@ class BriefAuthorSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField(read_only=True)
 
     def get_id(self, obj):
-        if obj.host == REMOTE_HOST1:
-            return f"{obj.host}author/{obj.non_uuid_id}"
         return f"{obj.host}author/{obj.id}"
 
     def get_url(self, obj):
-        if obj.host == REMOTE_HOST1:
-            return f"{obj.host}author/{obj.non_uuid_id}"
         return f"{obj.host}author/{obj.id}"
 
     class Meta:
@@ -67,6 +63,8 @@ class AuthorSerializer(serializers.ModelSerializer):
     and it is meant to only serialize local authors.
     """
 
+    username = serializers.SerializerMethodField(read_only=True)
+    email = serializers.SerializerMethodField(read_only=True)
     id = serializers.SerializerMethodField(read_only=True)
     url = serializers.SerializerMethodField(read_only=True)
     friends = serializers.SerializerMethodField(read_only=True)
@@ -84,6 +82,21 @@ class AuthorSerializer(serializers.ModelSerializer):
         friends = User.objects.filter(id__in=list(friend_ids))
         serializer = BriefAuthorSerializer(instance=friends, many=True)
         return serializer.data
+
+    def get_username(self, obj):
+        if obj.host == DEFAULT_HOST:
+            return obj.username
+        else:
+            return obj.displayName
+
+    def get_email(self, obj):
+        if obj.host != DEFAULT_HOST:
+            email = obj.email.replace(str(obj.id), "")
+            if "@email.com" not in email:
+                return email
+            return ""
+        else:
+            return obj.email
 
     class Meta:
         model = User
