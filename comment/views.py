@@ -129,6 +129,7 @@ class CommentViewSet(viewsets.ModelViewSet):
                         ).first()
                     else:
                         author = User.objects.filter(id=author_data["id"]).first()
+
                     if not author:
                         raise Exception("Author not found")
                     serializer = CommentSerializer(data=comment)

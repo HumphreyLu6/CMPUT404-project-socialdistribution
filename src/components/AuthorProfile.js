@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import 'antd/dist/antd.css';
-import { Icon, Button } from 'antd';
+import { Icon, Button, message } from 'antd';
 import './AuthorProfile.css'
 import axios from 'axios';
 import cookie from 'react-cookies';
@@ -76,8 +76,9 @@ class AuthorProfile extends Component {
                     "displayName": this.state.username,
                     "url": this.state.userUrl,
                 }
-            }, { headers: headers })
-            .catch(function (error) {
+            }, { headers: headers }).then(() => {
+                message.success(`You have sent friend request to ${this.state.username}`,2);
+            }).catch(function (error) {
                 console.log(error);
             });
     }

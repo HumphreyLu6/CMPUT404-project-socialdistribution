@@ -137,7 +137,6 @@ class UserSelf extends React.Component {
             };
         }
         axios(config).then(res => {
-            console.log(res.data);
             res.data.forEach((item) => {
                 var data = {
                     author: username,

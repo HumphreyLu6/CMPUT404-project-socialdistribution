@@ -91,7 +91,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         """
         Get local and remote users.
         """
-        update_db(True, False, False, False)
+        update_db(True, False, False)
         queryset = User.objects.filter(is_superuser=0).exclude(
             id__in=get_nodes_user_ids()
         )
