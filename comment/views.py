@@ -122,7 +122,14 @@ class CommentViewSet(viewsets.ModelViewSet):
                     author_data = comment.pop("author")
                     author_data["id"] = author_data["id"].split("/")[-1]
                     update_db(True, False, False)
-                    author = User.objects.filter(id=author_data["id"]).first()
+                    author = None
+                    if author_data["host"] == REMOTE_HOST1:
+                        author = User.objects.filter(
+                            non_uuid_id=int(author_data["id"])
+                        ).first()
+                    else:
+                        author = User.objects.filter(id=author_data["id"]).first()
+
                     if not author:
                         raise Exception("Author not found")
                     serializer = CommentSerializer(data=comment)
