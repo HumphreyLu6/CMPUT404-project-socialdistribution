@@ -77,7 +77,7 @@ class AuthorProfile extends Component {
                     "url": this.state.userUrl,
                 }
             }, { headers: headers }).then(() => {
-                message.success(`You have send friend request to ${this.state.username}`,2);
+                message.success(`You have sent friend request to ${this.state.username}`,2);
             }).catch(function (error) {
                 console.log(error);
             });
