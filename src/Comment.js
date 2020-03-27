@@ -38,7 +38,6 @@ class Comments extends React.Component {
           commentData: res.data.comments,
           commentsCount: res.data.count,
         });
-        console.log(this.state.commentData);
       })
 
       .catch(function (error) {
