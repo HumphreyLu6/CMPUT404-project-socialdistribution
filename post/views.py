@@ -95,7 +95,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             not request.user.is_anonymous
             and request.user.id not in get_nodes_user_ids()
         ):
-            update_db(True, True, True, True, request.user)
+            update_db(True, True, True, request.user)
         filtered_posts = get_visible_posts(Post.objects.all(), self.request.user)
         paged_posts = self.paginate_queryset(filtered_posts.order_by("-published"))
         serializer = PostSerializer(paged_posts, many=True)
@@ -111,7 +111,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             not request.user.is_anonymous
             and request.user.id not in get_nodes_user_ids()
         ):
-            update_db(True, True, True, True, request.user)
+            update_db(True, True, True, request.user)
         try:
             authot_id = kwargs["AUTHOR_ID"]
             author = User.objects.filter(id=authot_id).first()

@@ -118,7 +118,7 @@ class CommentViewSet(viewsets.ModelViewSet):
                         raise Exception("Comment id already exists.")
                     author_data = comment.pop("author")
                     author_data["id"] = author_data["id"].split("/")[-1]
-                    update_db(True, False, False, False)
+                    update_db(True, False, False)
                     author = User.objects.filter(id=author_data["id"]).first()
                     if not author:
                         raise Exception("Author not found")
