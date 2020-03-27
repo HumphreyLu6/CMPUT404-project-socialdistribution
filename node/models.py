@@ -66,7 +66,7 @@ def update_db(
     if update_friend:
         stime = time.time()
         update_remote_friends(base_user, 1)
-        print(f"Time used for update {node} DB friend:", time.time() - stime)
+        print(f"Time used for update {str(base_user)} DB friend:", time.time() - stime)
     print(f"Time used for update DB:", time.time() - t_time)
 
 
