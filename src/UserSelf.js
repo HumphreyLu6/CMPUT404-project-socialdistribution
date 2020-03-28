@@ -1,6 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { List, Icon, Modal, Avatar, Drawer } from 'antd';
+import { List, Icon, Modal, Avatar, Drawer, Spin } from 'antd';
 import SimpleReactLightbox from "simple-react-lightbox";
 import { SRLWrapper } from "simple-react-lightbox";
 import axios from 'axios';
@@ -189,9 +189,10 @@ class UserSelf extends React.Component {
         const { postData, userId, userHost, username, userDisplayName, userUrl, userGithub, userEmail, userBio,
             currentUserId, currentUserHost, currentUserDisplayName, currentUserUrl, isloading, isSelf } = this.state;
         var sortedData = postData.slice().sort((a, b) => Date.parse(b.published) - Date.parse(a.published));
-        return (!isloading ?
+        return (
             <div>
                 <AuthorHeader />
+                {!isloading ? 
                 <div className="mystyle">
                     <AuthorProfile
                         userId={userId}
@@ -297,8 +298,10 @@ class UserSelf extends React.Component {
                             </List.Item>
                         )}
                     />
-                </div>
-            </div> : null
+                </div> : <div style={{marginTop : "25%",marginLeft : "50%"}}>
+                  <Spin size="large" />
+                 </div>}
+            </div> 
         );
     }
 }
