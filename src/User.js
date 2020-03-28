@@ -12,7 +12,7 @@ import './UserSelf.css';
 import ReactMarkdown from 'react-markdown';
 import { reactLocalStorage } from 'reactjs-localstorage';
 import WrappedComments from './Comment';
-import { BE_VISIBLE_POST_API_URL, HOST, FE_USERPROFILE_URL, FE_USER_URL} from "./utils/constants.js";
+import { BE_VISIBLE_POST_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
 
 var publicPost = [];
 
@@ -57,7 +57,6 @@ class User extends React.Component {
   }
 
   handleComment = (postId) => {
-    reactLocalStorage.set("postid", postId);
     this.setState({
       drawerVisible: true,
       postId: postId,
@@ -66,7 +65,6 @@ class User extends React.Component {
 
   onClose = () => {
     this.setState({drawerVisible: false,});
-    document.location.replace(FE_USER_URL);
   }
 
   render() {
@@ -79,9 +77,10 @@ class User extends React.Component {
             height={700}
             visible={this.state.drawerVisible}
             onClose={this.onClose}
+            destroyOnClose={true}
             bodyStyle={{ paddingBottom: 80 }}
           >
-            <WrappedComments/>
+            <WrappedComments postId={this.state.postId}/>
           </Drawer>
           <List
             itemLayout="vertical"
