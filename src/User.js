@@ -1,6 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { List, Avatar, Icon, Drawer} from 'antd';
+import { List, Avatar, Icon, Drawer, Spin} from 'antd';
 import SimpleReactLightbox from "simple-react-lightbox";
 import { SRLWrapper } from "simple-react-lightbox";
 import './components/Header.css'
@@ -68,9 +68,10 @@ class User extends React.Component {
   }
 
   render() {
-    return (!this.state.isloading ?
+    return (
       <div>
         <AuthorHeader />
+        {!this.state.isloading ?
         <div className="mystyle">
           <Drawer
             width={600}
@@ -153,8 +154,10 @@ class User extends React.Component {
               </List.Item>
             )}
           />
-        </div>
-      </div> : null
+        </div> : <div style={{marginTop : "25%",marginLeft : "50%"}}>
+                  <Spin size="large" />
+                 </div>}
+      </div> 
     );
   }
 }
