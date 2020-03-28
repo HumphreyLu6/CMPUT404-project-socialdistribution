@@ -3,7 +3,6 @@ import 'antd/dist/antd.css';
 import { Form, Comment, Avatar, List, Radio } from 'antd';
 import { Input } from 'antd';
 import { Button } from 'antd';
-import { reactLocalStorage } from 'reactjs-localstorage';
 import cookie from 'react-cookies';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
@@ -31,7 +30,7 @@ class Comments extends React.Component {
   }
 
   componentDidMount() {
-    id = reactLocalStorage.get("postid");
+    id = this.props.postId;
     axios.get(BE_COMMENT_API_URL(HOST, id), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
       .then(res => {
         this.setState({

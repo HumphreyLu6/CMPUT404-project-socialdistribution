@@ -174,7 +174,6 @@ class UserSelf extends React.Component {
     }
 
     handleComment = (postId) => {
-        reactLocalStorage.set("postid", postId);
         this.setState({
           drawerVisible: true,
           postId: postId,
@@ -184,7 +183,6 @@ class UserSelf extends React.Component {
     
       onClose = () => {
         this.setState({drawerVisible: false,});
-        document.location.replace(FE_USERPROFILE_URL);
       }
     render() {
 
@@ -215,9 +213,10 @@ class UserSelf extends React.Component {
                         height={700}
                         visible={this.state.drawerVisible}
                         onClose={this.onClose}
+                        destroyOnClose={true}
                         bodyStyle={{ paddingBottom: 80 }}
                     >
-                        <WrappedComments/>
+                        <WrappedComments postId={this.state.postId}/>
                     </Drawer>
                     <List
                         itemLayout="vertical"
