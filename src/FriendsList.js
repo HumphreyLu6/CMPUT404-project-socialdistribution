@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { List, Avatar, Button, Skeleton, Modal } from 'antd';
+import { List, Avatar, Button, Skeleton, Modal, Spin } from 'antd';
 import './components/Header.css';
 import AuthorHeader from './components/AuthorHeader';
 import axios from 'axios';
@@ -17,6 +17,7 @@ class FriendsList extends React.Component {
   state = {
     list: [],
     author: "",
+    isloading : true
   };
 
   componentDidMount() {
@@ -95,6 +96,7 @@ class FriendsList extends React.Component {
           this.setState({
             author: responseA.data,
             list: authors,
+            isloading : false,
           })
         }).catch((error) => {
           console.log(error.message)
@@ -103,7 +105,7 @@ class FriendsList extends React.Component {
   };
 
   render() {
-    const { list } = this.state;
+    const { list,isloading } = this.state;
 
     const liststyle = {
       backgroundColor: "white",
@@ -123,6 +125,7 @@ class FriendsList extends React.Component {
     return (
       <div>
         <AuthorHeader />
+        {!isloading ? 
         <List
           className="demo-loadmore-list"
           itemLayout="horizontal"
@@ -144,6 +147,7 @@ class FriendsList extends React.Component {
                     </Avatar>
                   }
                   title={<a style={titlestyle} href={"#!"} onClick={this.handleProfile.bind(this, item.id)}>{item.displayName}</a>}
+                  description={item.host ? `Host: ${item.host}` : null}
                 />
               </Skeleton>
               <div style={unfriendstyle} onClick={() => this.showDeleteConfirm(item)}>
@@ -151,7 +155,7 @@ class FriendsList extends React.Component {
               </div>
             </List.Item>
           )}
-        />
+        /> : <Spin size="large" style={{marginLeft : "50%", marginTop : "5%"}}/>}
       </div>
     );
   }
