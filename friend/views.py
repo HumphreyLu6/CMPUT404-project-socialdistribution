@@ -98,7 +98,7 @@ class FriendViewSet(viewsets.ModelViewSet):
                     {
                         "Error": "'author' has already sent the friend request to 'friend'"
                     },
-                    tatus=status.HTTP_409_CONFLICT,
+                    status=status.HTTP_409_CONFLICT,
                 )
 
             data = {"status": "U"}
