@@ -44,7 +44,9 @@ class User(AbstractUser):
 
 def update_remote_authors(host: str, auth: str):
     url = f"{host}author"
-    response = requests.get(url, headers={"Authorization": f"Basic {auth}"})
+    response = requests.get(
+        url, headers={"Authorization": f"Basic {auth}", "Accept": "application/json",}
+    )
     raw_author_dict_list = response.json()
     if not raw_author_dict_list or response.status_code not in range(200, 300):
         print(
@@ -71,8 +73,8 @@ def delete_non_existing_remote_users(host: str, author_dict_list: list):
                 non_uuid_id__in=non_uuid_ids
             ).delete()
         else:
-            ids = [int(author_dict["id"]) for author_dict in author_dict_list]
-            User.objects.filter(host=host).exclude(id__in=non_uuid_ids).delete()
+            ids = [author_dict["id"] for author_dict in author_dict_list]
+            User.objects.filter(host=host).exclude(id__in=ids).delete()
     except Exception as e:
         utils.print_warning(f"{type(e).__name__} {str(e)}")
 
@@ -113,9 +115,11 @@ def tidy_user_data(data: dict, node: str) -> (bool, dict):
         host = data.pop("host", None)
         id = data.pop("id", None)
         displayName = data.pop("displayName", None)
-        if not host or not id or not displayName or host != node:
+        if not host or not id or not displayName or host not in node:
             return False, new_data
         else:
+            if host != node:
+                host = node
             new_data["host"] = host
             new_data["displayName"] = displayName
 

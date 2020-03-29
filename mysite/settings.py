@@ -32,6 +32,8 @@ DEFAULT_HOST = "https://spongebook.herokuapp.com/"
 
 # Yuxuan Group's Host
 REMOTE_HOST1 = "https://cmput404-socialdistribution.herokuapp.com/"
+REMOTE_HOST2 = "https://testing-mandala.herokuapp.com/"
+REMOTE_HOST3 = "https://cmput404-group-project-mandala.herokuapp.com/"
 
 ALLOWED_HOSTS = [
     "127.0.0.1",

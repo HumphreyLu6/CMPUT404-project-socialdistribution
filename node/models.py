@@ -1,12 +1,19 @@
 import requests
 import json
 import time
+import traceback
+
 from typing import Optional
 
 from django.db import models
 
 import mysite.utils as utils
-from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
+from mysite.settings import (
+    DEFAULT_HOST,
+    REMOTE_HOST1,
+    REMOTE_HOST2,
+    REMOTE_HOST3,
+)
 from user.models import User, update_remote_authors
 from friend.models import Friend
 from post.models import Post
@@ -78,13 +85,16 @@ def update_remote_friends(base_user: User, depth: int):
         current_friends_qs = User.objects.filter(id__in=list(friend_relations))
         current_friends = [friend for friend in current_friends_qs]
     else:
-        if f1_host == REMOTE_HOST1:
+        if base_user.host == REMOTE_HOST1:
             tmp = base_user.host.split("//")[-1]
             url = f"https://{tmp}author/{tmp}author/{base_user.non_uuid_id}"
         else:
             url = f"{base_user.host}/author/{str(base_user.id)}"
-        auth = Node.objects.filter(host=f1_host).first().auth
-        response = requests.get(url, headers={"Authorization": f"Basic {auth}"})
+        auth = Node.objects.filter(host=base_user.host).first().auth
+        response = requests.get(
+            url,
+            headers={"Authorization": f"Basic {auth}", "Accept": "application/json",},
+        )
         data = response.json()
 
         if not data or response.status_code not in range(200, 300):
@@ -149,8 +159,13 @@ def update_remote_friends(base_user: User, depth: int):
 
 def update_remote_posts(host: str, auth: str):
     url = f"{host}author/posts"
-    response = requests.get(url, headers={"Authorization": f"Basic {auth}"})
+    if host == REMOTE_HOST2 or host == REMOTE_HOST3:
+        url = f"{host}posts"
+    response = requests.get(
+        url, headers={"Authorization": f"Basic {auth}", "Accept": "application/json",}
+    )
     data = response.json()
+    print("debug", host)
     if not data or response.status_code not in range(200, 300):
         utils.print_warning(
             f"Warning: {url} GET method failed with status code {response.status_code}"
@@ -158,9 +173,13 @@ def update_remote_posts(host: str, auth: str):
     else:
         try:
             raw_posts_dict_list = data["posts"]
-            while data["next"] != None:
+            while data.pop("next", None) != None:
                 response = requests.get(
-                    data["next"], headers={"Authorization": f"Basic {auth}"}
+                    data["next"],
+                    headers={
+                        "Authorization": f"Basic {auth}",
+                        "Accept": "application/json",
+                    },
                 )
                 data = response.json()
                 raw_posts_dict_list += data["posts"]
@@ -175,9 +194,8 @@ def update_remote_posts(host: str, auth: str):
                         host=author_dict["host"], non_uuid_id=author_dict["non_uuid_id"]
                     ).first()
                 else:
-                    author = User.objects.filter(
-                        host=author_dict["host"], id=author_dict["id"]
-                    ).first()
+                    author_dict["id"] = author_dict["id"].split("/")[-1]
+                    author = User.objects.filter(id=author_dict["id"]).first()
                 if not author:
                     # author not cached, ignore this post
                     continue
@@ -193,6 +211,7 @@ def update_remote_posts(host: str, auth: str):
             create_or_update_remote_comments(all_comments_dict_list)
             delete_non_existing_remote_comments(posts_dict_list, all_comments_dict_list)
         except Exception as e:
+            # traceback.print_stack(e)
             utils.print_warning(f"{type(e).__name__} {str(e)}")
 
 
@@ -203,6 +222,7 @@ def create_or_update_remote_posts(posts_dict_list: list):
                 id=post_dict["id"], defaults=post_dict,
             )
     except Exception as e:
+        # traceback.print_exc(e)
         utils.print_warning(f"{type(e).__name__} {str(e)}")
 
 
@@ -270,9 +290,8 @@ def tidy_comment_data(data: dict, post_id: str) -> (bool, dict):
                 host=author_dict["host"], non_uuid_id=author_dict["non_uuid_id"]
             ).first()
         else:
-            author = User.objects.filter(
-                host=author_dict["host"], id=author_dict["id"]
-            ).first()
+            author_dict["id"] = author_dict["id"].split("/")[-1]
+            author = User.objects.filter(id=author_dict["id"]).first()
         if not author:
             return False, new_data
 

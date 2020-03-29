@@ -197,6 +197,7 @@ def send_remote_comments(comment, post, author) -> bool:
             headers={
                 "Authorization": f"Basic {node.auth}",
                 "Content-Type": "application/json",
+                "Accept": "application/json",
             },
         )
         print(json.dumps(request_data))
