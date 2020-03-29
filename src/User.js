@@ -1,6 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { List, Avatar, Icon, Drawer} from 'antd';
+import { List, Avatar, Icon, Drawer, Spin} from 'antd';
 import SimpleReactLightbox from "simple-react-lightbox";
 import { SRLWrapper } from "simple-react-lightbox";
 import './components/Header.css'
@@ -12,7 +12,7 @@ import './UserSelf.css';
 import ReactMarkdown from 'react-markdown';
 import { reactLocalStorage } from 'reactjs-localstorage';
 import WrappedComments from './Comment';
-import { BE_VISIBLE_POST_API_URL, HOST, FE_USERPROFILE_URL, FE_USER_URL} from "./utils/constants.js";
+import { BE_VISIBLE_POST_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
 
 var publicPost = [];
 
@@ -57,7 +57,6 @@ class User extends React.Component {
   }
 
   handleComment = (postId) => {
-    reactLocalStorage.set("postid", postId);
     this.setState({
       drawerVisible: true,
       postId: postId,
@@ -66,22 +65,23 @@ class User extends React.Component {
 
   onClose = () => {
     this.setState({drawerVisible: false,});
-    document.location.replace(FE_USER_URL);
   }
 
   render() {
-    return (!this.state.isloading ?
+    return (
       <div>
         <AuthorHeader />
+        {!this.state.isloading ?
         <div className="mystyle">
           <Drawer
             width={600}
             height={700}
             visible={this.state.drawerVisible}
             onClose={this.onClose}
+            destroyOnClose={true}
             bodyStyle={{ paddingBottom: 80 }}
           >
-            <WrappedComments/>
+            <WrappedComments postId={this.state.postId}/>
           </Drawer>
           <List
             itemLayout="vertical"
@@ -154,8 +154,10 @@ class User extends React.Component {
               </List.Item>
             )}
           />
-        </div>
-      </div> : null
+        </div> : <div style={{marginTop : "25%",marginLeft : "50%"}}>
+                  <Spin size="large" />
+                 </div>}
+      </div> 
     );
   }
 }

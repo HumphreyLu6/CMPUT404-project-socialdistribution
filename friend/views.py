@@ -321,6 +321,7 @@ def send_friend_request(author: User, friend: User) -> bool:
             headers={
                 "Authorization": f"Basic {node.auth}",
                 "Content-Type": "application/json",
+                "Accept": "application/json",
             },
         )
         print(json.dumps(request_body))

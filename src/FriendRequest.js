@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { List, Avatar, Button, Skeleton, Modal } from 'antd';
+import { List, Avatar, Button, Skeleton, Modal, Spin } from 'antd';
 import './components/Header.css'
 import AuthorHeader from './components/AuthorHeader'
 import cookie from 'react-cookies';
@@ -23,6 +23,7 @@ class FriendRequest extends React.Component {
   state = {
     list: [],
     author: "",
+    isloading : true
   };
 
   componentDidMount() {
@@ -101,6 +102,7 @@ class FriendRequest extends React.Component {
           this.setState({
             author: responseA.data,
             list: authors,
+            isloading : false,
           })
         }).catch((error) => {
           console.log(error.message)
@@ -109,7 +111,7 @@ class FriendRequest extends React.Component {
   };
 
   render() {
-    const { list } = this.state;
+    const { list, isloading } = this.state;
 
     const liststyle = {
       backgroundColor: "white",
@@ -127,6 +129,7 @@ class FriendRequest extends React.Component {
     return (
       <div>
         <AuthorHeader />
+        {!isloading ? 
         <List
           className="demo-loadmore-list"
           itemLayout="horizontal"
@@ -148,6 +151,7 @@ class FriendRequest extends React.Component {
                     </Avatar>
                   }
                   title={<a style={titlestyle} href={"#!"} onClick={this.handleProfile.bind(this, item.id)}>{item.displayName}</a>}
+                  description={item.host ? `Host: ${item.host}` : null}
 
                 />
               </Skeleton>
@@ -155,7 +159,7 @@ class FriendRequest extends React.Component {
               <Button type="danger" shape="round" size={'default'} style={buttonstyle} onClick={() => this.showConfirm("reject", "R", item)}>Reject</Button>
             </List.Item>
           )}
-        />
+        /> : <Spin size="large" style={{marginLeft : "50%", marginTop : "5%"}}/>}
       </div>
     );
   }

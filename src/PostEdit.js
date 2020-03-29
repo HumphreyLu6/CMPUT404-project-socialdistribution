@@ -89,7 +89,6 @@ class PostEdit extends React.Component {
   componentDidMount() {
     validateCookie();
     id = reactLocalStorage.get("postid");
-    console.log(id);
     axios.get(BE_SINGLE_POST_API_URL(HOST, id), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
       .then(res => {
         const getPost = res.data;
