@@ -85,6 +85,13 @@ class PostsViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         self.customize_update(serializer)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not is_post_visible_to(instance, request.user):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
     @action(detail=False, methods="GET")
     def visible_posts(self, request, *args, **kwargs):
         """

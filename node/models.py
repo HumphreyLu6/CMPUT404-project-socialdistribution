@@ -89,68 +89,78 @@ def update_remote_friends(base_user: User, depth: int):
             tmp = base_user.host.split("//")[-1]
             url = f"https://{tmp}author/{tmp}author/{base_user.non_uuid_id}"
         else:
-            url = f"{base_user.host}/author/{str(base_user.id)}"
+            url = f"{base_user.host}author/{str(base_user.id)}"
         auth = Node.objects.filter(host=base_user.host).first().auth
         response = requests.get(
             url,
             headers={"Authorization": f"Basic {auth}", "Accept": "application/json",},
         )
-        data = response.json()
 
-        if not data or response.status_code not in range(200, 300):
-            utils.print_warning(
-                f"Warning: {url} GET method failed with status code {response.status_code}"
+        if response.status_code not in range(200, 300):
+            no_dash_uuid = str(base_user.id).replace("-", "")
+            url = f"{base_user.host}author/{no_dash_uuid}"
+            response = requests.get(
+                url,
+                headers={
+                    "Authorization": f"Basic {auth}",
+                    "Accept": "application/json",
+                },
             )
-        else:
-            try:
-                raw_friends_dict_list = data["friends"]
-                # save all friends into list, used for delete non-existing friend relations.
-                for raw_friends_dict in raw_friends_dict_list:
-                    f2_id = raw_friends_dict["id"].split("/")[-1]
-                    f2_host = raw_friends_dict["host"]
-                    if f2_host == REMOTE_HOST1:
-                        friend = User.objects.filter(
-                            host=f2_host, non_uuid_id=f2_id
+            if response.status_code not in range(200, 300):
+                utils.print_warning(
+                    f"{url} GET method failed with status code {response.status_code}"
+                )
+                return
+        try:
+            data = response.json()
+            raw_friends_dict_list = data["friends"]
+            # save all friends into list, used for delete non-existing friend relations.
+            for raw_friends_dict in raw_friends_dict_list:
+                f2_id = raw_friends_dict["id"].split("/")[-1]
+                f2_host = raw_friends_dict["host"]
+                if f2_host == REMOTE_HOST1:
+                    friend = User.objects.filter(
+                        host=f2_host, non_uuid_id=f2_id
+                    ).first()
+                else:
+                    friend = User.objects.filter(host=f2_host, id=f2_id).first()
+                if not friend:
+                    # Ignore if this user is not cached, it happend because either the host is not
+                    # connected to us or new data created since updating users, the second one can
+                    # be simply solved by refreshing webpages
+                    continue
+                else:
+                    current_friends.append(friend)
+                    if not Friend.objects.filter(f1Id=base_user, f2Id=friend).exists():
+                        Friend.objects.create(
+                            f1Id=base_user, f2Id=friend, status="A", isCopy=False
+                        )
+                        Friend.objects.create(
+                            f1Id=friend, f2Id=base_user, status="A", isCopy=True
+                        )
+                    else:
+                        # already existed, update status no matter it's "U" or "A"
+                        friend_relation = Friend.objects.filter(
+                            f1Id=base_user, f2Id=friend, isCopy=False
                         ).first()
-                    else:
-                        friend = User.objects.filter(host=f2_host, id=f2_id).first()
-                    if not friend:
-                        # Ignore if this user is not cached, it happend because either the host is not
-                        # connected to us or new data created since updating users, the second one can
-                        # be simply solved by refreshing webpages
-                        continue
-                    else:
-                        current_friends.append(friend)
-                        if not Friend.objects.filter(f1Id=author, f2Id=friend).exists():
-                            Friend.objects.create(
-                                f1Id=author, f2Id=friend, status="A", isCopy=False
-                            )
-                            Friend.objects.create(
-                                f1Id=friend, f2Id=author, status="A", isCopy=True
-                            )
-                        else:
-                            # already existed, update status no matter it's "U" or "A"
-                            friend_relation = Friend.objects.filter(
-                                f1Id=author, f2Id=friend, isCopy=False
-                            ).first()
-                            friend_relation.status = "A"
-                            friend_relation.save()
+                        friend_relation.status = "A"
+                        friend_relation.save()
 
-                            friend_relation = Friend.objects.filter(
-                                f1Id=friend, f2Id=author, isCopy=True
-                            ).first()
-                            friend_relation.status = "A"
-                            friend_relation.save()
+                        friend_relation = Friend.objects.filter(
+                            f1Id=friend, f2Id=base_user, isCopy=True
+                        ).first()
+                        friend_relation.status = "A"
+                        friend_relation.save()
 
-                # delete friend relations
-                Friend.objects.filter(f1Id=author).exclude(
-                    f2Id__in=current_friends, status="U"
-                ).delete()
-                Friend.objects.filter(f2Id=author).exclude(
-                    f1Id__in=current_friends, status="U"
-                ).delete()
-            except Exception as e:
-                print(type(e).__name__, e)
+            # delete friend relations
+            # Friend.objects.filter(f1Id=base_user, status="A").exclude(
+            #     f2Id__in=current_friends
+            # ).delete()
+            # Friend.objects.filter(f2Id=base_user, status="A").exclude(
+            #     f1Id__in=current_friends
+            # ).delete()
+        except Exception as e:
+            utils.print_warning(type(e).__name__, e)
     if depth:
         # recursively updaye friends
         for friend in current_friends:
@@ -164,14 +174,13 @@ def update_remote_posts(host: str, auth: str):
     response = requests.get(
         url, headers={"Authorization": f"Basic {auth}", "Accept": "application/json",}
     )
-    data = response.json()
-    print("debug", host)
-    if not data or response.status_code not in range(200, 300):
+    if response.status_code not in range(200, 300):
         utils.print_warning(
             f"Warning: {url} GET method failed with status code {response.status_code}"
         )
     else:
         try:
+            data = response.json()
             raw_posts_dict_list = data["posts"]
             while data.pop("next", None) != None:
                 response = requests.get(
