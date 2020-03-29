@@ -16,7 +16,7 @@ urlpatterns = [
         FriendViewSet.as_view({"post": "filter_friends_of",}),
     ),
     path(
-        "author/<slug:AUTHOR1_ID>/friends/<slug:AUTHOR2_ID>",
+        "author/<path:AUTHOR1_ID>/friends/<path:AUTHOR2_ID>",
         FriendViewSet.as_view({"get": "if_two_friends",}),
     ),
     path(
@@ -24,4 +24,3 @@ urlpatterns = [
         FriendViewSet.as_view({"post": "create", "patch": "update_friendship",}),
     ),
 ]
-
