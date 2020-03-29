@@ -1,13 +1,12 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { Form, Comment, Avatar, List, Radio } from 'antd';
-import { Input } from 'antd';
-import { Button } from 'antd';
+import { Form, Comment, Avatar, List, Radio, Input, Button } from 'antd';
 import cookie from 'react-cookies';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
-import { BE_COMMENT_API_URL, HOST, BE_CURRENT_USER_API_URL } from "./utils/constants.js";
+import { BE_COMMENT_API_URL, HOST, BE_CURRENT_USER_API_URL, FE_USERPROFILE_URL } from "./utils/constants.js";
 import convertTime from "./utils/isoFormat.js";
+import { reactLocalStorage } from 'reactjs-localstorage';
 import uuidv4 from "./utils/getUUID.js";
 const { TextArea } = Input;
 var id = '';
@@ -59,6 +58,11 @@ class Comments extends React.Component {
       });
 
   };
+
+  handleProfile = (authorId) => {
+    reactLocalStorage.set("currentUserId", authorId);
+    document.location.replace(FE_USERPROFILE_URL);
+  }
 
   handleSubmit = e => {
     this.props.form.validateFieldsAndScroll((err, values) => {
@@ -123,10 +127,25 @@ class Comments extends React.Component {
                 renderItem={item => (
                   <li>
                     <Comment
-                      author={item.author.displayName}
-                      avatar={<Avatar size="small"style={{color: '#FFFFFF',backgroundColor: '#3991F7',}}>{item.author.displayName[0].toUpperCase()}</Avatar>}            
-                      content={item.contentType === "text/markdown" ? (<ReactMarkdown source={item.comment} />) : item.comment}
-                      datetime={item.published}
+                      author={
+                        <span style={{fontSize : "15px"}}>{item.author.displayName}</span>
+                      }
+                      avatar={
+                      <Avatar 
+                        size="large" 
+                        style={{color: '#FFFFFF',backgroundColor: '#3991F7',fontSize : "25px"}}
+                      >
+                        {item.author.displayName[0].toUpperCase()}
+                      </Avatar>}  
+                      content={
+                        <span style={{fontSize : "18px"}}>{item.contentType === "text/markdown" ?
+                          (<ReactMarkdown source={item.comment} />) :
+                            item.comment}
+                        </span>
+                      }
+                      datetime={
+                        <span style={{fontSize : "15px"}}>{item.published}</span>
+                      }
                     />
                   </li>
                 )}
@@ -161,7 +180,7 @@ class Comments extends React.Component {
             </Form.Item>
 
             <Form.Item {...tailFormItemLayout}>
-              <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
+              <Button type="primary" size = "large" style = {{marginLeft : "20%"}} htmlType="button" onClick={this.handleSubmit}>
                 Comment
                   </Button>
             </Form.Item>

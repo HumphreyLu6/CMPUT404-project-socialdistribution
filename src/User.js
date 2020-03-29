@@ -101,19 +101,27 @@ class User extends React.Component {
               >
                 <List.Item.Meta
                   avatar={
-                    <Avatar size="large"
+                    <Avatar size={50}
                       style={{
                         color: '#FFFFFF',
                         backgroundColor: '#3991F7',
+                        marginBottom : "-60px",
+                        fontSize : "30px"
                       }}
                     >{item.author.displayName[0].toUpperCase()}
                     </Avatar>
                   }
-                  title={<a href={"#!"} onClick={this.handleProfile.bind(this, item.author.id)} style={{ color: '#031528' }}>{item.author.displayName}</a>}
-                  description={"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}
+                  title={<a href={"#!"} onClick={this.handleProfile.bind(this, item.author.id)} style={{ color: '#031528',fontSize : "18px" }}>{item.author.displayName}</a>}
+                  description={
+                    <div style={{marginBottom : "-10px",marginTop : "-10px"}}>
+                      <span>{"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}</span>
+                      <br></br>
+                      <span>{`Host: ${item.author.host ? item.author.host : null}`}</span>
+                    </div>
+                  }
                 />
 
-                <h3>{"Title: ".concat(item.title)}</h3><p>  </p>
+                <h3>{"Title: ".concat(item.title)}</h3>
                 {item.contentType === "text/plain" ? item.content : (<ReactMarkdown source={item.content} />)}
                 <p>  </p>
                 <SimpleReactLightbox>

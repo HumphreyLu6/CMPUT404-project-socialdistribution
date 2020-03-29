@@ -137,10 +137,11 @@ class FriendsList extends React.Component {
               <Skeleton avatar title={false} loading={item.loading} active>
                 <List.Item.Meta
                   avatar={
-                    <Avatar
+                    <Avatar size={50}
                       style={{
                         color: '#FFFFFF',
                         backgroundColor: '#3991F7',
+                        fontSize : "30px"
                       }}
                     >
                       {item.displayName[0].toUpperCase()}
