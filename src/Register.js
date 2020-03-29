@@ -2,7 +2,7 @@ import React from "react";
 // import ReactDOM from "react-dom";
 import "antd/dist/antd.css";
 import './components/Register.css';
-import { Form, Input, Button, Checkbox } from 'antd';
+import { Form, Input, Button} from 'antd';
 import axios from 'axios';
 import _ from "lodash"
 import { BE_REGISTER_API_URL, FE_LOGIN_URL } from "./utils/constants.js";
@@ -12,7 +12,7 @@ class RegistrationForm extends React.Component {
     confirmDirty: false,
     autoCompleteResult: []
   };
-
+l
   handleSubmit = e => {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
@@ -158,21 +158,14 @@ class RegistrationForm extends React.Component {
               ]
             })(<Input.Password onBlur={this.handleConfirmBlur} />)}
           </Form.Item>
-
-          <Form.Item {...tailFormItemLayout}>
-            {getFieldDecorator("agreement", {
-              valuePropName: "checked"
-            })(
-              <Checkbox>
-                I have read the <a href="!#">agreement</a>
-              </Checkbox>
-            )}
-          </Form.Item>
           <Form.Item {...tailFormItemLayout}>
             <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
               Register
           </Button>
+          <br/>
+          <a href={FE_LOGIN_URL}> Back to log in </a>
           </Form.Item>
+          
         </Form>
       </div>
     );
