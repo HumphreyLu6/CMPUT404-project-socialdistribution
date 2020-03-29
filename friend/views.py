@@ -85,13 +85,21 @@ class FriendViewSet(viewsets.ModelViewSet):
 
             # check if author and friend are already friends
             if Friend.objects.filter(f1Id=author, f2Id=friend, status="A").exists():
-                raise Exception("Author and Friend are already friends")
+                return Response(
+                    {"Error": "'author' and 'friend' are already friends"},
+                    status=status.HTTP_409_CONFLICT,
+                )
 
             # check if author already sent friend request to friend
             if Friend.objects.filter(
                 f1Id=author, f2Id=friend, status="U", isCopy=False
             ).exists():
-                raise Exception("Author already sent friend request to Friend")
+                return Response(
+                    {
+                        "Error": "'author' has already sent the friend request to 'friend'"
+                    },
+                    tatus=status.HTTP_409_CONFLICT,
+                )
 
             data = {"status": "U"}
             if Friend.objects.filter(f1Id=friend, f2Id=author, isCopy=False).exists():
@@ -174,7 +182,7 @@ class FriendViewSet(viewsets.ModelViewSet):
         response_body = {"query": "friends"}
         try:
             author1_id = kwargs["AUTHOR1_ID"]
-            author2_id = kwargs["AUTHOR2_ID"]
+            author2_id = kwargs["AUTHOR2_ID"].split("/")[-1]
             author1 = User.objects.filter(id=author1_id).first()
             author2 = User.objects.filter(id=author2_id).first()
             if not author1 or not author2:
