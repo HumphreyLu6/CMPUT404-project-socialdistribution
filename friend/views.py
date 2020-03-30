@@ -200,10 +200,10 @@ class FriendViewSet(viewsets.ModelViewSet):
             if Friend.objects.filter(
                 f1Id=author1_id, f2Id=author2_id, status="A"
             ).exists():
-                response_body["friends"] = "true"
+                response_body["friends"] = True
                 return Response(response_body, status=status.HTTP_200_OK)
             else:
-                response_body["friends"] = "false"
+                response_body["friends"] = False
                 return Response(response_body, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["POST"])
@@ -323,6 +323,7 @@ def send_friend_request(author: User, friend: User) -> bool:
             "author": author_dict,
             "friend": friend_dict,
         }
+
         response = requests.post(
             url,
             data=json.dumps(request_body),
@@ -332,8 +333,7 @@ def send_friend_request(author: User, friend: User) -> bool:
                 "Accept": "application/json",
             },
         )
-        print(json.dumps(request_body))
-        print(response.status_code)
+
         if response.status_code not in range(200, 300):
             raise Exception(response.text)
         return True
