@@ -324,7 +324,6 @@ def send_friend_request(author: User, friend: User) -> bool:
             "friend": friend_dict,
         }
 
-        print(request_body)
         response = requests.post(
             url,
             data=json.dumps(request_body),
@@ -334,8 +333,7 @@ def send_friend_request(author: User, friend: User) -> bool:
                 "Accept": "application/json",
             },
         )
-        print(json.dumps(request_body))
-        print(response.status_code)
+
         if response.status_code not in range(200, 300):
             raise Exception(response.text)
         return True
