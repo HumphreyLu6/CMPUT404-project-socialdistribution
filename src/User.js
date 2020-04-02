@@ -117,6 +117,8 @@ class User extends React.Component {
                       <span>{"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}</span>
                       <br></br>
                       <span>{`Host: ${item.author.host ? item.author.host : null}`}</span>
+                      <br></br>
+                      <span>{`Category: ${item.categories}`}</span>
                     </div>
                   }
                 />
