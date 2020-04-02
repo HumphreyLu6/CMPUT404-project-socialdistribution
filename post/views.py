@@ -160,7 +160,7 @@ def get_visible_posts(posts, user):
         return posts.filter(visibility="PUBLIC", unlisted=False)
 
     elif user.id in get_nodes_user_ids():
-        if user.node.shareImage:
+        if user.node.first().shareImage:
             return posts.filter(origin=DEFAULT_HOST, visibility="SERVERONLY")
         else:
             return posts.filter(
