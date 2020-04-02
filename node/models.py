@@ -28,6 +28,7 @@ class Node(models.Model):
     # Basic auth used for connectting to other nodes (base64 encoding of "email:password")
     auth = models.TextField()
     date = models.DateField(auto_now_add=True)
+    shareImage = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.host}"
@@ -169,8 +170,6 @@ def update_remote_friends(base_user: User, depth: int):
 
 def update_remote_posts(host: str, auth: str):
     url = f"{host}author/posts"
-    if host == REMOTE_HOST2 or host == REMOTE_HOST3:
-        url = f"{host}posts"
     response = requests.get(
         url, headers={"Authorization": f"Basic {auth}", "Accept": "application/json",}
     )
