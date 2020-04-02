@@ -196,7 +196,7 @@ class PostInput extends React.Component {
       }
     };
 
-    const { previewVisible, previewImage, fileList } = this.state;
+    const { previewVisible, previewImage } = this.state;
 
     const uploadButton = (
       <div>
@@ -315,7 +315,7 @@ class PostInput extends React.Component {
                 onPreview={this.handlePreview}
                 onChange={this.handleChange}
               >
-                {fileList.length >= 4 ? null : uploadButton}
+                {uploadButton}
               </Upload>
                 <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
                   <img alt="example" style={{ width: '100%' }} src={previewImage} />
