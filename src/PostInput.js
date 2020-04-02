@@ -85,7 +85,35 @@ class PostInput extends React.Component {
   };
 
   handleChange = ({ fileList }) => {
-    this.setState({ fileList });
+   fileList = fileList.slice(-1);
+   this.setState({ fileList });
+  }
+
+  dummyRequest = ({ file, onSuccess }) => {
+    setTimeout(() => {
+      onSuccess("ok");
+    }, 0);
+  };
+
+  handleImage = () => {
+    console.log(this.state.fileList);
+    /*axios.post(BE_POST_API_URL(HOST),
+          {
+            title: this.state.fileList[0].name,
+            description: "",
+            content: this.state.fileList[0].thumbUrl,
+            contentType: "text/markdown",
+            visibility: "PUBLIC",
+            visibleTo: "",
+            unlisted: true,
+          }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
+        )
+          .then(function (response) {
+            
+          })
+          .catch(function (error) {
+            console.log(error);
+          });*/
   }
 
 
@@ -157,12 +185,7 @@ class PostInput extends React.Component {
           .catch(function (error) {
             console.log(error);
           });
-        // check if filelist is empty
-        /*var i;
-        for (i = 0; i < this.state.fileList.length; i++) {
-          encoding[i] = this.state.fileList[i].thumbUrl;
-        }
-        console.log(encoding);*/
+
       }
     });
   };
@@ -196,7 +219,7 @@ class PostInput extends React.Component {
       }
     };
 
-    const { previewVisible, previewImage } = this.state;
+    const { previewVisible, previewImage, fileList} = this.state;
 
     const uploadButton = (
       <div>
@@ -277,7 +300,8 @@ class PostInput extends React.Component {
                   {
                     required: true,
                   },
-                ]
+                ],
+                initialValue: "PUBLIC"
               })(<Radio.Group>
                 <Radio.Button value="PUBLIC">Public</Radio.Button>
                 <Radio.Button value="FRIENDS">Friends</Radio.Button>
@@ -293,10 +317,11 @@ class PostInput extends React.Component {
                   {
                     required: true,
                   },
-                ]
+                ],
+                initialValue: "text/markdown"
               })(<Radio.Group>
-                <Radio.Button value="text/plain">Plain Text</Radio.Button>
                 <Radio.Button value="text/markdown">Markdown</Radio.Button>
+                <Radio.Button value="text/plain">Plain Text</Radio.Button>
               </Radio.Group>
               )}
             </Form.Item>
@@ -309,8 +334,9 @@ class PostInput extends React.Component {
                   },
                 ]
               })(<div><Upload
-                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                customRequest={this.dummyRequest}
                 listType="picture-card"
+                fileList={fileList}
                 beforeUpload={beforeUpload}
                 onPreview={this.handlePreview}
                 onChange={this.handleChange}
@@ -324,9 +350,15 @@ class PostInput extends React.Component {
             </Form.Item>
 
             <Form.Item {...tailFormItemLayout}>
-              <Button type="primary" size = "large" shape="round" style = {{marginLeft : "25%"}}htmlType="button" onClick={this.handleSubmit}>
+              <Button type="primary" size = "small" shape="round" htmlType="button" onClick={this.handleImage}>
+                Confirm image
+              </Button>
+            </Form.Item>
+
+            <Form.Item {...tailFormItemLayout}>
+              <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
                 Post it
-                    </Button>
+              </Button>
             </Form.Item>
           </Form>
         </div>

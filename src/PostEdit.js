@@ -49,24 +49,7 @@ class PostEdit extends React.Component {
     previewVisible: false,
     previewImage: '',
     isloading: true,
-    fileList: [
-      {
-        uid: '-1',
-        url: 'https://wallpaperaccess.com/full/628286.jpg',
-      },
-      {
-        uid: '-2',
-        url: 'https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg',
-      },
-      {
-        uid: '-3',
-        url: 'https://wallpaperaccess.com/full/628286.jpg',
-      },
-      {
-        uid: '-4',
-        url: 'https://wallpaperaccess.com/full/628286.jpg',
-      },
-    ],
+    fileList: [],
   };
 
   handleMarkdown = () => {
@@ -161,6 +144,29 @@ class PostEdit extends React.Component {
     reactLocalStorage.clear();
   }
 
+  handleImage = () => {
+    console.log(this.state.fileList);
+    /*axios.post(BE_POST_API_URL(HOST),
+          {
+            title: this.state.fileList[0].name,
+            description: "",
+            content: this.state.fileList[0].thumbUrl,
+            contentType: "text/markdown",
+            visibility: "PUBLIC",
+            visibleTo: "",
+            unlisted: true,
+          }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
+        )
+          .then(function (response) {
+            
+          })
+          .catch(function (error) {
+            console.log(error);
+          });*/
+
+
+  }
+
   handleSubmit = () => {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
@@ -170,7 +176,6 @@ class PostEdit extends React.Component {
             description: "",
             content: values.postContent,
             contentType: values.Type,
-            isImage: false,
             visibility: values.Visibility,
             categories: this.state.tags,
             visibleTo: "",
@@ -231,7 +236,7 @@ class PostEdit extends React.Component {
       <div>
         <AuthorHeader />
 
-        <div class={'postInput'} style={{justifyContent: 'center' }} >
+        <div className={'postInput'} style={{justifyContent: 'center' }} >
           <Form {...formItemLayout}>
 
             <Form.Item>
@@ -321,8 +326,8 @@ class PostEdit extends React.Component {
                 ],
                 initialValue: `${postType}`
               })(<Radio.Group>
-                <Radio.Button value="text/plain">Plain Text</Radio.Button>
                 <Radio.Button value="text/markdown">Markdown</Radio.Button>
+                <Radio.Button value="text/plain">Plain Text</Radio.Button>
               </Radio.Group>
               )}
             </Form.Item>
@@ -335,14 +340,14 @@ class PostEdit extends React.Component {
                   },
                 ]
               })(<div><Upload
-                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                customRequest={this.dummyRequest}
                 listType="picture-card"
                 fileList={fileList}
                 beforeUpload={beforeUpload}
                 onPreview={this.handlePreview}
                 onChange={this.handleChange}
               >
-                {fileList.length >= 4 ? null : uploadButton}
+                {uploadButton}
               </Upload>
                 <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
                   <img alt="example" style={{ width: '100%' }} src={previewImage} />
@@ -351,9 +356,15 @@ class PostEdit extends React.Component {
             </Form.Item>
 
             <Form.Item {...tailFormItemLayout}>
+              <Button type="primary" size = "small" shape="round" htmlType="button" onClick={this.handleImage}>
+                Confirm image
+              </Button>
+            </Form.Item>
+
+            <Form.Item {...tailFormItemLayout}>
               <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
                 Post it
-                  </Button>
+              </Button>
             </Form.Item>
           </Form>
         </div>

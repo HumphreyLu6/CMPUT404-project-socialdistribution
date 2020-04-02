@@ -1,8 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import { List, Icon, Modal, Avatar, Drawer, Spin } from 'antd';
-import SimpleReactLightbox from "simple-react-lightbox";
-import { SRLWrapper } from "simple-react-lightbox";
 import axios from 'axios';
 import AuthorHeader from './components/AuthorHeader'
 import AuthorProfile from './components/AuthorProfile'
@@ -270,40 +268,7 @@ class UserSelf extends React.Component {
                                 />
                                 <h3>{"Title: ".concat(item.title)}</h3>
                                 {item.contentType === "text/plain" ? item.content : (<ReactMarkdown source={item.content} />)}
-                                <SimpleReactLightbox>
-                                    <SRLWrapper>
-                                        <img
-                                            width={150}
-                                            height={150}
-                                            hspace={3}
-                                            vspace={3}
-                                            alt=""
-                                            src="https://wallpaperaccess.com/full/628286.jpg" />
-                                        <img
-                                            width={150}
-                                            height={150}
-                                            hspace={3}
-                                            vspace={3}
-                                            alt=""
-                                            src="https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg" />
-                                        <br></br>
-                                        <img
-                                            width={150}
-                                            height={150}
-                                            hspace={3}
-                                            vspace={3}
-                                            alt=""
-                                            src="https://wallpaperaccess.com/full/628286.jpg" />
-                                        <img
-                                            width={150}
-                                            height={150}
-                                            hspace={3}
-                                            vspace={3}
-                                            alt=""
-                                            src="https://wallpaperaccess.com/full/628286.jpg" />
-
-                                    </SRLWrapper>
-                                </SimpleReactLightbox>
+                                <p>  </p>
 
                             </List.Item>
                         )}
