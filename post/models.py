@@ -45,12 +45,5 @@ class Post(models.Model):
     visibleToStr = models.TextField(default="[]")
     unlisted = models.BooleanField(default=False)
 
-    isImage = models.BooleanField(default=False)
-    # A list of image posts' ids dumps into str
-    imagePostIdsStr = models.TextField(default="[]")  # storing image post ids.
-    # This field is used to store the id of the text post has this image.
-    # If isImages is False, this should be null.
-    textPostId = models.UUIDField(null=True, blank=True)
-
     def __str__(self):
         return self.title
