@@ -10,9 +10,11 @@ import AuthorHeader from './components/AuthorHeader'
 import validateCookie from './utils/validate.js';
 import { TweenOneGroup } from 'rc-tween-one';
 import { PlusOutlined } from '@ant-design/icons';
-import { BE_SINGLE_POST_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
+import { BE_POST_API_URL, BE_SINGLE_POST_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
 const { TextArea } = Input;
 var id = '';
+var imageCreated = [];
+
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -31,6 +33,9 @@ function beforeUpload(file) {
   return isJpgOrPng;
 }
 
+function createimage(imagePostId) {
+  return "![](http://localhost:8000/posts/".concat(imagePostId).concat(")");
+}
 
 class PostEdit extends React.Component {
 
@@ -74,6 +79,12 @@ class PostEdit extends React.Component {
   handleChange = ({ fileList }) => {
     this.setState({ fileList });
   }
+
+  dummyRequest = ({ file, onSuccess }) => {
+    setTimeout(() => {
+      onSuccess("ok");
+    }, 0);
+  };
 
   handleClose = removedTag => {
     const tags = this.state.tags.filter(tag => tag !== removedTag);
@@ -145,27 +156,27 @@ class PostEdit extends React.Component {
   }
 
   handleImage = () => {
-    console.log(this.state.fileList);
-    /*axios.post(BE_POST_API_URL(HOST),
+    var imageType = this.state.fileList[0].thumbUrl.split(":")[1].split(",")[0];
+    var imageEncoding = this.state.fileList[0].thumbUrl.split(":")[1].split(",")[1];
+    axios.post(BE_POST_API_URL(HOST),
           {
             title: this.state.fileList[0].name,
             description: "",
-            content: this.state.fileList[0].thumbUrl,
-            contentType: "text/markdown",
+            content: imageEncoding,
+            contentType: imageType,
             visibility: "PUBLIC",
             visibleTo: "",
             unlisted: true,
           }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
         )
           .then(function (response) {
-            
+            imageCreated.push(String(createimage(String(response.data.id))));
           })
           .catch(function (error) {
             console.log(error);
-          });*/
-
-
+          });
   }
+
 
   handleSubmit = () => {
     this.props.form.validateFieldsAndScroll((err, values) => {
@@ -174,7 +185,7 @@ class PostEdit extends React.Component {
           {
             title: values.postTitle,
             description: "",
-            content: values.postContent,
+            content: values.postContent.concat(imageCreated.join('')),
             contentType: values.Type,
             visibility: values.Visibility,
             categories: this.state.tags,
@@ -228,6 +239,14 @@ class PostEdit extends React.Component {
       <div>
         <Icon type="plus" />
         <div className="ant-upload-text" style={{ left: "5%" }}>Upload</div>
+      </div>
+    );
+
+    const confirmButton = (
+      <div>
+        <Button type="primary" size = "small" shape="round" htmlType="button" onClick={this.handleImage}>
+                Confirm image
+        </Button>
       </div>
     );
 
@@ -355,11 +374,7 @@ class PostEdit extends React.Component {
               )}
             </Form.Item>
 
-            <Form.Item {...tailFormItemLayout}>
-              <Button type="primary" size = "small" shape="round" htmlType="button" onClick={this.handleImage}>
-                Confirm image
-              </Button>
-            </Form.Item>
+            {fileList.length <= 0 ? null : confirmButton}
 
             <Form.Item {...tailFormItemLayout}>
               <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
