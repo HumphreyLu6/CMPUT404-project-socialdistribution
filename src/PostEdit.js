@@ -34,8 +34,8 @@ function beforeUpload(file) {
 }
 
 function createimage(imagePostId) {
-  return "![](http://localhost:8000/posts/".concat(imagePostId).concat(")");
-}
+  return "![](".concat(HOST).concat("posts/").concat(imagePostId).concat(")");
+} 
 
 class PostEdit extends React.Component {
 
