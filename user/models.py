@@ -148,3 +148,12 @@ def tidy_user_data(data: dict, node: str) -> (bool, dict):
     except Exception as e:
         utils.print_warning(f"{type(e).__name__} {str(e)}")
         return False, new_data
+
+
+# utils
+def get_user(id: str):
+    user = User.objects.filter(id=id).first()
+    if not user:
+        id = str(uuid.UUID(id))
+        user = User.objects.filter(id=id).first()
+    return user

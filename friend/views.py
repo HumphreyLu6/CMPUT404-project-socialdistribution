@@ -16,7 +16,7 @@ from rest_framework.permissions import (
 
 import mysite.utils as utils
 from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
-from user.models import User
+from user.models import User, get_user
 from user.serializers import BriefAuthorSerializer
 from node.models import Node, update_db, get_nodes_user_ids
 from .models import Friend
@@ -62,7 +62,7 @@ class FriendViewSet(viewsets.ModelViewSet):
                 if node.host == REMOTE_HOST1:
                     author = User.objects.filter(non_uuid_id=author_data["id"]).first()
                 else:
-                    author = User.objects.filter(id=author_data["id"]).first()
+                    author = get_user(author_data["id"])
                 friend = User.objects.filter(id=friend_data["id"]).first()
 
                 if not author or author.host != node.host:
