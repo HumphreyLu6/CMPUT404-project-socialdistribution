@@ -14,6 +14,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { BE_POST_API_URL, BE_CURRENT_USER_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
 
 const { TextArea } = Input;
+var imageCreated = [];
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -30,6 +31,10 @@ function beforeUpload(file) {
     message.error('You can only upload JPG/PNG file!');
   }
   return isJpgOrPng;
+}
+
+function createimage(imagePostId) {
+  return "![](http://localhost:8000/posts/".concat(imagePostId).concat(")");
 }
 
 class PostInput extends React.Component {
@@ -85,7 +90,36 @@ class PostInput extends React.Component {
   };
 
   handleChange = ({ fileList }) => {
-    this.setState({ fileList });
+   fileList = fileList.slice(-1);
+   this.setState({ fileList });
+  }
+
+  dummyRequest = ({ file, onSuccess }) => {
+    setTimeout(() => {
+      onSuccess("ok");
+    }, 0);
+  };
+
+  handleImage = () => {
+    var imageType = this.state.fileList[0].thumbUrl.split(":")[1].split(",")[0];
+    var imageEncoding = this.state.fileList[0].thumbUrl.split(":")[1].split(",")[1];
+    axios.post(BE_POST_API_URL(HOST),
+          {
+            title: this.state.fileList[0].name,
+            description: "",
+            content: imageEncoding,
+            contentType: imageType,
+            visibility: "PUBLIC",
+            visibleTo: "",
+            unlisted: true,
+          }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
+        )
+          .then(function (response) {
+            imageCreated.push(String(createimage(String(response.data.id))));
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
   }
 
 
@@ -143,7 +177,7 @@ class PostInput extends React.Component {
           {
             title: values.postTitle,
             description: "",
-            content: values.postContent,
+            content: values.postContent.concat(imageCreated.join('')),
             contentType: values.Type,
             categories: this.state.tags,
             visibility: values.Visibility,
@@ -157,12 +191,7 @@ class PostInput extends React.Component {
           .catch(function (error) {
             console.log(error);
           });
-        // check if filelist is empty
-        /*var i;
-        for (i = 0; i < this.state.fileList.length; i++) {
-          encoding[i] = this.state.fileList[i].thumbUrl;
-        }
-        console.log(encoding);*/
+
       }
     });
   };
@@ -196,12 +225,20 @@ class PostInput extends React.Component {
       }
     };
 
-    const { previewVisible, previewImage, fileList } = this.state;
+    const { previewVisible, previewImage, fileList} = this.state;
 
     const uploadButton = (
       <div>
         <Icon type="plus" />
         <div className="ant-upload-text" style={{ left: "5%" }}>Upload</div>
+      </div>
+    );
+
+    const confirmButton = (
+      <div>
+        <Button type="primary" size = "small" shape="round" htmlType="button" onClick={this.handleImage}>
+                Confirm image
+        </Button>
       </div>
     );
 
@@ -277,7 +314,8 @@ class PostInput extends React.Component {
                   {
                     required: true,
                   },
-                ]
+                ],
+                initialValue: "PUBLIC"
               })(<Radio.Group>
                 <Radio.Button value="PUBLIC">Public</Radio.Button>
                 <Radio.Button value="FRIENDS">Friends</Radio.Button>
@@ -293,10 +331,11 @@ class PostInput extends React.Component {
                   {
                     required: true,
                   },
-                ]
+                ],
+                initialValue: "text/markdown"
               })(<Radio.Group>
-                <Radio.Button value="text/plain">Plain Text</Radio.Button>
                 <Radio.Button value="text/markdown">Markdown</Radio.Button>
+                <Radio.Button value="text/plain">Plain Text</Radio.Button>
               </Radio.Group>
               )}
             </Form.Item>
@@ -309,13 +348,14 @@ class PostInput extends React.Component {
                   },
                 ]
               })(<div><Upload
-                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                customRequest={this.dummyRequest}
                 listType="picture-card"
+                fileList={fileList}
                 beforeUpload={beforeUpload}
                 onPreview={this.handlePreview}
                 onChange={this.handleChange}
               >
-                {fileList.length >= 4 ? null : uploadButton}
+                {uploadButton}
               </Upload>
                 <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
                   <img alt="example" style={{ width: '100%' }} src={previewImage} />
@@ -323,10 +363,12 @@ class PostInput extends React.Component {
               )}
             </Form.Item>
 
+            {fileList.length <= 0 ? null : confirmButton}
+
             <Form.Item {...tailFormItemLayout}>
-              <Button type="primary" size = "large" shape="round" style = {{marginLeft : "25%"}}htmlType="button" onClick={this.handleSubmit}>
+              <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
                 Post it
-                    </Button>
+              </Button>
             </Form.Item>
           </Form>
         </div>

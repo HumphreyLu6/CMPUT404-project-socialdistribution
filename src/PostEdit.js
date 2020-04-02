@@ -10,9 +10,11 @@ import AuthorHeader from './components/AuthorHeader'
 import validateCookie from './utils/validate.js';
 import { TweenOneGroup } from 'rc-tween-one';
 import { PlusOutlined } from '@ant-design/icons';
-import { BE_SINGLE_POST_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
+import { BE_POST_API_URL, BE_SINGLE_POST_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
 const { TextArea } = Input;
 var id = '';
+var imageCreated = [];
+
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -31,6 +33,9 @@ function beforeUpload(file) {
   return isJpgOrPng;
 }
 
+function createimage(imagePostId) {
+  return "![](http://localhost:8000/posts/".concat(imagePostId).concat(")");
+}
 
 class PostEdit extends React.Component {
 
@@ -49,24 +54,7 @@ class PostEdit extends React.Component {
     previewVisible: false,
     previewImage: '',
     isloading: true,
-    fileList: [
-      {
-        uid: '-1',
-        url: 'https://wallpaperaccess.com/full/628286.jpg',
-      },
-      {
-        uid: '-2',
-        url: 'https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg',
-      },
-      {
-        uid: '-3',
-        url: 'https://wallpaperaccess.com/full/628286.jpg',
-      },
-      {
-        uid: '-4',
-        url: 'https://wallpaperaccess.com/full/628286.jpg',
-      },
-    ],
+    fileList: [],
   };
 
   handleMarkdown = () => {
@@ -91,6 +79,12 @@ class PostEdit extends React.Component {
   handleChange = ({ fileList }) => {
     this.setState({ fileList });
   }
+
+  dummyRequest = ({ file, onSuccess }) => {
+    setTimeout(() => {
+      onSuccess("ok");
+    }, 0);
+  };
 
   handleClose = removedTag => {
     const tags = this.state.tags.filter(tag => tag !== removedTag);
@@ -161,6 +155,29 @@ class PostEdit extends React.Component {
     reactLocalStorage.clear();
   }
 
+  handleImage = () => {
+    var imageType = this.state.fileList[0].thumbUrl.split(":")[1].split(",")[0];
+    var imageEncoding = this.state.fileList[0].thumbUrl.split(":")[1].split(",")[1];
+    axios.post(BE_POST_API_URL(HOST),
+          {
+            title: this.state.fileList[0].name,
+            description: "",
+            content: imageEncoding,
+            contentType: imageType,
+            visibility: "PUBLIC",
+            visibleTo: "",
+            unlisted: true,
+          }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
+        )
+          .then(function (response) {
+            imageCreated.push(String(createimage(String(response.data.id))));
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+  }
+
+
   handleSubmit = () => {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
@@ -168,9 +185,8 @@ class PostEdit extends React.Component {
           {
             title: values.postTitle,
             description: "",
-            content: values.postContent,
+            content: values.postContent.concat(imageCreated.join('')),
             contentType: values.Type,
-            isImage: false,
             visibility: values.Visibility,
             categories: this.state.tags,
             visibleTo: "",
@@ -226,12 +242,20 @@ class PostEdit extends React.Component {
       </div>
     );
 
+    const confirmButton = (
+      <div>
+        <Button type="primary" size = "small" shape="round" htmlType="button" onClick={this.handleImage}>
+                Confirm image
+        </Button>
+      </div>
+    );
+
 
     return (!isloading ?
       <div>
         <AuthorHeader />
 
-        <div class={'postInput'} style={{justifyContent: 'center' }} >
+        <div className={'postInput'} style={{justifyContent: 'center' }} >
           <Form {...formItemLayout}>
 
             <Form.Item>
@@ -321,8 +345,8 @@ class PostEdit extends React.Component {
                 ],
                 initialValue: `${postType}`
               })(<Radio.Group>
-                <Radio.Button value="text/plain">Plain Text</Radio.Button>
                 <Radio.Button value="text/markdown">Markdown</Radio.Button>
+                <Radio.Button value="text/plain">Plain Text</Radio.Button>
               </Radio.Group>
               )}
             </Form.Item>
@@ -335,14 +359,14 @@ class PostEdit extends React.Component {
                   },
                 ]
               })(<div><Upload
-                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                customRequest={this.dummyRequest}
                 listType="picture-card"
                 fileList={fileList}
                 beforeUpload={beforeUpload}
                 onPreview={this.handlePreview}
                 onChange={this.handleChange}
               >
-                {fileList.length >= 4 ? null : uploadButton}
+                {uploadButton}
               </Upload>
                 <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
                   <img alt="example" style={{ width: '100%' }} src={previewImage} />
@@ -350,10 +374,12 @@ class PostEdit extends React.Component {
               )}
             </Form.Item>
 
+            {fileList.length <= 0 ? null : confirmButton}
+
             <Form.Item {...tailFormItemLayout}>
               <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
                 Post it
-                  </Button>
+              </Button>
             </Form.Item>
           </Form>
         </div>
