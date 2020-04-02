@@ -1,13 +1,15 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { Form, Input, Button, Upload, Modal, Icon, Radio, message } from 'antd';
+import { Form, Input, Button, Upload, Modal, Icon, Radio, message, Tag} from 'antd';
 import { reactLocalStorage } from 'reactjs-localstorage';
 import axios from 'axios';
 import './components/PostInput.css';
 import cookie from 'react-cookies';
 import AuthorHeader from './components/AuthorHeader'
 import validateCookie from './utils/validate.js';
+import { TweenOneGroup } from 'rc-tween-one';
+import { PlusOutlined } from '@ant-design/icons';
 import { BE_SINGLE_POST_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
 const { TextArea } = Input;
 var id = '';
@@ -38,6 +40,10 @@ class PostEdit extends React.Component {
     postType: '',
     postVisibility: '',
     authorid: '',
+
+    tags: [],
+    inputVisible: false,
+    inputValue: '',
 
     specificPost: [],
     previewVisible: false,
@@ -86,6 +92,53 @@ class PostEdit extends React.Component {
     this.setState({ fileList });
   }
 
+  handleClose = removedTag => {
+    const tags = this.state.tags.filter(tag => tag !== removedTag);
+    this.setState({ tags });
+  };
+
+  showInput = () => {
+    this.setState({ inputVisible: true }, () => this.input.focus());
+  };
+
+  handleInputChange = e => {
+    this.setState({ inputValue: e.target.value });
+  };
+
+  handleInputConfirm = () => {
+    const { inputValue } = this.state;
+    let { tags } = this.state;
+    if (inputValue && tags.indexOf(inputValue) === -1) {
+      tags = [...tags, inputValue];
+    }
+    this.setState({
+      tags,
+      inputVisible: false,
+      inputValue: '',
+    });
+  };
+
+  saveInputRef = input => (this.input = input);
+
+  forMap = tag => {
+    const tagElem = (
+      <Tag
+        closable
+        onClose={e => {
+          e.preventDefault();
+          this.handleClose(tag);
+        }}
+      >
+        {tag}
+      </Tag>
+    );
+    return (
+      <span key={tag} style={{ display: 'inline-block' }}>
+        {tagElem}
+      </span>
+    );
+  };
+
   componentDidMount() {
     validateCookie();
     id = reactLocalStorage.get("postid");
@@ -98,6 +151,7 @@ class PostEdit extends React.Component {
           postContent: getPost.content,
           postType: getPost.contentType,
           postVisibility: getPost.visibility,
+          tags: getPost.categories,
           isloading: false
         });
       }).catch(function (error) {
@@ -118,6 +172,7 @@ class PostEdit extends React.Component {
             contentType: values.Type,
             isImage: false,
             visibility: values.Visibility,
+            categories: this.state.tags,
             visibleTo: "",
             unlisted: false,
           }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
@@ -135,6 +190,8 @@ class PostEdit extends React.Component {
   render() {
 
     const { getFieldDecorator } = this.props.form;
+    const { tags, inputVisible, inputValue } = this.state;
+    const tagChild = tags.map(this.forMap);
 
     const formItemLayout = {
       labelCol: {
@@ -201,6 +258,42 @@ class PostEdit extends React.Component {
                 ],
                 initialValue: `${postContent}`
               })(<TextArea rows={13} />)}
+            </Form.Item>
+
+            <Form.Item>
+                <TweenOneGroup
+                    enter={{
+                    scale: 0.8,
+                    opacity: 0,
+                    type: 'from',
+                    duration: 100,
+                    onComplete: e => {
+                      e.target.style = '';
+                    },
+                   }}
+                    leave={{ opacity: 0, width: 0, scale: 0, duration: 200 }}
+                    appear={false}
+                >
+                {tagChild}
+              </TweenOneGroup>
+            {inputVisible && (
+              <Input
+                ref={this.saveInputRef}
+                type="text"
+                size="small"
+                style={{ width: 78 }}
+                value={inputValue}
+                onChange={this.handleInputChange}
+                onBlur={this.handleInputConfirm}
+                onPressEnter={this.handleInputConfirm}
+              />
+            )}
+            {!inputVisible && (
+              <Tag onClick={this.showInput} className="site-tag-plus">
+                <PlusOutlined /> post category
+              </Tag>
+            )}
+
             </Form.Item>
 
             <Form.Item>
