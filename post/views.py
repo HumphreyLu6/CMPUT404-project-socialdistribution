@@ -1,10 +1,12 @@
 import uuid
 import json
 import requests
+import base64
 from typing import Tuple, List
 
 from django.db.models import Q
 from django.urls import resolve
+from django.http import HttpResponse
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
@@ -89,6 +91,12 @@ class PostsViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         if not is_post_visible_to(instance, request.user):
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+        if instance.unlisted:
+            # image
+            return HttpResponse(
+                base64.b64decode(instance.content), content_type=instance.contentType
+            )
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -148,31 +156,37 @@ def is_post_visible_to(post: Post, user: User) -> bool:
 
 
 def get_visible_posts(posts, user):
-    if user.id in get_nodes_user_ids():
-        return posts.filter(origin=DEFAULT_HOST)
+    if user.is_anonymous:
+        return posts.filter(visibility="PUBLIC", unlisted=False)
+
+    elif user.id in get_nodes_user_ids():
+        if user.node.shareImage:
+            return posts.filter(origin=DEFAULT_HOST, visibility="SERVERONLY")
+        else:
+            return posts.filter(
+                origin=DEFAULT_HOST, unlisted=False, visibility="SERVERONLY"
+            )
+
     else:
         # 1 visibility = "PUBLIC"
         q1 = Q(visibility="PUBLIC")
 
-        if user.is_anonymous:
-            filtered_posts = posts.filter(q1)
-        else:
-            # 2 visibility = "FRIENDS"
-            q2_1, q2_2 = get_friends_Q(user)
+        # 2 visibility = "FRIENDS"
+        q2_1, q2_2 = get_friends_Q(user)
 
-            # 3 visibility = "FOAF"
-            q3_1, q3_2 = get_foaf_Q(user)
+        # 3 visibility = "FOAF"
+        q3_1, q3_2 = get_foaf_Q(user)
 
-            # 4 visibility = "PRIVATE"
-            q4_1, q4_2 = get_visibleTo_Q(user)
+        # 4 visibility = "PRIVATE"
+        q4_1, q4_2 = get_visibleTo_Q(user)
 
-            # 5 post's author is the request user
-            q5 = Q(author=user)
+        # 5 post's author is the request user
+        q5 = Q(author=user)
 
-            filtered_posts = posts.filter(
-                q1 | (q2_1 & q2_2) | (q3_1 & q3_2) | (q4_1 & q4_2) | q5
-            )
-    return filtered_posts
+        filtered_posts = posts.filter(
+            q1 | (q2_1 & q2_2) | (q3_1 & q3_2) | (q4_1 & q4_2) | q5
+        )
+        return filtered_posts
 
 
 def get_foaf_Q(user: User) -> Tuple[Q, Q]:

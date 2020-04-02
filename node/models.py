@@ -28,6 +28,7 @@ class Node(models.Model):
     # Basic auth used for connectting to other nodes (base64 encoding of "email:password")
     auth = models.TextField()
     date = models.DateField(auto_now_add=True)
+    shareImage = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.host}"
