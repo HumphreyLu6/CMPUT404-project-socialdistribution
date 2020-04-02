@@ -7,6 +7,7 @@ from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 from user.models import User
 from friend.models import Friend
+from node.models import Node
 from .models import Post
 from .views import PostsViewSet
 
@@ -62,6 +63,7 @@ class PostTestCase(APITestCase):
             author=self.user4,
             visibility="PUBLIC",
         )
+
         Friend.objects.create(
             f1Id=self.user1, f2Id=self.user2, status="A", isCopy=False
         )
@@ -70,6 +72,17 @@ class PostTestCase(APITestCase):
             f1Id=self.user2, f2Id=self.user3, status="A", isCopy=False
         )
         Friend.objects.create(f1Id=self.user3, f2Id=self.user2, status="A", isCopy=True)
+
+        self.node_user = User.objects.create_user(
+            email="superman@email.com", username="superman", password="passqwer",
+        )
+        self.node_user_token = Token.objects.create(user=self.node_user)
+        self.node = Node.objects.create(
+            host="https://cmput404-socialdistribution.herokuapp.com/",
+            user=self.node_user,
+            auth="YWRtaW5kZW1vOnVhbGJlcnRhMDEh",
+            shareImage=True,
+        )
 
     def test_create_post(self):
         request_body = {
@@ -162,3 +175,9 @@ class PostTestCase(APITestCase):
             HTTP_AUTHORIZATION="Token " + self.token4.key,
         )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_node_post(self):
+        response = self.client.get(
+            f"/author/posts", HTTP_AUTHORIZATION="Token " + self.node_user_token.key,
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
