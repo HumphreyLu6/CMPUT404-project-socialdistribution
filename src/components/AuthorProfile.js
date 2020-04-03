@@ -37,7 +37,7 @@ class AuthorProfile extends Component {
         if (!this.props.isSelf) {
             axios.get(BE_IF_TWO_AUTHORS_FRIENDS_API_URL(HOST, getUserId(this.state.currentUserId), getUserId(this.state.userId)),
                 { headers: headers }).then(res => {
-                    if (res.data.friends === 'true') {
+                    if (res.data.friends === true) {
                         this.setState({
                             profileOwner: 1, // current profile page is belong to current logged-in user's friend
                         })
@@ -87,16 +87,29 @@ class AuthorProfile extends Component {
         const { username, userDisplayName, userGithub, userEmail, userBio, profileOwner } = this.state;
         return (
             <div className="user">
-                <span className="tag">User Name: <span className="info">{username}</span></span>
-                <span className="secondtag">Email: <span className="info">{userEmail}</span></span>
-                <br />
-                <span className="tag">Display Name: <span className="info">{userDisplayName}</span></span>
-                <span className="secondtag">Github: <span className="info">{userGithub}</span></span>
-                <br />
-                <span className="tag">Bio: <span className="info">{userBio}</span></span>
+                <ul className="column1">
+                    <li>
+                        User Name: <span>{username}</span>
+                    </li>
+                    <li>
+                        Email: <span>{userEmail}</span>
+                    </li>
+                    <li>
+                        Bio: <span>{userBio}</span>
+                    </li>
+                </ul>
+
+                <ul className="column2">
+                    <li>
+                        Display Name: <span>{userDisplayName}</span>
+                    </li>
+                    <li> 
+                        Github: <span>{userGithub}</span>
+                    </li>
+                </ul>
                 {profileOwner === 0 ? <a className="self-edit" href={FE_SEETING_URL}><Icon type="edit" /></a> : null}
-                {profileOwner === 1 ? <Button shape="round" ghost disabled className="status"><Icon type="check" /><span>Friends</span></Button> : null}
-                {profileOwner === 2 ? <Button type="primary" shape="round" className="status" onClick={() => this.sendFriendRequest()}><Icon type="user-add" /><span>Add Friend</span></Button> : null}
+                {profileOwner === 1 ? <Button shape="round" ghost disabled className="friends"><Icon type="check" /><span>Friends</span></Button> : null}
+                {profileOwner === 2 ? <Button type="primary" shape="round" className="not-friend" onClick={() => this.sendFriendRequest()}><Icon type="user-add" /><span>Add Friend</span></Button> : null}
                 <hr />
             </div>
         );
