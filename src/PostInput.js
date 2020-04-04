@@ -300,7 +300,7 @@ class PostInput extends React.Component {
             title="Markdown Post Body Preview"
             onCancel={this.handleMarkdownCancel}
             destroyOnClose={true}
-            width={800}
+            width={1050}
             height={800}
             footer={[]}
           >

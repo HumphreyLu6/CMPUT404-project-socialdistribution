@@ -267,7 +267,11 @@ class UserSelf extends React.Component {
                                     }
                                 />
                                 <h3>{"Title: ".concat(item.title)}</h3>
-                                {item.contentType === "text/plain" ? item.content : (<ReactMarkdown source={item.content} />)}
+                                {item.contentType === "text/plain" ? item.content : (
+                                 <div className="markdown-content">
+                                    <ReactMarkdown source={item.content} />
+                                 </div>
+                                )}
                                 <p>  </p>
 
                             </List.Item>
