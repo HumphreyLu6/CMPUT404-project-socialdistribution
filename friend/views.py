@@ -18,7 +18,8 @@ import mysite.utils as utils
 from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
 from user.models import User, get_user
 from user.serializers import BriefAuthorSerializer
-from node.models import Node, update_db, get_nodes_user_ids
+from node.models import Node, get_nodes_user_ids
+from node.connect_node import update_db
 from .models import Friend
 from .serializers import FriendSerializer
 
@@ -127,7 +128,7 @@ class FriendViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["PATCH"])
     def update_friendship(self, request, *args, **kwargs):
         try:
-            update_db(True, True, False, request.user)
+            update_db(True, False, request.user)
             friend_data = request.data["friend"]
             friend_data["id"] = friend_data["id"].split("/")[-1]
             friend = User.objects.filter(id=friend_data["id"]).first()
@@ -192,7 +193,7 @@ class FriendViewSet(viewsets.ModelViewSet):
             response_body["friends"] = "false"
             return Response(response_body, status=status.HTTP_400_BAD_REQUEST)
         else:
-            update_db(True, True, False, author1)
+            update_db(True, False, author1)
             response_body["authors"] = [
                 f"{author1.host}author/{author1.id}",
                 f"{author2.host}author/{author2.id}",
@@ -221,7 +222,7 @@ class FriendViewSet(viewsets.ModelViewSet):
                 response_body["author"] = ("author does not exist.",)
                 return Response(response_body, status=status.HTTP_404_NOT_FOUND)
             else:
-                update_db(True, True, False, author)
+                update_db(True, False, author)
 
             response_body["author"] = []
             candidates_data = request.data["authors"]
@@ -254,7 +255,7 @@ class FriendViewSet(viewsets.ModelViewSet):
             response_body["error"] = ("author does not exist.",)
             return Response(response_body, status=status.HTTP_404_NOT_FOUND)
         else:
-            update_db(True, True, False, author)
+            update_db(True, False, author)
         friend_ids = Friend.objects.filter(f1Id=author.id, status="A").values_list(
             "f2Id", flat=True
         )
