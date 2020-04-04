@@ -34,7 +34,6 @@ DEFAULT_HOST = (
     else os.getenv("DEFAULT_HOST")
 )
 
-# Yuxuan Group's Host
 REMOTE_HOST1 = "https://cmput404-socialdistribution.herokuapp.com/"
 REMOTE_HOST2 = "https://testing-mandala.herokuapp.com/"
 REMOTE_HOST3 = "https://cmput404-group-project-mandala.herokuapp.com/"

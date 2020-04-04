@@ -1,24 +1,19 @@
-import uuid
 import json
 import requests
 
-from django.shortcuts import render
-
-from rest_framework import viewsets, status, exceptions
-from rest_framework.response import Response
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
     IsAdminUser,
-    IsAuthenticatedOrReadOnly,
 )
 
-import mysite.utils as utils
 from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
+import mysite.utils as utils
 from user.models import User, get_user
-from user.serializers import BriefAuthorSerializer
-from node.models import Node, get_nodes_user_ids
+from node.models import Node
 from node.connect_node import update_db
 from .models import Friend
 from .serializers import FriendSerializer
@@ -50,6 +45,7 @@ class FriendViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
+            update_db(True, False)
             author_data = request.data["author"]
             author_data["id"] = author_data["id"].split("/")[-1]
             friend_data = request.data["friend"]
@@ -103,7 +99,9 @@ class FriendViewSet(viewsets.ModelViewSet):
                 )
 
             data = {"status": "U"}
-            if Friend.objects.filter(f1Id=friend, f2Id=author, isCopy=False).exists():
+            if Friend.objects.filter(
+                f1Id=friend, f2Id=author, status="U", isCopy=False
+            ).exists():
                 # they both sent request to each other, automatically accept
                 data = {"status": "A"}
             else:
@@ -128,7 +126,6 @@ class FriendViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["PATCH"])
     def update_friendship(self, request, *args, **kwargs):
         try:
-            update_db(True, False, request.user)
             friend_data = request.data["friend"]
             friend_data["id"] = friend_data["id"].split("/")[-1]
             friend = User.objects.filter(id=friend_data["id"]).first()
@@ -186,14 +183,13 @@ class FriendViewSet(viewsets.ModelViewSet):
             author2_id = kwargs["AUTHOR2_ID"].split("/")[-1]
             author1 = User.objects.filter(id=author1_id).first()
             author2 = User.objects.filter(id=author2_id).first()
-            if not author1 or not author2:
+            if not author1 or not author2 or author1.host != DEFAULT_HOST:
                 raise Exception("One of the author does not exist")
         except Exception as e:
             response_body["authors"] = [f"{str(type(e).__name__)}:{str(e)}"]
             response_body["friends"] = "false"
             return Response(response_body, status=status.HTTP_400_BAD_REQUEST)
         else:
-            update_db(True, False, author1)
             response_body["authors"] = [
                 f"{author1.host}author/{author1.id}",
                 f"{author2.host}author/{author2.id}",
@@ -205,6 +201,12 @@ class FriendViewSet(viewsets.ModelViewSet):
                 return Response(response_body, status=status.HTTP_200_OK)
             else:
                 response_body["friends"] = False
+                if Friend.objects.filter(
+                    f1Id=author1_id, f2Id=author2_id, status="U"
+                ).exists():
+                    response_body["pending"] = True
+                else:
+                    response_body["pending"] = False
                 return Response(response_body, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["POST"])
@@ -221,8 +223,6 @@ class FriendViewSet(viewsets.ModelViewSet):
             if not author:
                 response_body["author"] = ("author does not exist.",)
                 return Response(response_body, status=status.HTTP_404_NOT_FOUND)
-            else:
-                update_db(True, False, author)
 
             response_body["author"] = []
             candidates_data = request.data["authors"]
