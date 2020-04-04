@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { Form, Input, Button, Upload, Modal, Icon, Radio, message, Tag, Select} from 'antd';
+import { Form, Input, Button, Modal, Radio, Tag, Select} from 'antd';
 import axios from 'axios';
 import './components/PostInput.css';
 import './components/Header.css';
@@ -19,24 +19,14 @@ const { TextArea } = Input;
 var imageFileName = '';
 var imageEncoding = '';
 const { Option } = Select;
-
-function getBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-}
+const authors = [];
+var authorInfo = {};
 
 //https://stackoverflow.com/questions/51421348/how-to-get-the-path-of-an-uploaded-file-in-reactjs
 
 function createimage(imagePostId) {
   return "![".concat(imageFileName).concat("]").concat("(").concat(HOST).concat("posts/").concat(imagePostId).concat(")");
 }
-
-const authors = [];
-var authorInfo = {};
 
 class PostInput extends React.Component {
 
@@ -57,7 +47,6 @@ class PostInput extends React.Component {
     modalVisibility:false,
     modalMarkdownVisibility:false,
     fullPostContent:'',
-
   };
 
   componentDidMount() {
@@ -420,19 +409,19 @@ class PostInput extends React.Component {
             </Form.Item>
 
             <Form.Item>
-            <Button type="primary" onClick={this.showImageModal}>
+            <Button onClick={this.showImageModal}>
                 Add Image
             </Button>
             </Form.Item>
             
             <Form.Item>
-            <Button type="primary" onClick={this.showMarkdownModal}>
+            <Button onClick={this.showMarkdownModal}>
                 Markdown Preview
             </Button>
             </Form.Item>
 
             <Form.Item {...tailFormItemLayout}>
-              <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
+              <Button htmlType="button" onClick={this.handleSubmit}>
                 Post it
               </Button>
             </Form.Item>

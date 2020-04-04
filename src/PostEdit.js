@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { Form, Input, Button, Modal, Radio, Tag} from 'antd';
+import { Form, Input, Button, Modal, Radio, Tag, Select} from 'antd';
 import { reactLocalStorage } from 'reactjs-localstorage';
 import axios from 'axios';
 import './components/PostInput.css';
@@ -12,11 +12,14 @@ import UploadImageModal from './components/UploadImageModal';
 import MarkdownPreviewModal from './components/MarkdownPreviewModal';
 import { TweenOneGroup } from 'rc-tween-one';
 import { PlusOutlined } from '@ant-design/icons';
-import { BE_POST_API_URL, BE_SINGLE_POST_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
+import { BE_POST_API_URL, BE_SINGLE_POST_API_URL, HOST, FE_USERPROFILE_URL, BE_ALL_AUTHOR_API_URL} from "./utils/constants.js";
 const { TextArea } = Input;
 var id = '';
 var imageFileName = '';
 var imageEncoding = '';
+const { Option } = Select;
+const authors = [];
+var authorInfo = {};
 
 function createimage(imagePostId) {
   return "![".concat(imageFileName).concat("]").concat("(").concat(HOST).concat("posts/").concat(imagePostId).concat(")");
@@ -153,6 +156,35 @@ class PostEdit extends React.Component {
       modalMarkdownVisibility: false,
     });
   };
+
+  showSelectFriends = () => {
+    var p = document.getElementsByClassName("select-friends");
+    if (p[0].style.display === "none"){
+        p[0].style.display = "block";
+    } 
+    axios.get(BE_ALL_AUTHOR_API_URL(HOST), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+    .then(res => {
+        for (var i=0; i<res.data.length; i++){
+            var displayName = res.data[i].displayName;
+            var url = res.data[i].url;
+            var options = displayName.concat(" @ ");
+            options = options.concat(url);
+            var uniqueKey = displayName.concat(i);
+            authorInfo[uniqueKey] = url;
+            authors.push(<Option key={uniqueKey} label={displayName}>{options}</Option>);
+        }
+    }).catch(function (error) {
+      console.log(error);
+    });
+  }
+
+  hideSelectFriends = () => {
+    var p = document.getElementsByClassName("select-friends");
+    if (p[0].style.display === "block"){
+        p[0].style.display = "none";
+    } 
+  }
+
 
   handleUpload = e => {
     imageFileName = reactLocalStorage.get("imageName");
@@ -347,11 +379,25 @@ class PostEdit extends React.Component {
                 ],
                 initialValue: `${postVisibility}`
               })(<Radio.Group>
-                <Radio.Button value="PUBLIC">Public</Radio.Button>
-                <Radio.Button value="FRIENDS">Friends</Radio.Button>
-                <Radio.Button value="FOAF">Friends to friends</Radio.Button>
-                <Radio.Button value="PRIVATE">Private</Radio.Button>
+                <Radio.Button value="PUBLIC" onClick={this.hideSelectFriends}>Public</Radio.Button>
+                <Radio.Button value="FRIENDS" onClick={this.hideSelectFriends}>Friends</Radio.Button>
+                <Radio.Button value="FOAF" onClick={this.hideSelectFriends}>Friends to friends</Radio.Button>
+                <Radio.Button value="PRIVATE" onClick={this.showSelectFriends}>Private</Radio.Button>
+                <Radio.Button value="SERVERONLY" onClick={this.hideSelectFriends}>Server only</Radio.Button>
               </Radio.Group>)}
+            </Form.Item>
+
+            <Form.Item>
+              {getFieldDecorator("specificFriends")
+              (<Select 
+                    className="select-friends"
+                    mode="multiple"
+                    style={{ width: "100%", display: "none" }}
+                    placeholder="Search for a friend..."
+                    optionLabelProp="label"
+                >
+                {authors}
+                </Select>)}
             </Form.Item>
 
             <Form.Item>
@@ -370,13 +416,13 @@ class PostEdit extends React.Component {
             </Form.Item>
 
             <Form.Item>
-            <Button type="primary" onClick={this.showImageModal}>
+            <Button onClick={this.showImageModal}>
                 Add Image
             </Button>
             </Form.Item>
             
             <Form.Item>
-            <Button type="primary" onClick={this.showMarkdownModal}>
+            <Button onClick={this.showMarkdownModal}>
                 Markdown Preview
             </Button>
             </Form.Item>
