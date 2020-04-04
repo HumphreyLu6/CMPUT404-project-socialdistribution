@@ -84,6 +84,7 @@ def deal_unprocessed_active_requests(user):
             else:
                 isPending = response_data["pending"]
                 if not isPending:
+                    print("\n\n\nlog3\n\n\n")
                     request.delete()
                     Friend.objects.filter(
                         status="U", f1Id=friend.id, f2Id=user.id, isCopy=True
@@ -112,6 +113,7 @@ def deal_current_friends(current_friend_ids, user):
             if not isFriend:
                 isPending = response_data["pending"]
                 if not isPending:
+                    print("\n\n\nlog2\n\n\n")
                     Friend.objects.filter(f1Id=user.id, f2Id=friend.id).delete()
                     Friend.objects.filter(f1Id=friend.id, f2Id=user.id).delete()
             else:
@@ -178,6 +180,7 @@ def update_friends(user: User, depth: int):
                 if friend:
                     friends.append(friend)
 
+            print("\n\n\nlog1\n\n\n")
             Friend.objects.filter(status="A", f1Id=user.id).exclude(
                 f2Id__in=friends
             ).delete()
