@@ -396,5 +396,4 @@ class PostEdit extends React.Component {
 
 const WrappedPostEdit = Form.create({ name: 'PostEdit' })(PostEdit)
 
-
 export default WrappedPostEdit

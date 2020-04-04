@@ -257,13 +257,13 @@ class PostInput extends React.Component {
           </Modal>
 
           <Modal
-          visible={modalMarkdownVisibility}
-          title="Markdown Post Body Preview"
-          onCancel={this.handleMarkdownCancel}
-          destroyOnClose={true}
-          width={800}
-          height={800}
-          footer={[]}
+            visible={modalMarkdownVisibility}
+            title="Markdown Post Body Preview"
+            onCancel={this.handleMarkdownCancel}
+            destroyOnClose={true}
+            width={800}
+            height={800}
+            footer={[]}
           >
             <MarkdownPreviewModal/>
           </Modal>
@@ -376,7 +376,6 @@ class PostInput extends React.Component {
           </Form>
         </div>
       </div>
- 
 
     )
 
