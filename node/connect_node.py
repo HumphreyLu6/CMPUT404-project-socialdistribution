@@ -37,7 +37,7 @@ def update_db(
                 print(f"Time used for update {node} DB post:", time.time() - stime)
     if update_user:
         stime = time.time()
-        update_friends(update_user, 1)
+        update_friends(update_user, 1, None)
         if print_time_usage:
             print(
                 f"Time used for update {str(update_user)} DB friend:",
@@ -123,7 +123,7 @@ def deal_current_friends(current_friend_ids, user):
     return friends
 
 
-def update_friends(user: User, depth: int):
+def update_friends(user, depth, ignoreuser):
     """
     update friendships of user
     """
@@ -181,6 +181,8 @@ def update_friends(user: User, depth: int):
                     friends.append(friend)
 
             print("\n\n\nlog1\n\n\n")
+            if ignoreuser:
+                friends += [ignoreuser]
             Friend.objects.filter(status="A", f1Id=user.id).exclude(
                 f2Id__in=friends
             ).delete()
@@ -191,7 +193,7 @@ def update_friends(user: User, depth: int):
 
         if depth:
             for friend in friends:
-                update_friends(friend, 0)
+                update_friends(friend, 0, user)
     except Exception as e:
         utils.print_warning(f"{type(e).__name__} {str(e)}")
 
