@@ -1,41 +1,26 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { Form, Input, Button, Upload, Modal, Icon, Radio, message, Tag} from 'antd';
+import { Form, Input, Button, Modal, Radio, Tag} from 'antd';
 import { reactLocalStorage } from 'reactjs-localstorage';
 import axios from 'axios';
 import './components/PostInput.css';
 import cookie from 'react-cookies';
 import AuthorHeader from './components/AuthorHeader'
 import validateCookie from './utils/validate.js';
+import UploadImageModal from './components/UploadImageModal';
+import MarkdownPreviewModal from './components/MarkdownPreviewModal';
 import { TweenOneGroup } from 'rc-tween-one';
 import { PlusOutlined } from '@ant-design/icons';
 import { BE_POST_API_URL, BE_SINGLE_POST_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
 const { TextArea } = Input;
 var id = '';
-var imageCreated = [];
-
-
-function getBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-}
-
-function beforeUpload(file) {
-  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-  if (!isJpgOrPng) {
-    message.error('You can only upload JPG/PNG file!');
-  }
-  return isJpgOrPng;
-}
+var imageFileName = '';
+var imageEncoding = '';
 
 function createimage(imagePostId) {
-  return "![](".concat(HOST).concat("posts/").concat(imagePostId).concat(")");
-} 
+  return "![".concat(imageFileName).concat("]").concat("(").concat(HOST).concat("posts/").concat(imagePostId).concat(")");
+}
 
 class PostEdit extends React.Component {
 
@@ -55,29 +40,18 @@ class PostEdit extends React.Component {
     previewImage: '',
     isloading: true,
     fileList: [],
+
+    modalVisibility:false,
+    modalMarkdownVisibility:false,
+    fullPostContent:'',
   };
 
   handleMarkdown = () => {
     this.setState({ markdownSelected: !this.state.markdownSelected });
   }
 
-  handleCancel = () => {
-    this.setState({ previewVisible: false });
-  }
-
-  handlePreview = async file => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-
-    }
-    this.setState({
-      previewImage: file.url || file.preview,
-      previewVisible: true,
-    });
-  };
-
-  handleChange = ({ fileList }) => {
-    this.setState({ fileList });
+  handleValueChange = (event) =>{
+    this.setState({ fullPostContent: event.target.value });
   }
 
   dummyRequest = ({ file, onSuccess }) => {
@@ -142,7 +116,7 @@ class PostEdit extends React.Component {
         this.setState({
           specificPost: getPost,
           postTitle: getPost.title,
-          postContent: getPost.content,
+          fullPostContent: getPost.content,
           postType: getPost.contentType,
           postVisibility: getPost.visibility,
           tags: getPost.categories,
@@ -155,28 +129,66 @@ class PostEdit extends React.Component {
     reactLocalStorage.clear();
   }
 
-  handleImage = () => {
-    var imageType = this.state.fileList[0].thumbUrl.split(":")[1].split(",")[0];
-    var imageEncoding = this.state.fileList[0].thumbUrl.split(":")[1].split(",")[1];
-    axios.post(BE_POST_API_URL(HOST),
-          {
-            title: this.state.fileList[0].name,
-            description: "",
-            content: imageEncoding,
-            contentType: imageType,
-            visibility: "PUBLIC",
-            visibleTo: "",
-            unlisted: true,
-          }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
-        )
-          .then(function (response) {
-            imageCreated.push(String(createimage(String(response.data.id))));
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-  }
+  showImageModal = () => {
+    this.setState({
+      modalVisibility: true,
+    });
+  };
 
+  showMarkdownModal = () => {
+    reactLocalStorage.set("postContent", this.state.fullPostContent);
+    this.setState({
+      modalMarkdownVisibility: true,
+    });
+  };
+
+  handleImageCancel = e => {
+    this.setState({
+      modalVisibility: false,
+    });
+  };
+
+  handleMarkdownCancel = e => {
+    this.setState({
+      modalMarkdownVisibility: false,
+    });
+  };
+
+  handleUpload = e => {
+    imageFileName = reactLocalStorage.get("imageName");
+    imageEncoding = reactLocalStorage.get("imageEncoding");
+    if(imageFileName){
+      this.setState({
+        modalVisibility: false,
+      });
+      var imageType = imageEncoding.split(":")[1].split(",")[0];
+      var parsedimageEncoding = imageEncoding.split(":")[1].split(",")[1];
+      axios.post(BE_POST_API_URL(HOST),
+            {
+              title: imageFileName,
+              description: "",
+              content: parsedimageEncoding,
+              contentType: imageType,
+              visibility: "PUBLIC",
+              visibleTo: "",
+              unlisted: true,
+            }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
+          )
+            .then((response) => {
+              reactLocalStorage.clear();
+              this.setState((prevState) => ({
+                fullPostContent: prevState.fullPostContent + createimage(String(response.data.id)),
+              }));
+
+            })
+            .catch(function (error) {
+              console.log(error);
+            });  
+    }
+    else{
+      alert("Please choose a file");
+    }
+  };
 
   handleSubmit = () => {
     this.props.form.validateFieldsAndScroll((err, values) => {
@@ -185,7 +197,7 @@ class PostEdit extends React.Component {
           {
             title: values.postTitle,
             description: "",
-            content: values.postContent.concat(imageCreated.join('')),
+            content: this.state.fullPostContent,
             contentType: values.Type,
             visibility: values.Visibility,
             categories: this.state.tags,
@@ -232,29 +244,43 @@ class PostEdit extends React.Component {
       }
     };
 
-
-    const { previewVisible, previewImage, fileList, postTitle, postContent, postType, postVisibility, isloading } = this.state;
-
-    const uploadButton = (
-      <div>
-        <Icon type="plus" />
-        <div className="ant-upload-text" style={{ left: "5%" }}>Upload</div>
-      </div>
-    );
-
-    const confirmButton = (
-      <div>
-        <Button type="primary" size = "small" shape="round" htmlType="button" onClick={this.handleImage}>
-                Confirm image
-        </Button>
-      </div>
-    );
-
+    const { modalVisibility, postTitle, postType, postVisibility, isloading, fullPostContent, modalMarkdownVisibility} = this.state;
 
     return (!isloading ?
       <div>
-        <AuthorHeader />
+         <Modal
+          visible={modalVisibility}
+          title="Choose your image"
+          onOk={this.handleOk}
+          onCancel={this.handleImageCancel}
+          destroyOnClose={true}
+          width={400}
+          height={400}
+          footer={[
+            <Button key="back" onClick={this.handleImageCancel}>
+              Cancel
+            </Button>,
+            <Button key="submit" onClick={this.handleUpload}>
+              Upload
+            </Button>,
+          ]}
+          >
+            <UploadImageModal/>
+          </Modal>
 
+          <Modal
+          visible={modalMarkdownVisibility}
+          title="Markdown Post Body Preview"
+          onCancel={this.handleMarkdownCancel}
+          destroyOnClose={true}
+          width={800}
+          height={800}
+          footer={[]}
+          >
+            <MarkdownPreviewModal/>
+          </Modal>
+
+        <AuthorHeader />
         <div className={'postInput'} style={{justifyContent: 'center' }} >
           <Form {...formItemLayout}>
 
@@ -271,17 +297,9 @@ class PostEdit extends React.Component {
               })(<Input />)}
             </Form.Item>
 
+      
             <Form.Item>
-              {getFieldDecorator("postContent", {
-                rules: [
-                  {
-                    required: true,
-                    message: "Enter your post body here",
-                    whitespace: true
-                  }
-                ],
-                initialValue: `${postContent}`
-              })(<TextArea rows={13} />)}
+              <TextArea rows={13} value={fullPostContent} onChange={this.handleValueChange} placeholder="Enter your post body here" />
             </Form.Item>
 
             <Form.Item>
@@ -352,29 +370,16 @@ class PostEdit extends React.Component {
             </Form.Item>
 
             <Form.Item>
-              {getFieldDecorator("imageUpload", {
-                rules: [
-                  {
-                    required: false,
-                  },
-                ]
-              })(<div><Upload
-                customRequest={this.dummyRequest}
-                listType="picture-card"
-                fileList={fileList}
-                beforeUpload={beforeUpload}
-                onPreview={this.handlePreview}
-                onChange={this.handleChange}
-              >
-                {uploadButton}
-              </Upload>
-                <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
-                  <img alt="example" style={{ width: '100%' }} src={previewImage} />
-                </Modal></div>
-              )}
+            <Button type="primary" onClick={this.showImageModal}>
+                Add Image
+            </Button>
             </Form.Item>
-
-            {fileList.length <= 0 ? null : confirmButton}
+            
+            <Form.Item>
+            <Button type="primary" onClick={this.showMarkdownModal}>
+                Markdown Preview
+            </Button>
+            </Form.Item>
 
             <Form.Item {...tailFormItemLayout}>
               <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
@@ -390,6 +395,5 @@ class PostEdit extends React.Component {
 }
 
 const WrappedPostEdit = Form.create({ name: 'PostEdit' })(PostEdit)
-
 
 export default WrappedPostEdit

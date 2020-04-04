@@ -8,14 +8,17 @@ import './components/Header.css';
 import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
 import AuthorHeader from './components/AuthorHeader';
+import UploadImageModal from './components/UploadImageModal';
+import MarkdownPreviewModal from './components/MarkdownPreviewModal';
 import { reactLocalStorage } from 'reactjs-localstorage';
 import { TweenOneGroup } from 'rc-tween-one';
 import { PlusOutlined } from '@ant-design/icons';
 import { BE_POST_API_URL, BE_CURRENT_USER_API_URL, HOST, FE_USERPROFILE_URL, BE_ALL_AUTHOR_API_URL} from "./utils/constants.js";
 
 const { TextArea } = Input;
+var imageFileName = '';
+var imageEncoding = '';
 const { Option } = Select;
-var imageCreated = [];
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -26,16 +29,10 @@ function getBase64(file) {
   });
 }
 
-function beforeUpload(file) {
-  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-  if (!isJpgOrPng) {
-    message.error('You can only upload JPG/PNG file!');
-  }
-  return isJpgOrPng;
-}
+//https://stackoverflow.com/questions/51421348/how-to-get-the-path-of-an-uploaded-file-in-reactjs
 
 function createimage(imagePostId) {
-  return "![](".concat(HOST).concat("posts/").concat(imagePostId).concat(")");
+  return "![".concat(imageFileName).concat("]").concat("(").concat(HOST).concat("posts/").concat(imagePostId).concat(")");
 }
 
 const authors = [];
@@ -56,6 +53,10 @@ class PostInput extends React.Component {
     tags: [],
     inputVisible: false,
     inputValue: '',
+    
+    modalVisibility:false,
+    modalMarkdownVisibility:false,
+    fullPostContent:'',
 
   };
 
@@ -80,52 +81,71 @@ class PostInput extends React.Component {
     this.setState({ markdownSelected: !this.state.markdownSelected });
   }
 
-  handleCancel = () => {
-    this.setState({ previewVisible: false });
+  handleValueChange = (event) =>{
+    this.setState({ fullPostContent: event.target.value });
   }
 
-  handlePreview = async file => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
+  showImageModal = () => {
     this.setState({
-      previewImage: file.url || file.preview,
-      previewVisible: true,
+      modalVisibility: true,
     });
   };
 
-  handleChange = ({ fileList }) => {
-   fileList = fileList.slice(-1);
-   this.setState({ fileList });
-  }
-
-  dummyRequest = ({ file, onSuccess }) => {
-    setTimeout(() => {
-      onSuccess("ok");
-    }, 0);
+  showMarkdownModal = () => {
+    reactLocalStorage.set("postContent", this.state.fullPostContent);
+    this.setState({
+      modalMarkdownVisibility: true,
+    });
   };
 
-  handleImage = () => {
-    var imageType = this.state.fileList[0].thumbUrl.split(":")[1].split(",")[0];
-    var imageEncoding = this.state.fileList[0].thumbUrl.split(":")[1].split(",")[1];
-    axios.post(BE_POST_API_URL(HOST),
-          {
-            title: this.state.fileList[0].name,
-            description: "",
-            content: imageEncoding,
-            contentType: imageType,
-            visibility: "PUBLIC",
-            visibleTo: "",
-            unlisted: true,
-          }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
-        )
-          .then(function (response) {
-            imageCreated.push(String(createimage(String(response.data.id))));
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-  }
+  handleUpload = e => {
+    imageFileName = reactLocalStorage.get("imageName");
+    imageEncoding = reactLocalStorage.get("imageEncoding");
+    if(imageFileName){
+      this.setState({
+        modalVisibility: false,
+      });
+      var imageType = imageEncoding.split(":")[1].split(",")[0];
+      var parsedimageEncoding = imageEncoding.split(":")[1].split(",")[1];
+      axios.post(BE_POST_API_URL(HOST),
+            {
+              title: imageFileName,
+              description: "",
+              content: parsedimageEncoding,
+              contentType: imageType,
+              visibility: "PUBLIC",
+              visibleTo: "",
+              unlisted: true,
+            }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
+          )
+            .then((response) => {
+              reactLocalStorage.clear();
+              this.setState((prevState) => ({
+                fullPostContent: prevState.fullPostContent + createimage(String(response.data.id)),
+              }));
+
+            })
+            .catch(function (error) {
+              console.log(error);
+            });  
+    }
+    else{
+      alert("Please choose a file");
+    }
+  };
+
+  handleImageCancel = e => {
+    this.setState({
+      modalVisibility: false,
+    });
+  };
+
+
+  handleMarkdownCancel = e => {
+    this.setState({
+      modalMarkdownVisibility: false,
+    });
+  };
 
   showSelectFriends = () => {
     var p = document.getElementsByClassName("select-friends");
@@ -154,6 +174,7 @@ class PostInput extends React.Component {
         p[0].style.display = "none";
     } 
   }
+
 
   handleClose = removedTag => {
     const tags = this.state.tags.filter(tag => tag !== removedTag);
@@ -215,7 +236,7 @@ class PostInput extends React.Component {
           {
             title: values.postTitle,
             description: "",
-            content: values.postContent.concat(imageCreated.join('')),
+            content: this.state.fullPostContent,
             contentType: values.Type,
             categories: this.state.tags,
             visibility: values.Visibility,
@@ -237,7 +258,7 @@ class PostInput extends React.Component {
   render() {
     const { getFieldDecorator } = this.props.form;
 
-    const { tags, inputVisible, inputValue } = this.state;
+    const { tags, inputVisible, inputValue, modalVisibility, fullPostContent, modalMarkdownVisibility} = this.state;
     const tagChild = tags.map(this.forMap);
 
     const formItemLayout = {
@@ -263,25 +284,40 @@ class PostInput extends React.Component {
       }
     };
 
-    const { previewVisible, previewImage, fileList} = this.state;
-
-    const uploadButton = (
-      <div>
-        <Icon type="plus" />
-        <div className="ant-upload-text" style={{ left: "5%" }}>Upload</div>
-      </div>
-    );
-
-    const confirmButton = (
-      <div>
-        <Button type="primary" size = "small" shape="round" htmlType="button" onClick={this.handleImage}>
-            Confirm image
-        </Button>
-      </div>
-    );
-
     return (
       <div>
+         <Modal
+          visible={modalVisibility}
+          title="Choose your image"
+          onOk={this.handleOk}
+          onCancel={this.handleImageCancel}
+          destroyOnClose={true}
+          width={400}
+          height={400}
+          footer={[
+            <Button key="back" onClick={this.handleImageCancel}>
+              Cancel
+            </Button>,
+            <Button key="submit" onClick={this.handleUpload}>
+              Upload
+            </Button>,
+          ]}
+          >
+            <UploadImageModal/>
+          </Modal>
+
+          <Modal
+            visible={modalMarkdownVisibility}
+            title="Markdown Post Body Preview"
+            onCancel={this.handleMarkdownCancel}
+            destroyOnClose={true}
+            width={800}
+            height={800}
+            footer={[]}
+          >
+            <MarkdownPreviewModal/>
+          </Modal>
+
         <AuthorHeader />
         <div className={'postInput'} style={{justifyContent: 'center' }} >
           <Form {...formItemLayout}>
@@ -299,15 +335,7 @@ class PostInput extends React.Component {
             </Form.Item>
 
             <Form.Item>
-              {getFieldDecorator("postContent", {
-                rules: [
-                  {
-                    required: true,
-                    message: "Enter your post body here",
-                    whitespace: true
-                  }
-                ]
-              })(<TextArea rows={13} placeholder="Enter your post body here" />)}
+              <TextArea rows={13} value={fullPostContent} onChange={this.handleValueChange} placeholder="Enter your post body here" />
             </Form.Item>
 
             <Form.Item>
@@ -331,7 +359,7 @@ class PostInput extends React.Component {
                 ref={this.saveInputRef}
                 type="text"
                 size="small"
-                style={{ width: 78 }}
+                style={{ width: 78, height:31}}
                 value={inputValue}
                 onChange={this.handleInputChange}
                 onBlur={this.handleInputConfirm}
@@ -392,29 +420,16 @@ class PostInput extends React.Component {
             </Form.Item>
 
             <Form.Item>
-              {getFieldDecorator("imageUpload", {
-                rules: [
-                  {
-                    required: false,
-                  },
-                ]
-              })(<div><Upload
-                customRequest={this.dummyRequest}
-                listType="picture-card"
-                fileList={fileList}
-                beforeUpload={beforeUpload}
-                onPreview={this.handlePreview}
-                onChange={this.handleChange}
-              >
-                {uploadButton}
-              </Upload>
-                <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
-                  <img alt="example" style={{ width: '100%' }} src={previewImage} />
-                </Modal></div>
-              )}
+            <Button type="primary" onClick={this.showImageModal}>
+                Add Image
+            </Button>
             </Form.Item>
-
-            {fileList.length <= 0 ? null : confirmButton}
+            
+            <Form.Item>
+            <Button type="primary" onClick={this.showMarkdownModal}>
+                Markdown Preview
+            </Button>
+            </Form.Item>
 
             <Form.Item {...tailFormItemLayout}>
               <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
