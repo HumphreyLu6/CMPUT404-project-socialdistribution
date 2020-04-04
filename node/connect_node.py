@@ -61,8 +61,9 @@ def deal_unprocessed_active_requests(user):
         friend = request.f2Id
         if friend.host == DEFAULT_HOST:
             continue
-        print(friend.displayName, user.displayName)
-        tmp = DEFAULT_HOST.replace("https://", "")
+        tmp = user.host
+        if friend.host != REMOTE_HOST1:
+            tmp = tmp.replace("https://", "")
         second_author_url = urllib.parse.quote(f"{tmp}author/{user.id}", safe="~()*!.'")
         url = f"{friend.host}author/{friend.id}/friends/{second_author_url}"
         auth = Node.objects.filter(host=friend.host).first().auth
@@ -72,19 +73,17 @@ def deal_unprocessed_active_requests(user):
         )
         if response.status_code in range(200, 300):
             response_data = response.json()
-            print("\n\n\n\n", response_data, "\n\n\n\n")
             isFriend = response_data["friends"]
             if isFriend:
                 request.status = "A"
                 request.save()
                 Friend.objects.filter(
-                    status="U", f1Id=user.id, f2Id=friend.id, isCopy=True
+                    status="U", f1Id=friend.id, f2Id=user.id, isCopy=True
                 ).update(status="A")
                 friends.append(friends)
             else:
                 isPending = response_data["pending"]
                 if not isPending:
-                    print("\n\n\nlog3\n\n\n")
                     request.delete()
                     Friend.objects.filter(
                         status="U", f1Id=friend.id, f2Id=user.id, isCopy=True
@@ -98,7 +97,9 @@ def deal_current_friends(current_friend_ids, user):
         friend = User.objects.filter(id=friend_id).first()
         if friend.host == DEFAULT_HOST:
             continue
-        tmp = DEFAULT_HOST.replace("https://", "")
+        tmp = user.host
+        if friend.host != REMOTE_HOST1:
+            tmp = tmp.replace("https://", "")
         second_author_url = urllib.parse.quote(f"{tmp}author/{user.id}", safe="~()*!.'")
         url = f"{friend.host}author/{friend.id}/friends/{second_author_url}"
         auth = Node.objects.filter(host=friend.host).first().auth
@@ -109,11 +110,9 @@ def deal_current_friends(current_friend_ids, user):
         if response.status_code in range(200, 300):
             response_data = response.json()
             isFriend = response_data["friends"]
-            print("\n\n\n\ndebug: \n\n\n", isFriend)
             if not isFriend:
                 isPending = response_data["pending"]
                 if not isPending:
-                    print("\n\n\nlog2\n\n\n")
                     Friend.objects.filter(f1Id=user.id, f2Id=friend.id).delete()
                     Friend.objects.filter(f1Id=friend.id, f2Id=user.id).delete()
             else:
@@ -145,9 +144,9 @@ def update_friends(user, depth, ignoreuser):
             friends += deal_current_friends(tmp2, user)
         else:
             # user from remote servers
-            url = f"{user.host}author/{str(user.id)}/friends/"
+            url = f"{user.host}author/{str(user.id)}"
             if user.host == REMOTE_HOST1:
-                url = f"{user.host}author/{user.non_uuid_id}/friends/"
+                url = f"{user.host}author/{user.non_uuid_id}"
             auth = Node.objects.filter(host=user.host).first().auth
             response = requests.get(
                 url,
@@ -158,7 +157,7 @@ def update_friends(user, depth, ignoreuser):
             )
             if response.status_code not in range(200, 300):
                 no_dash_uuid = str(user.id).replace("-", "")
-                url = f"{user.host}author/{no_dash_uuid}/friends/"
+                url = f"{user.host}author/{no_dash_uuid}"
                 response = requests.get(
                     url,
                     headers={
@@ -168,9 +167,9 @@ def update_friends(user, depth, ignoreuser):
                 )
                 if response.status_code not in range(200, 300):
                     raise Exception(response.text)
-            friend_urls = response.json()["authors"]
-            for friend_url in friend_urls:
-                friend_id_str = friend_url.split("/")[-1]
+            friend_dicts = response.json()["friends"]
+            for friend_dict in friend_dicts:
+                friend_id_str = friend_dict["id"].split("/")[-1]
                 friend = None
                 try:
                     friend_id = uuid.UUID(friend_id_str)
@@ -180,7 +179,6 @@ def update_friends(user, depth, ignoreuser):
                 if friend:
                     friends.append(friend)
 
-            print("\n\n\nlog1\n\n\n")
             if ignoreuser:
                 friends += [ignoreuser]
             Friend.objects.filter(status="A", f1Id=user.id).exclude(
