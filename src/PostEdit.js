@@ -9,6 +9,7 @@ import cookie from 'react-cookies';
 import AuthorHeader from './components/AuthorHeader'
 import validateCookie from './utils/validate.js';
 import UploadImageModal from './components/UploadImageModal';
+import MarkdownPreviewModal from './components/MarkdownPreviewModal';
 import { TweenOneGroup } from 'rc-tween-one';
 import { PlusOutlined } from '@ant-design/icons';
 import { BE_POST_API_URL, BE_SINGLE_POST_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
@@ -41,6 +42,7 @@ class PostEdit extends React.Component {
     fileList: [],
 
     modalVisibility:false,
+    modalMarkdownVisibility:false,
     fullPostContent:'',
   };
 
@@ -127,15 +129,28 @@ class PostEdit extends React.Component {
     reactLocalStorage.clear();
   }
 
-  showModal = () => {
+  showImageModal = () => {
     this.setState({
       modalVisibility: true,
     });
   };
 
-  handleCancel = e => {
+  showMarkdownModal = () => {
+    reactLocalStorage.set("postContent", this.state.fullPostContent);
+    this.setState({
+      modalMarkdownVisibility: true,
+    });
+  };
+
+  handleImageCancel = e => {
     this.setState({
       modalVisibility: false,
+    });
+  };
+
+  handleMarkdownCancel = e => {
+    this.setState({
+      modalMarkdownVisibility: false,
     });
   };
 
@@ -229,7 +244,7 @@ class PostEdit extends React.Component {
       }
     };
 
-    const { modalVisibility, postTitle, postType, postVisibility, isloading, fullPostContent} = this.state;
+    const { modalVisibility, postTitle, postType, postVisibility, isloading, fullPostContent, modalMarkdownVisibility} = this.state;
 
     return (!isloading ?
       <div>
@@ -237,12 +252,12 @@ class PostEdit extends React.Component {
           visible={modalVisibility}
           title="Choose your image"
           onOk={this.handleOk}
-          onCancel={this.handleCancel}
+          onCancel={this.handleImageCancel}
           destroyOnClose={true}
           width={400}
           height={400}
           footer={[
-            <Button key="back" onClick={this.handleCancel}>
+            <Button key="back" onClick={this.handleImageCancel}>
               Cancel
             </Button>,
             <Button key="submit" onClick={this.handleUpload}>
@@ -252,8 +267,20 @@ class PostEdit extends React.Component {
           >
             <UploadImageModal/>
           </Modal>
-        <AuthorHeader />
 
+          <Modal
+          visible={modalMarkdownVisibility}
+          title="Markdown Post Body Preview"
+          onCancel={this.handleMarkdownCancel}
+          destroyOnClose={true}
+          width={800}
+          height={800}
+          footer={[]}
+          >
+            <MarkdownPreviewModal/>
+          </Modal>
+
+        <AuthorHeader />
         <div className={'postInput'} style={{justifyContent: 'center' }} >
           <Form {...formItemLayout}>
 
@@ -343,8 +370,14 @@ class PostEdit extends React.Component {
             </Form.Item>
 
             <Form.Item>
-            <Button type="primary" onClick={this.showModal}>
-                Add image
+            <Button type="primary" onClick={this.showImageModal}>
+                Add Image
+            </Button>
+            </Form.Item>
+            
+            <Form.Item>
+            <Button type="primary" onClick={this.showMarkdownModal}>
+                Markdown Preview
             </Button>
             </Form.Item>
 

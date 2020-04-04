@@ -9,6 +9,7 @@ import cookie from 'react-cookies';
 import validateCookie from './utils/validate.js';
 import AuthorHeader from './components/AuthorHeader';
 import UploadImageModal from './components/UploadImageModal';
+import MarkdownPreviewModal from './components/MarkdownPreviewModal';
 import { reactLocalStorage } from 'reactjs-localstorage';
 import { TweenOneGroup } from 'rc-tween-one';
 import { PlusOutlined } from '@ant-design/icons';
@@ -41,6 +42,7 @@ class PostInput extends React.Component {
     inputValue: '',
 
     modalVisibility:false,
+    modalMarkdownVisibility:false,
     fullPostContent:'',
   };
 
@@ -69,9 +71,16 @@ class PostInput extends React.Component {
     this.setState({ fullPostContent: event.target.value });
   }
 
-  showModal = () => {
+  showImageModal = () => {
     this.setState({
       modalVisibility: true,
+    });
+  };
+
+  showMarkdownModal = () => {
+    reactLocalStorage.set("postContent", this.state.fullPostContent);
+    this.setState({
+      modalMarkdownVisibility: true,
     });
   };
 
@@ -111,9 +120,15 @@ class PostInput extends React.Component {
     }
   };
 
-  handleCancel = e => {
+  handleImageCancel = e => {
     this.setState({
       modalVisibility: false,
+    });
+  };
+
+  handleMarkdownCancel = e => {
+    this.setState({
+      modalMarkdownVisibility: false,
     });
   };
 
@@ -193,7 +208,7 @@ class PostInput extends React.Component {
   render() {
     const { getFieldDecorator } = this.props.form;
 
-    const { tags, inputVisible, inputValue, modalVisibility, fullPostContent} = this.state;
+    const { tags, inputVisible, inputValue, modalVisibility, fullPostContent, modalMarkdownVisibility} = this.state;
     const tagChild = tags.map(this.forMap);
 
     const formItemLayout = {
@@ -225,12 +240,12 @@ class PostInput extends React.Component {
           visible={modalVisibility}
           title="Choose your image"
           onOk={this.handleOk}
-          onCancel={this.handleCancel}
+          onCancel={this.handleImageCancel}
           destroyOnClose={true}
           width={400}
           height={400}
           footer={[
-            <Button key="back" onClick={this.handleCancel}>
+            <Button key="back" onClick={this.handleImageCancel}>
               Cancel
             </Button>,
             <Button key="submit" onClick={this.handleUpload}>
@@ -240,6 +255,19 @@ class PostInput extends React.Component {
           >
             <UploadImageModal/>
           </Modal>
+
+          <Modal
+          visible={modalMarkdownVisibility}
+          title="Markdown Post Body Preview"
+          onCancel={this.handleMarkdownCancel}
+          destroyOnClose={true}
+          width={800}
+          height={800}
+          footer={[]}
+          >
+            <MarkdownPreviewModal/>
+          </Modal>
+
         <AuthorHeader />
         <div className={'postInput'} style={{justifyContent: 'center' }} >
           <Form {...formItemLayout}>
@@ -329,8 +357,14 @@ class PostInput extends React.Component {
             </Form.Item>
 
             <Form.Item>
-            <Button type="primary" onClick={this.showModal}>
-                Add image
+            <Button type="primary" onClick={this.showImageModal}>
+                Add Image
+            </Button>
+            </Form.Item>
+            
+            <Form.Item>
+            <Button type="primary" onClick={this.showMarkdownModal}>
+                Markdown Preview
             </Button>
             </Form.Item>
 
