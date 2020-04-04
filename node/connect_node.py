@@ -61,6 +61,7 @@ def deal_unprocessed_active_requests(user):
         friend = request.f2Id
         if friend.host == DEFAULT_HOST:
             continue
+        print(friend.displayName, user.displayName)
         tmp = DEFAULT_HOST.replace("https://", "")
         second_author_url = urllib.parse.quote(f"{tmp}author/{user.id}", safe="~()*!.'")
         url = f"{friend.host}author/{friend.id}/friends/{second_author_url}"
@@ -71,6 +72,7 @@ def deal_unprocessed_active_requests(user):
         )
         if response.status_code in range(200, 300):
             response_data = response.json()
+            print("\n\n\n\n", response_data, "\n\n\n\n")
             isFriend = response_data["friends"]
             if isFriend:
                 request.status = "A"
