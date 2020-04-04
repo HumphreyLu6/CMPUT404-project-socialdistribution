@@ -70,7 +70,8 @@ def deal_unprocessed_active_requests(user):
             headers={"Authorization": f"Basic {auth}", "Accept": "application/json",},
         )
         if response.status_code in range(200, 300):
-            isFriend = response.json()["friends"]
+            response_data = response.json()
+            isFriend = response_data["friends"]
             if isFriend:
                 request.status = "A"
                 request.save()
@@ -79,10 +80,12 @@ def deal_unprocessed_active_requests(user):
                 ).update(status="A")
                 friends.append(friends)
             else:
-                request.delete()
-                Friend.objects.filter(
-                    status="U", f1Id=user.id, f2Id=friend.id, isCopy=True
-                ).delete()
+                isPending = response_data["pending"]
+                if not isPending:
+                    request.delete()
+                    Friend.objects.filter(
+                        status="U", f1Id=user.id, f2Id=friend.id, isCopy=True
+                    ).delete()
     return friends
 
 
@@ -102,11 +105,14 @@ def deal_current_friends(current_friend_ids, user):
         )
         if response.status_code in range(200, 300):
             isFriend = response.json()["friends"]
+            print("\n\n\n\ndebug: \n\n\n", isFriend)
             if not isFriend:
                 Friend.objects.filter(status="A", f1Id=user.id, f2Id=friend.id).delete()
                 Friend.objects.filter(status="A", f1Id=friend.id, f2Id=user.id).delete()
             else:
                 friends.append(friend)
+        else:
+            raise Exception(response.text)
     return friends
 
 
