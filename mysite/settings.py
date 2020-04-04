@@ -28,7 +28,11 @@ SECRET_KEY = "*nrwg9l-r03ndz_3s9&p$^bcyzs!o8cg=p_hxqbh!f_vvh!+wr"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-DEFAULT_HOST = "https://spongebook.herokuapp.com/"
+DEFAULT_HOST = (
+    "https://spongebook.herokuapp.com/"
+    if os.getenv("DEFAULT_HOST") is None
+    else os.getenv("DEFAULT_HOST")
+)
 
 # Yuxuan Group's Host
 REMOTE_HOST1 = "https://cmput404-socialdistribution.herokuapp.com/"
