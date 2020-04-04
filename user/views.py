@@ -21,7 +21,8 @@ import mysite.utils as utils
 from friend.models import Friend
 from post.models import Post
 from post.serializers import PostSerializer
-from node.models import Node, get_nodes_user_ids, update_db
+from node.models import Node, get_nodes_user_ids
+from node.connect_node import update_db
 from .serializers import AuthorSerializer
 from .models import User
 from .permissions import OwnerOrAdminPermissions
@@ -91,7 +92,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         """
         Get local and remote users.
         """
-        update_db(True, False, False)
+        update_db(True, False)
         queryset = User.objects.filter(is_superuser=0).exclude(
             id__in=get_nodes_user_ids()
         )

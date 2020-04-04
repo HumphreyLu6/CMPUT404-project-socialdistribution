@@ -1,18 +1,12 @@
-import uuid
 import json
 import requests
-
-from django.db.models import Q
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.permissions import (
-    IsAuthenticated,
     AllowAny,
-    IsAdminUser,
-    IsAuthenticatedOrReadOnly,
 )
 
 from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
@@ -20,7 +14,8 @@ import mysite.utils as utils
 from user.models import User
 from post.models import Post
 from post.views import is_post_visible_to
-from node.models import Node, update_db
+from node.models import Node
+from node.connect_node import update_db
 from .models import Comment
 from .serializers import CommentSerializer
 
@@ -121,7 +116,7 @@ class CommentViewSet(viewsets.ModelViewSet):
                         raise Exception("Comment id already exists.")
                     author_data = comment.pop("author")
                     author_data["id"] = author_data["id"].split("/")[-1]
-                    update_db(True, False, False)
+                    update_db(True, False)
                     author = None
                     if author_data["host"] == REMOTE_HOST1:
                         author = User.objects.filter(

@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { Form, Input, Button, Modal, Radio, Tag} from 'antd';
+import { Form, Input, Button, Upload, Modal, Icon, Radio, message, Tag, Select} from 'antd';
 import axios from 'axios';
 import './components/PostInput.css';
 import './components/Header.css';
@@ -13,17 +13,30 @@ import MarkdownPreviewModal from './components/MarkdownPreviewModal';
 import { reactLocalStorage } from 'reactjs-localstorage';
 import { TweenOneGroup } from 'rc-tween-one';
 import { PlusOutlined } from '@ant-design/icons';
-import { BE_POST_API_URL, BE_CURRENT_USER_API_URL, HOST, FE_USERPROFILE_URL} from "./utils/constants.js";
+import { BE_POST_API_URL, BE_CURRENT_USER_API_URL, HOST, FE_USERPROFILE_URL, BE_ALL_AUTHOR_API_URL} from "./utils/constants.js";
 
 const { TextArea } = Input;
 var imageFileName = '';
 var imageEncoding = '';
+const { Option } = Select;
+
+function getBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+}
 
 //https://stackoverflow.com/questions/51421348/how-to-get-the-path-of-an-uploaded-file-in-reactjs
 
 function createimage(imagePostId) {
   return "![".concat(imageFileName).concat("]").concat("(").concat(HOST).concat("posts/").concat(imagePostId).concat(")");
 }
+
+const authors = [];
+var authorInfo = {};
 
 class PostInput extends React.Component {
 
@@ -40,10 +53,11 @@ class PostInput extends React.Component {
     tags: [],
     inputVisible: false,
     inputValue: '',
-
+    
     modalVisibility:false,
     modalMarkdownVisibility:false,
     fullPostContent:'',
+
   };
 
   componentDidMount() {
@@ -126,11 +140,41 @@ class PostInput extends React.Component {
     });
   };
 
+
   handleMarkdownCancel = e => {
     this.setState({
       modalMarkdownVisibility: false,
     });
   };
+
+  showSelectFriends = () => {
+    var p = document.getElementsByClassName("select-friends");
+    if (p[0].style.display === "none"){
+        p[0].style.display = "block";
+    } 
+    axios.get(BE_ALL_AUTHOR_API_URL(HOST), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
+    .then(res => {
+        for (var i=0; i<res.data.length; i++){
+            var displayName = res.data[i].displayName;
+            var url = res.data[i].url;
+            var options = displayName.concat(" @ ");
+            options = options.concat(url);
+            var uniqueKey = displayName.concat(i);
+            authorInfo[uniqueKey] = url;
+            authors.push(<Option key={uniqueKey} label={displayName}>{options}</Option>);
+        }
+    }).catch(function (error) {
+      console.log(error);
+    });
+  }
+
+  hideSelectFriends = () => {
+    var p = document.getElementsByClassName("select-friends");
+    if (p[0].style.display === "block"){
+        p[0].style.display = "none";
+    } 
+  }
+
 
   handleClose = removedTag => {
     const tags = this.state.tags.filter(tag => tag !== removedTag);
@@ -182,6 +226,12 @@ class PostInput extends React.Component {
   handleSubmit = e => {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
+        var visibleTo = "";
+        if (values.Visibility === "PRIVATE") {
+            visibleTo = values.specificFriends.map(function(key){ 
+                return authorInfo[key]; 
+            }) 
+        }
         axios.post(BE_POST_API_URL(HOST),
           {
             title: values.postTitle,
@@ -190,7 +240,7 @@ class PostInput extends React.Component {
             contentType: values.Type,
             categories: this.state.tags,
             visibility: values.Visibility,
-            visibleTo: "",
+            visibleTo: visibleTo,
             unlisted: false,
           }, { headers: { 'Authorization': 'Token ' + cookie.load('token') } }
         )
@@ -333,12 +383,25 @@ class PostInput extends React.Component {
                 ],
                 initialValue: "PUBLIC"
               })(<Radio.Group>
-                <Radio.Button value="PUBLIC">Public</Radio.Button>
-                <Radio.Button value="FRIENDS">Friends</Radio.Button>
-                <Radio.Button value="FOAF">Friends to friends</Radio.Button>
-                <Radio.Button value="PRIVATE">Private</Radio.Button>
-                <Radio.Button value="SERVERONLY">Server only</Radio.Button>
+                <Radio.Button value="PUBLIC" onClick={this.hideSelectFriends}>Public</Radio.Button>
+                <Radio.Button value="FRIENDS" onClick={this.hideSelectFriends}>Friends</Radio.Button>
+                <Radio.Button value="FOAF" onClick={this.hideSelectFriends}>Friends to friends</Radio.Button>
+                <Radio.Button value="PRIVATE" onClick={this.showSelectFriends}>Private</Radio.Button>
+                <Radio.Button value="SERVERONLY" onClick={this.hideSelectFriends}>Server only</Radio.Button>
               </Radio.Group>)}
+            </Form.Item>
+
+            <Form.Item>
+              {getFieldDecorator("specificFriends")
+              (<Select 
+                    className="select-friends"
+                    mode="multiple"
+                    style={{ width: "100%", display: "none" }}
+                    placeholder="Search for a friend..."
+                    optionLabelProp="label"
+                >
+                {authors}
+                </Select>)}
             </Form.Item>
 
             <Form.Item>
