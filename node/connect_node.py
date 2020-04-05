@@ -64,6 +64,7 @@ def deal_unprocessed_active_requests(user):
         tmp = user.host
         if friend.host != REMOTE_HOST1:
             tmp = tmp.replace("https://", "")
+
         second_author_url = urllib.parse.quote(f"{tmp}author/{user.id}", safe="~()*!.'")
         url = f"{friend.host}author/{friend.id}/friends/{second_author_url}"
         auth = Node.objects.filter(host=friend.host).first().auth
