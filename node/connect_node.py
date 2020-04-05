@@ -178,6 +178,13 @@ def update_friends(user, depth, ignoreuser):
                     friend = User.objects.filter(non_uuid_id=id).first()
                 if friend:
                     friends.append(friend)
+                    if not Friend.objects.filter(f1Id=user.id, f2Id=friend.id, status="A").exists():
+                        Friend.objects.create(
+                            f1Id=user, f2Id=friend, status="A", isCopy=False
+                        )
+                        Friend.objects.create(
+                            f1Id=friend, f2Id=user, status="A", isCopy=True
+                        )
 
             if ignoreuser:
                 friends += [ignoreuser]
