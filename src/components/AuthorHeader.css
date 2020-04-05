@@ -2,34 +2,34 @@
     background-image: url("HeaderBackground.svg");
     background-size: cover;
     line-height: 64px;
+    text-align: center;
 }
 
 .menu-item-intro {
-    padding-left: 6%;
-    padding-right: 6%;
+    float: left;
+    margin-left: 5%;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 54ch;
 }
 
-.menu-item-intro span {
-    font-size: 14pt;
-    font-weight: 500;
-    color: rgb(127, 85, 59);
-}
-
-.menu-item span {
-    font-size: 14pt;
-    font-weight: 500;
-    color: rgb(127, 85, 59);
+.menu-item-logout {
+    float: right;
+    margin-right: 5%;
 }
 
 .menu-icon {
     color: rgb(127, 85, 59);
 }
 
-.sub-menu span {
+.menu-item-title {
+    font-size: 14pt;
+    font-weight: 500;
     color: rgb(127, 85, 59);
-    font-weight: 450;
+}
+
+.sub-menu-title {
     font-size: 11pt;
+    font-weight: 450;
+    color: rgb(127, 85, 59);
 }

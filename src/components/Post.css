@@ -1,13 +1,18 @@
 .mystyle {
-    margin-left: 23%;
-    margin-right: 23%;
+    margin-left: 17%;
+    margin-right: 17%;
 }
 
 img {
     border-radius: 6%;
-  }
+}
 
-  .markdown-content img {
+.markdown-content {
+    margin-left: 1%;
+    font-size: larger;
+}
+
+.markdown-content img {
     max-height: 400px;
     max-width: 600px;
     margin : 1em;
