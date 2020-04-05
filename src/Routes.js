@@ -10,12 +10,6 @@ import PostInput from "./PostInput"
 import PostEdit from "./PostEdit"
 import Login from "./Login"
 import Register from "./Register"
-import SignUpRequestPage from "./SignUpRequestPage";
-import NodesRequestPage from './NodesRequestPage';
-import NodesPage from './NodesPage';
-import AuthorPage from './AuthorPage';
-import ProfilePage from './ProfilePage';
-import AddNodesPage from './AddNodesPage';
 import SearchPage from './SearchPage';
 import Error404 from './404'
 import {
@@ -24,17 +18,11 @@ import {
   FE_FREND_LIST_URL,
   FE_SEARCH_URL,
   FE_POST_COMMENTS_URL,
-  FE_ADDNODES_URL,
-  FE_PROFILE_URL,
-  FE_AUTHORS_URL,
   FE_LOGIN_URL,
-  FE_MY_NODES_URL,
   FE_REGISTER_URL,
-  FE_NODE_REQUEST_URL,
   FE_SEETING_URL,
   FE_USER_URL,
   FE_USERPROFILE_URL,
-  FE_ADMIN_REGISTER_URL,
   FE_ADD_POST_URL
 } from "./utils/constants.js"
 
@@ -55,12 +43,6 @@ const Routes = () => {
       <Route path={FE_POST_EDIT_URL(':postid')} component={PostEdit} />
 
       {/*admin*/}
-      <Route path={FE_ADMIN_REGISTER_URL} component={SignUpRequestPage} />
-      <Route path={FE_NODE_REQUEST_URL} component={NodesRequestPage} />
-      <Route path={FE_MY_NODES_URL} component={NodesPage} />
-      <Route path={FE_AUTHORS_URL} component={AuthorPage} />
-      <Route path={FE_PROFILE_URL} component={ProfilePage} />
-      <Route path={FE_ADDNODES_URL} component={AddNodesPage} />
       <Route path="*" status={404} component={Error404} />
 
     </Switch>
