@@ -9,7 +9,7 @@ import convertTime from './utils/isoFormat.js';
 import getUserId from './utils/getUserId.js';
 import AuthorHeader from './components/AuthorHeader'
 import AuthorProfile from './components/AuthorProfile'
-import './UserSelf.css';
+import './components/Post.css';
 import 'antd/dist/antd.css';
 import { List, Icon, Modal, Avatar, Drawer, Spin, Tag } from 'antd';
 import { 

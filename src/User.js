@@ -6,7 +6,7 @@ import validateCookie from './utils/validate.js';
 import AuthorHeader from './components/AuthorHeader';
 import axios from 'axios';
 import cookie from 'react-cookies';
-import './UserSelf.css';
+import './components/Post.css';
 import ReactMarkdown from 'react-markdown';
 import { reactLocalStorage } from 'reactjs-localstorage';
 import WrappedComments from './Comment';
