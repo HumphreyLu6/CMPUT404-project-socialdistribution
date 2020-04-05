@@ -76,7 +76,7 @@ class ProfileContent extends React.Component {
     }
 
     githubValidate(code) {
-        axios.post("/login/oauth/access_token", {
+        axios.post("https://github.com/login/oauth/access_token", {
             client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET,
             code: code,
