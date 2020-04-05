@@ -262,7 +262,6 @@ class UserSelf extends React.Component {
                                             style={{ 
                                                 color: "#7f553b",
                                                 fontSize: "14pt",
-                                                marginTop : "-13pt",
                                             }}
                                         >
                                             {item.author.displayName}
