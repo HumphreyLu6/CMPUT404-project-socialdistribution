@@ -318,7 +318,7 @@ class PostInput extends React.Component {
             <MarkdownPreviewModal/>
           </Modal>
 
-        <AuthorHeader />
+        <AuthorHeader defaultSelectedKeys="PostInput"/>
         <div className={'postInput'} style={{justifyContent: 'center' }} >
           <Form {...formItemLayout}>
 
@@ -439,13 +439,10 @@ class PostInput extends React.Component {
           </Form>
         </div>
       </div>
-
     )
-
   }
 }
 
 const WrappedPostInput = Form.create({ name: 'PostInput' })(PostInput)
-
 
 export default WrappedPostInput

@@ -1,0 +1,27 @@
+.menu {
+    background-image: url("HeaderBackground.svg");
+    background-size: cover;
+    line-height: 64px;
+    text-align: center;
+}
+
+.menu-item span {
+    font-size: 14pt;
+    font-weight: 500;
+    color: rgb(127, 85, 59);
+    /* color: #e6b800; */
+}
+
+.menu-icon {
+    color: rgb(127, 85, 59);
+}
+
+.sub-menu {
+    background-color: rgb(131, 206, 242);
+}
+
+.sub-menu span {
+    color: rgb(127, 85, 59);
+    font-weight: 450;
+    font-size: 11pt;
+}
