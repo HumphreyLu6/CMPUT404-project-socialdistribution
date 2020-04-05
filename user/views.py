@@ -1,27 +1,13 @@
-import requests
-import json
-from typing import Tuple
-
-from django.db.models import Q
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
-    IsAdminUser,
-    IsAuthenticatedOrReadOnly,
 )
 
 from mysite.settings import DEFAULT_HOST
-import mysite.utils as utils
-from friend.models import Friend
-from post.models import Post
-from post.serializers import PostSerializer
-from node.models import Node, get_nodes_user_ids
+from node.models import get_nodes_user_ids
 from node.connect_node import update_db, pull_github_events
 from .serializers import AuthorSerializer
 from .models import User

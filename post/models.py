@@ -4,8 +4,7 @@ import json
 from django.db import models
 from django.utils import timezone
 from user.models import User
-from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
-import mysite.utils as utils
+from mysite.settings import DEFAULT_HOST
 
 VISIBILITYCHOICES = (
     ("PUBLIC", "PUBLIC: visible to PUBLIC"),
