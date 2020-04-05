@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { Form, Input, Button, Tooltip, Icon } from 'antd';
+import { Form, Input, Button, Tooltip, Icon, message } from 'antd';
 import axios from 'axios';
 import './components/Settings.css';
 import './components/Header.css';
@@ -25,7 +25,6 @@ class ProfileContent extends React.Component {
             displayName: null,
             github: null,
             bio: null,
-            accessToken: null,
             isValid: false,
             isRedirect: false,
         }
@@ -42,6 +41,9 @@ class ProfileContent extends React.Component {
             this.setState({
                 isRedirect: true,
             })
+        }
+        window.onbeforeunload = function() {
+            return -1;
         }
     }
 
@@ -79,28 +81,30 @@ class ProfileContent extends React.Component {
                 if (values.github) {
                     github = githubUrl + values.github;
                     if (!isValid) {
-                        alert("Please validate your github account!");
+                        message.error("Please validate your github account!");
                         return -1;
                     }
                 }
+                window.onbeforeunload = null;
                 const token = cookie.load('token');
                 const headers = { 'Authorization': 'Token '.concat(token) }
                 axios.patch(BE_AUTHOR_PROFILE_API_URL(this.state.id),
-                    {
-                        "github": github,
-                        "displayName": values.displayName,
-                        "bio": values.bio,
-                    }, { headers: headers })
-                    .then(() => {
-                        document.location.replace(FE_USERPROFILE_URL);
-                    }).catch((error) => {
-                        console.log(error);
-                    });
+                {
+                    "github": github,
+                    "displayName": values.displayName,
+                    "bio": values.bio,
+                }, { headers: headers })
+                .then(() => {
+                    document.location.replace(FE_USERPROFILE_URL);
+                }).catch((error) => {
+                    console.log(error);
+                });
             }
         });
     };
 
     redirectToAuth() {
+        window.onbeforeunload = null;
         const githubAuthUrl = "https://github.com/login/oauth/authorize"
         var requestUrl = githubAuthUrl + "?client_id=" + CLIENT_ID;
         window.location = requestUrl;
@@ -126,7 +130,6 @@ class ProfileContent extends React.Component {
     };
 
     setGithub(accessToken) {
-        alert(accessToken);
         axios.get("https://api.github.com/user",
         { headers: { 'Authorization': 'token ' + accessToken } })
         .then(res => {
@@ -158,7 +161,7 @@ class ProfileContent extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { userName, email, displayName, github, bio, isValid, isRedirect } = this.state;
+        const { userName, email, displayName, github, bio, isValid } = this.state;
         const layout = {
             labelCol: {
                 span: 8,
@@ -194,11 +197,7 @@ class ProfileContent extends React.Component {
                         <span>{githubUrl}</span>
                         {getFieldDecorator('github', {
                             initialValue: github,
-                        })
-                            (isValid && isRedirect ?
-                                <Input style={{ width: 620 }} disabled /> :
-                                <Input onChange={this.needToAuth} style={{ width: 620 }} />
-                            )}
+                        })(<Input onChange={this.needToAuth} style={{ width: 620 }} />)}
                         {isValid ?
                             <Button type="link">
                                 <Icon type="check" />
