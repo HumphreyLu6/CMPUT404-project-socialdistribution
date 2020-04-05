@@ -1,18 +1,21 @@
 import React from 'react';
-import 'antd/dist/antd.css';
-import './index.css';
-import { Form, Input, Button, Tooltip, Icon, message } from 'antd';
 import axios from 'axios';
-import './components/Settings.css';
-import './components/Header.css';
-import AuthorHeader from './components/AuthorHeader';
 import cookie from 'react-cookies';
+import AuthorHeader from './components/AuthorHeader';
 import validateCookie from './utils/validate.js';
-import { BE_CURRENT_USER_API_URL, BE_AUTHOR_PROFILE_API_URL, BE_AUTHOR_GITHUB_API_URL, FE_USERPROFILE_URL } from "./utils/constants.js";
-import { CLIENT_ID, CLIENT_SECRET } from "./utils/githubOAuth";
 import getUserId from './utils/getUserId.js';
-
-const githubUrl = "https://github.com/";
+import { CLIENT_ID, CLIENT_SECRET } from "./utils/githubOAuth";
+import './components/Header.css';
+import './components/Settings.css';
+import './index.css';
+import 'antd/dist/antd.css';
+import { Form, Input, Button, Tooltip } from 'antd';
+import { 
+    BE_CURRENT_USER_API_URL, 
+    BE_AUTHOR_PROFILE_API_URL, 
+    BE_AUTHOR_GITHUB_API_URL, 
+    FE_USERPROFILE_URL 
+} from "./utils/constants.js";
 
 class ProfileContent extends React.Component {
     constructor(props) {
@@ -25,11 +28,10 @@ class ProfileContent extends React.Component {
             displayName: null,
             github: null,
             bio: null,
-            isValid: false,
             isRedirect: false,
         }
 
-        this.needToAuth = this.needToAuth.bind(this)
+        this.cleanGithub = this.cleanGithub.bind(this)
     }
 
     componentWillMount() {
@@ -37,10 +39,10 @@ class ProfileContent extends React.Component {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         if (code) {
-            this.githubValidate(code);
             this.setState({
                 isRedirect: true,
             })
+            this.githubValidate(code);
         }
         window.onbeforeunload = function() {
             return -1;
@@ -51,55 +53,18 @@ class ProfileContent extends React.Component {
         const token = cookie.load('token');
         const headers = { 'Authorization': 'Token '.concat(token) }
         axios.get(BE_CURRENT_USER_API_URL, { headers: headers })
-            .then(res => {
-                var userInfo = res.data;
-                this.setState({
-                    id: getUserId(userInfo.id),
-                    userName: userInfo.username,
-                    email: userInfo.email,
-                    displayName: userInfo.displayName,
-                    github: userInfo.github ? userInfo.github.replace(githubUrl, "") : null,
-                    bio: userInfo.bio
-                });
-                if (!this.state.isRedirect) {
-                    if (this.state.github) {
-                        this.setState({
-                            isValid: true,
-                        })
-                    }
-                }
-            }).catch((error) => {
-                console.log(error);
+        .then(res => {
+            var userInfo = res.data;
+            this.setState({
+                id: getUserId(userInfo.id),
+                userName: userInfo.username,
+                email: userInfo.email,
+                displayName: userInfo.displayName,
+                github: userInfo.github, 
+                bio: userInfo.bio,
             });
-    };
-
-    handleSubmit = e => {
-        this.props.form.validateFieldsAndScroll((err, values) => {
-            if (!err) {
-                var { isValid } = this.state;
-                var github = null;
-                if (values.github) {
-                    github = githubUrl + values.github;
-                    if (!isValid) {
-                        message.error("Please validate your github account!");
-                        return -1;
-                    }
-                }
-                window.onbeforeunload = null;
-                const token = cookie.load('token');
-                const headers = { 'Authorization': 'Token '.concat(token) }
-                axios.patch(BE_AUTHOR_PROFILE_API_URL(this.state.id),
-                {
-                    "github": github,
-                    "displayName": values.displayName,
-                    "bio": values.bio,
-                }, { headers: headers })
-                .then(() => {
-                    document.location.replace(FE_USERPROFILE_URL);
-                }).catch((error) => {
-                    console.log(error);
-                });
-            }
+        }).catch((error) => {
+            console.log(error);
         });
     };
 
@@ -121,21 +86,21 @@ class ProfileContent extends React.Component {
                 "Accept": 'application/json',
             }
         }, { crossDomain: true })
-            .then(res => {
-                var accessToken = res.data.access_token;
-                this.setGithub(accessToken);
-            }).catch(function (error) {
-                console.log(error);
-            });
+        .then(res => {
+            var accessToken = res.data.access_token;
+            this.setGithub(accessToken);
+        }).catch(function (error) {
+            console.log(error);
+        });
     };
 
     setGithub(accessToken) {
         axios.get("https://api.github.com/user",
         { headers: { 'Authorization': 'token ' + accessToken } })
         .then(res => {
+            const githubUrl = "https://github.com/";
             this.setState({
-                github: res.data.login,
-                isValid: true,
+                github: githubUrl.concat(res.data.login),
             });
 
             const token = cookie.load('token');
@@ -147,21 +112,41 @@ class ProfileContent extends React.Component {
             .catch((error) => {
                 console.log(error);
             });
-
         }).catch((error) => {
             console.log(error);
         });
     }
 
-    needToAuth() {
+    cleanGithub() {
         this.setState({
-            isValid: false,
-        })
+            github: "", 
+        });
     }
+
+    handleSubmit = e => {
+        this.props.form.validateFieldsAndScroll((err, values) => {
+            if (!err) {
+                window.onbeforeunload = null;
+                const token = cookie.load('token');
+                const headers = { 'Authorization': 'Token '.concat(token) }
+                axios.patch(BE_AUTHOR_PROFILE_API_URL(this.state.id),
+                {
+                    "github": values.github,
+                    "displayName": values.displayName,
+                    "bio": values.bio,
+                }, { headers: headers })
+                .then(() => {
+                    document.location.replace(FE_USERPROFILE_URL);
+                }).catch((error) => {
+                    console.log(error);
+                });
+            }
+        });
+    };
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { userName, email, displayName, github, bio, isValid } = this.state;
+        const { userName, email, displayName, github, bio } = this.state;
         const layout = {
             labelCol: {
                 span: 8,
@@ -170,7 +155,6 @@ class ProfileContent extends React.Component {
                 span: 16,
             },
         };
-
         const tailLayout = {
             wrapperCol: {
                 offset: 8,
@@ -184,38 +168,47 @@ class ProfileContent extends React.Component {
                     <Form.Item label="User Name">
                         {userName}
                     </Form.Item>
+
                     <Form.Item label="Email">
                         {email}
                     </Form.Item>
+
                     <Form.Item label="Display Name">
                         {getFieldDecorator('displayName', {
                             initialValue: displayName,
-                        })(<Input />)}
+                        })(<Input/>)}
                     </Form.Item>
 
                     <Form.Item label="GitHub">
-                        <span>{githubUrl}</span>
                         {getFieldDecorator('github', {
                             initialValue: github,
-                        })(<Input onChange={this.needToAuth} style={{ width: 620 }} />)}
-                        {isValid ?
-                            <Button type="link">
-                                <Icon type="check" />
-                                Validated
-                            </Button>
+                        })(<Input disabled/>)}
+                        {github ?
+                            <div className="github-choice">
+                                <Tooltip title='This action will delete all "Github posts" that you have.'>
+                                    <Button type="link" onClick={this.cleanGithub}>
+                                        Unlink my github account
+                                    </Button>
+                                </Tooltip>
+                                <Tooltip title="To change, make sure you have signed out Github or logged in as a different account.">
+                                    <Button type="link" onClick={this.redirectToAuth}>
+                                        Change my github account
+                                    </Button>
+                                </Tooltip>
+                            </div>
                             :
-                            <Tooltip title="You need to validate first">
+                            <div className="github-choice">
                                 <Button type="link" onClick={this.redirectToAuth}>
-                                    Validate
+                                    Link to your github
                                 </Button>
-                            </Tooltip>
+                            </div>
                         }
                     </Form.Item>
 
                     <Form.Item label="Bio">
                         {getFieldDecorator('bio', {
                             initialValue: bio,
-                        })(<Input.TextArea autoSize={true} />)}
+                        })(<Input.TextArea autoSize={true}/>)}
                     </Form.Item>
 
                     <Form.Item {...tailLayout}>

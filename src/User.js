@@ -91,7 +91,7 @@ class User extends React.Component {
                             actions={[
                                 <span>
                                     <a href="#!" onClick={this.handleComment.bind(this, item.id)} style={{ marginRight: 8 }}>
-                                        <Icon type="message" />
+                                        <Icon type="message"/>
                                     </a>
                                     {String(item.comments.length).concat(" comment(s)")}
                                 </span>
