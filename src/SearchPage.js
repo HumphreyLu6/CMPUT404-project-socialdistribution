@@ -63,7 +63,7 @@ class SearchPage extends React.Component {
     render() {
         return (
             <div>
-                <AuthorHeader />
+                <AuthorHeader defaultSelectedKeys="Search"/>
                 <div style={{ textAlign: "center", marginTop: "10px" }}>
                     <Search
                         style={{ width: "30%" }}

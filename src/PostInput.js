@@ -244,7 +244,7 @@ class PostInput extends React.Component {
 
     return (
       <div>
-        <AuthorHeader />
+        <AuthorHeader defaultSelectedKeys="PostInput"/>
         <div className={'postInput'} style={{justifyContent: 'center' }} >
           <Form {...formItemLayout}>
 
