@@ -11,6 +11,10 @@ import { BE_LOGIN_API_URL, FE_USER_URL,FE_REGISTER_URL } from "./utils/constants
 
 class NormalLoginForm extends React.Component {
 
+  componentDidMount(){
+    document.body.style.background = "#83CEF2";
+   }
+
   checkCookie = () => {
 
     if (cookie.load('token')) {
@@ -96,7 +100,7 @@ class NormalLoginForm extends React.Component {
             </Card>
             <img className="spongebob" src={Spongebob} alt=""></img>
             <img className="seaweed1" src={seaweed} alt=""></img>
-            <img className="searock" src={searocklogin} alt=""></img>
+            <img className="searocklogin" src={searocklogin} alt=""></img>
 
         </Layout.Content>
       </Layout>

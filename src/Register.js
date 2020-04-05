@@ -13,7 +13,11 @@ class RegistrationForm extends React.Component {
     confirmDirty: false,
     autoCompleteResult: []
   };
-l
+
+  componentDidMount(){
+    document.body.style.background = "#83CEF2";
+   }
+   
   handleSubmit = e => {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {

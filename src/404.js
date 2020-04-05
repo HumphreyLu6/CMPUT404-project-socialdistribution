@@ -4,6 +4,11 @@ import { FE_LOGIN_URL } from "./utils/constants.js"
 import { Button } from 'antd';
 import error from './Images/sponge404premade.png';
 class Error404 extends React.Component {
+
+	componentDidMount(){
+		document.body.style.background = "#83CEF2";
+	}
+
 	render() {
 		return (
 			<div className="background">
