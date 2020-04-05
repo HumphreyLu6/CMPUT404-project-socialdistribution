@@ -2,16 +2,14 @@
     background-image: url("HeaderBackground.svg");
     background-size: cover;
     line-height: 64px;
-    /* text-align: center; */
 }
 
 .menu-item-intro {
-    /* float: left; */
     padding-left: 6%;
     padding-right: 6%;
     overflow: hidden;
-    max-width: 54ch;
     text-overflow: ellipsis;
+    max-width: 54ch;
 }
 
 .menu-item-intro span {
