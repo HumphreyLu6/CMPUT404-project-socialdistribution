@@ -128,7 +128,7 @@ class FriendRequest extends React.Component {
 
     return (
       <div>
-        <AuthorHeader />
+        <AuthorHeader/>
         {!isloading ? 
         <List
           className="demo-loadmore-list"

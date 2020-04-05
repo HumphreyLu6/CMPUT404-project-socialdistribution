@@ -138,14 +138,10 @@ class FriendViewSet(viewsets.ModelViewSet):
             if not author:
                 raise Exception("'Author' does not exist")
 
-            instance1 = Friend.objects.filter(
-                f1Id=author.id, f2Id=friend.id, isCopy=False
-            ).first()
-            instance2 = Friend.objects.filter(
-                f1Id=friend.id, f2Id=author.id, isCopy=True
-            ).first()
+            instance1 = Friend.objects.filter(f1Id=author.id, f2Id=friend.id).first()
+            instance2 = Friend.objects.filter(f1Id=friend.id, f2Id=author.id).first()
             if not instance1 or not instance2:
-                raise Exception("'Friend' does not exist")
+                raise Exception("'author' and 'friend' are not friends")
 
             if request.data["status"] == "A":
                 if request.user != friend:

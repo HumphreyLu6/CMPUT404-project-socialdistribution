@@ -68,7 +68,7 @@ class User extends React.Component {
   render() {
     return (
       <div>
-        <AuthorHeader />
+        <AuthorHeader defaultSelectedKeys="Home"/>
         {!this.state.isloading ?
         <div className="mystyle">
           <Drawer

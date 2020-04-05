@@ -307,7 +307,7 @@ class PostInput extends React.Component {
             <MarkdownPreviewModal/>
           </Modal>
 
-        <AuthorHeader />
+        <AuthorHeader defaultSelectedKeys="PostInput"/>
         <div className={'postInput'} style={{justifyContent: 'center' }} >
           <Form {...formItemLayout}>
 
@@ -421,7 +421,7 @@ class PostInput extends React.Component {
             </Form.Item>
 
             <Form.Item {...tailFormItemLayout}>
-              <Button htmlType="button" onClick={this.handleSubmit}>
+              <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
                 Post it
               </Button>
             </Form.Item>
@@ -435,6 +435,5 @@ class PostInput extends React.Component {
 }
 
 const WrappedPostInput = Form.create({ name: 'PostInput' })(PostInput)
-
 
 export default WrappedPostInput

@@ -189,7 +189,7 @@ class UserSelf extends React.Component {
         var sortedData = postData.slice().sort((a, b) => Date.parse(b.published) - Date.parse(a.published));
         return (
             <div>
-                <AuthorHeader />
+                <AuthorHeader defaultSelectedKeys="MyPost"/>
                 {!isloading ? 
                 <div className="mystyle">
                     <AuthorProfile
