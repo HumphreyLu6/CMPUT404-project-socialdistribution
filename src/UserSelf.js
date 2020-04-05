@@ -1,17 +1,17 @@
 import React from 'react';
-import 'antd/dist/antd.css';
-import { List, Icon, Modal, Avatar, Drawer, Spin, Tag } from 'antd';
 import axios from 'axios';
-import AuthorHeader from './components/AuthorHeader'
-import AuthorProfile from './components/AuthorProfile'
-import { reactLocalStorage } from 'reactjs-localstorage';
-import './UserSelf.css';
 import ReactMarkdown from 'react-markdown';
+import { reactLocalStorage } from 'reactjs-localstorage';
 import cookie from 'react-cookies';
+import WrappedComments from './Comment';
 import validateCookie from './utils/validate.js';
 import convertTime from './utils/isoFormat.js';
 import getUserId from './utils/getUserId.js';
-import WrappedComments from './Comment';
+import AuthorHeader from './components/AuthorHeader'
+import AuthorProfile from './components/AuthorProfile'
+import './UserSelf.css';
+import 'antd/dist/antd.css';
+import { List, Icon, Modal, Avatar, Drawer, Spin, Tag } from 'antd';
 import { 
     HOST, 
     BE_CURRENT_USER_API_URL, 
