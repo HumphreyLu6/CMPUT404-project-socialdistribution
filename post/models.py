@@ -4,8 +4,7 @@ import json
 from django.db import models
 from django.utils import timezone
 from user.models import User
-from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
-import mysite.utils as utils
+from mysite.settings import DEFAULT_HOST
 
 VISIBILITYCHOICES = (
     ("PUBLIC", "PUBLIC: visible to PUBLIC"),
@@ -44,13 +43,7 @@ class Post(models.Model):
     # A list of authors' emails dumps into str
     visibleToStr = models.TextField(default="[]")
     unlisted = models.BooleanField(default=False)
-
-    isImage = models.BooleanField(default=False)
-    # A list of image posts' ids dumps into str
-    imagePostIdsStr = models.TextField(default="[]")  # storing image post ids.
-    # This field is used to store the id of the text post has this image.
-    # If isImages is False, this should be null.
-    textPostId = models.UUIDField(null=True, blank=True)
+    githubId = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.title

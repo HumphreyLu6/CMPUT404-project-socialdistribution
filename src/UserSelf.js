@@ -1,19 +1,17 @@
 import React from 'react';
-import 'antd/dist/antd.css';
-import { List, Icon, Modal, Avatar, Drawer, Spin } from 'antd';
-import SimpleReactLightbox from "simple-react-lightbox";
-import { SRLWrapper } from "simple-react-lightbox";
 import axios from 'axios';
-import AuthorHeader from './components/AuthorHeader'
-import AuthorProfile from './components/AuthorProfile'
-import { reactLocalStorage } from 'reactjs-localstorage';
-import './UserSelf.css';
 import ReactMarkdown from 'react-markdown';
+import { reactLocalStorage } from 'reactjs-localstorage';
 import cookie from 'react-cookies';
+import WrappedComments from './Comment';
 import validateCookie from './utils/validate.js';
 import convertTime from './utils/isoFormat.js';
 import getUserId from './utils/getUserId.js';
-import WrappedComments from './Comment';
+import AuthorHeader from './components/AuthorHeader'
+import AuthorProfile from './components/AuthorProfile'
+import './components/Post.css';
+import 'antd/dist/antd.css';
+import { List, Icon, Modal, Avatar, Drawer, Spin, Tag } from 'antd';
 import { 
     HOST, 
     BE_CURRENT_USER_API_URL, 
@@ -97,25 +95,25 @@ class UserSelf extends React.Component {
     getProfile(headers, userId) {
         var parsedId = getUserId(userId);
         axios.get(BE_AUTHOR_PROFILE_API_URL(parsedId),
-            { headers: headers }).then(res => {
-                var userInfo = res.data;
-                this.setState({
-                    userId: userId,
-                    userHost: userInfo.host,
-                    username: userInfo.username,
-                    userDisplayName: userInfo.displayName,
-                    userUrl: userInfo.url,
-                    userGithub: userInfo.github,
-                    userEmail: userInfo.email,
-                    userBio: userInfo.bio,
-                });
-                if (this.state.github) {
-                    // var githubUsername = this.state.github.replace("https://github.com/", "");
-                    //this.pullGithubActivity(githubUsername, username);
-                }
-            }).catch((error) => {
-                console.log(error);
+        { headers: headers }).then(res => {
+            var userInfo = res.data;
+            this.setState({
+                userId: userId,
+                userHost: userInfo.host,
+                username: userInfo.username,
+                userDisplayName: userInfo.displayName,
+                userUrl: userInfo.url,
+                userGithub: userInfo.github,
+                userEmail: userInfo.email,
+                userBio: userInfo.bio,
             });
+            if (this.state.github) {
+                // var githubUsername = this.state.github.replace("https://github.com/", "");
+                //this.pullGithubActivity(githubUsername, username);
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
     }
 
     pullGithubActivity(githubUsername, username) {
@@ -158,14 +156,14 @@ class UserSelf extends React.Component {
     fetchPost(headers, userId) {
         var parsedId = getUserId(userId);
         axios.get(BE_AUTHOR_POST_API_URL(HOST, parsedId), { headers: headers })
-            .then(res => {
-                this.setState({
-                    postData: res.data.posts,
-                    isloading: false,
-                });
-            }).catch((error) => {
-                console.log(error);
+        .then(res => {
+            this.setState({
+                postData: res.data.posts,
+                isloading: false,
             });
+        }).catch((error) => {
+            console.log(error);
+        });
     }
 
     handleEdit = (postId) => {
@@ -181,17 +179,18 @@ class UserSelf extends React.Component {
       
       }
     
-      onClose = () => {
+    onClose = () => {
         this.setState({drawerVisible: false,});
-      }
-    render() {
+    }
 
+    render() {
         const { postData, userId, userHost, username, userDisplayName, userUrl, userGithub, userEmail, userBio,
             currentUserId, currentUserHost, currentUserDisplayName, currentUserUrl, isloading, isSelf } = this.state;
         var sortedData = postData.slice().sort((a, b) => Date.parse(b.published) - Date.parse(a.published));
+
         return (
             <div>
-                <AuthorHeader />
+                <AuthorHeader defaultSelectedKeys="MyPost"/>
                 {!isloading ? 
                 <div className="mystyle">
                     <AuthorProfile
@@ -249,68 +248,56 @@ class UserSelf extends React.Component {
                                     avatar={
                                         <Avatar size={50}
                                             style={{
-                                                color: '#FFFFFF',
-                                                backgroundColor: '#3991F7',
-                                                marginBottom : "-60px",
-                                                fontSize : "30px"
+                                                color: '#3992f7',
+                                                backgroundColor: '#ccebff',
+                                                marginTop: 1,
+                                                fontSize : "25pt",
                                             }}
-                                        >{item.author.displayName[0].toUpperCase()}
+                                        >
+                                            {item.author.displayName[0].toUpperCase()}
                                         </Avatar>
                                     }
-                                    title={<a href={FE_USERPROFILE_URL} style={{ color: '#031528' }}>{item.author.displayName}</a>}
+                                    title={
+                                        <a href={FE_USERPROFILE_URL} 
+                                            style={{ 
+                                                color: "#7f553b",
+                                                fontSize: "14pt",
+                                            }}
+                                        >
+                                            {item.author.displayName}
+                                        </a>
+                                        }
                                     description={
-                                        <div style={{marginBottom : "-10px",marginTop : "-10px"}}>
-                                          <span>{"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}</span>
-                                          <br></br>
-                                          <span>{`Host: ${item.author.host ? item.author.host : null}`}</span>
-                                          <br></br>
-                                          <span>{`Category: ${item.categories}`}</span>
+                                        <div 
+                                            style={{
+                                                marginBottom : "-10pt",
+                                                marginTop : "-12pt",
+                                            }}
+                                        >
+                                            <span>{item.published.split(".")[0] + "-" + item.published.split("-", 4)[3]}</span>
+                                            <span>{` @ ${item.author.host ? item.author.host : null}`}</span>
+                                            <br/>
+                                            {item.categories.map((cate) =>
+                                                <Tag color="blue">{cate}</Tag>
+                                            )}
                                         </div>
                                     }
                                 />
-                                <h3>{"Title: ".concat(item.title)}</h3>
-                                {item.contentType === "text/plain" ? item.content : (<ReactMarkdown source={item.content} />)}
-                                <SimpleReactLightbox>
-                                    <SRLWrapper>
-                                        <img
-                                            width={150}
-                                            height={150}
-                                            hspace={3}
-                                            vspace={3}
-                                            alt=""
-                                            src="https://wallpaperaccess.com/full/628286.jpg" />
-                                        <img
-                                            width={150}
-                                            height={150}
-                                            hspace={3}
-                                            vspace={3}
-                                            alt=""
-                                            src="https://i.pinimg.com/originals/1f/53/25/1f53250c9035c9d657971712f6b38a99.jpg" />
-                                        <br></br>
-                                        <img
-                                            width={150}
-                                            height={150}
-                                            hspace={3}
-                                            vspace={3}
-                                            alt=""
-                                            src="https://wallpaperaccess.com/full/628286.jpg" />
-                                        <img
-                                            width={150}
-                                            height={150}
-                                            hspace={3}
-                                            vspace={3}
-                                            alt=""
-                                            src="https://wallpaperaccess.com/full/628286.jpg" />
-
-                                    </SRLWrapper>
-                                </SimpleReactLightbox>
-
+                                <h2>{item.title}</h2>
+                                {item.contentType === "text/plain" ? item.content : (
+                                    <div className="markdown-content">
+                                        <ReactMarkdown source={item.content} />
+                                    </div>
+                                )}
                             </List.Item>
                         )}
                     />
-                </div> : <div style={{marginTop : "25%",marginLeft : "50%"}}>
-                  <Spin size="large" />
-                 </div>}
+                </div> 
+                : 
+                <div style={{marginTop : "25%", marginLeft : "50%"}}>
+                    <Spin size="large" />
+                </div>
+                }
             </div> 
         );
     }

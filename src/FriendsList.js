@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { List, Avatar, Button, Skeleton, Modal, Spin } from 'antd';
+import { List, Avatar, Button, Skeleton, Modal, Spin, message } from 'antd';
 import './components/Header.css';
 import AuthorHeader from './components/AuthorHeader';
 import axios from 'axios';
@@ -55,6 +55,7 @@ class FriendsList extends React.Component {
       onOk() {
         axios.patch(BE_FRIEND_REQUEST_API_URL(HOST), data, { headers: headers })
           .then(res => {
+            message.success('You have successfully unfriend a friend',1)
             that.fetchData();
           }).catch(function (error) {
             console.log(error)
@@ -124,7 +125,7 @@ class FriendsList extends React.Component {
 
     return (
       <div>
-        <AuthorHeader />
+        <AuthorHeader/>
         {!isloading ? 
         <List
           className="demo-loadmore-list"

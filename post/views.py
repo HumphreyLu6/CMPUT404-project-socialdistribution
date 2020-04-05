@@ -21,7 +21,8 @@ from rest_framework.decorators import action
 
 from mysite.settings import DEFAULT_HOST
 import mysite.utils as utils
-from node.models import Node, get_nodes_user_ids, update_db
+from node.models import Node, get_nodes_user_ids
+from node.connect_node import update_db
 from user.models import User
 from friend.models import Friend
 from comment.models import Comment
@@ -55,7 +56,7 @@ class PostsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action in ["list"]:
-            return Post.objects.filter(visibility="PUBLIC")
+            return Post.objects.filter(visibility="PUBLIC", unlisted=False)
         else:
             # filter result depends on user
             return Post.objects.all()
@@ -110,8 +111,10 @@ class PostsViewSet(viewsets.ModelViewSet):
             not request.user.is_anonymous
             and request.user.id not in get_nodes_user_ids()
         ):
-            update_db(True, True, True, request.user)
-        filtered_posts = get_visible_posts(Post.objects.all(), self.request.user)
+            update_db(True, True, request.user)
+        filtered_posts = get_visible_posts(
+            Post.objects.filter(unlisted=False), self.request.user
+        )
         paged_posts = self.paginate_queryset(filtered_posts.order_by("-published"))
         serializer = PostSerializer(paged_posts, many=True)
         return self.get_paginated_response(serializer.data)
@@ -126,7 +129,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             not request.user.is_anonymous
             and request.user.id not in get_nodes_user_ids()
         ):
-            update_db(True, True, True, request.user)
+            update_db(True, True, request.user)
         try:
             authot_id = kwargs["AUTHOR_ID"]
             author = User.objects.filter(id=authot_id).first()
@@ -136,7 +139,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             if not author:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             filtered_posts = get_visible_posts(
-                Post.objects.filter(author=author), self.request.user
+                Post.objects.filter(author=author, unlisted=False), self.request.user
             )
             paged_posts = self.paginate_queryset(filtered_posts.order_by("-published"))
             serializer = PostSerializer(paged_posts, many=True)
@@ -157,15 +160,10 @@ def is_post_visible_to(post: Post, user: User) -> bool:
 
 def get_visible_posts(posts, user):
     if user.is_anonymous:
-        return posts.filter(visibility="PUBLIC", unlisted=False)
+        return posts.filter(visibility="PUBLIC").exclude(visibility="SERVERONLY")
 
     elif user.id in get_nodes_user_ids():
-        if user.node.first().shareImage:
-            return posts.filter(origin=DEFAULT_HOST, visibility="SERVERONLY")
-        else:
-            return posts.filter(
-                origin=DEFAULT_HOST, unlisted=False, visibility="SERVERONLY"
-            )
+        return posts.filter(origin=DEFAULT_HOST).exclude(visibility="SERVERONLY")
 
     else:
         # 1 visibility = "PUBLIC"

@@ -1,27 +1,14 @@
-import requests
-import json
-from typing import Tuple
-
-from django.db.models import Q
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
-    IsAdminUser,
-    IsAuthenticatedOrReadOnly,
 )
 
 from mysite.settings import DEFAULT_HOST
-import mysite.utils as utils
-from friend.models import Friend
-from post.models import Post
-from post.serializers import PostSerializer
-from node.models import Node, get_nodes_user_ids, update_db
+from node.models import get_nodes_user_ids
+from node.connect_node import update_db, pull_github_events
 from .serializers import AuthorSerializer
 from .models import User
 from .permissions import OwnerOrAdminPermissions
@@ -65,6 +52,14 @@ class AuthorViewSet(viewsets.ModelViewSet):
             self.permission_classes = [AllowAny]
         return super(AuthorViewSet, self).get_permissions()
 
+    def perform_create(self, serializer):
+        serializer.save()
+        pull_github_events(serializer.instance)
+
+    def perform_update(self, serializer):
+        serializer.save()
+        pull_github_events(serializer.instance)
+
     @action(detail=False, methods=["GET"])
     def current_user(self, request, *args, **kwargs):
         if request.user.is_anonymous:
@@ -89,11 +84,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["GET"])
     def get_all_user(self, request, *args, **kwargs):
         """
-        Get local and remote users.
+        Get local and remote users except request user.
         """
-        update_db(True, False, False)
+        update_db(True, False)
         queryset = User.objects.filter(is_superuser=0).exclude(
             id__in=get_nodes_user_ids()
         )
+        if not request.user.is_anonymous:
+            queryset = queryset.exclude(id=request.user.id)
         serializer = AuthorSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
-import { List, Avatar, Button, Skeleton, Modal, Spin } from 'antd';
+import { List, Avatar, Button, Skeleton, Modal, Spin, message } from 'antd';
 import './components/Header.css'
 import AuthorHeader from './components/AuthorHeader'
 import cookie from 'react-cookies';
@@ -56,11 +56,12 @@ class FriendRequest extends React.Component {
     confirm({
       title: 'Are you sure you want to ' + decision + ' this friend request?',
       okText: 'Yes',
-      okType: 'danger',
+      okType: `${decision === 'reject' ? 'danger' : 'primary'}`,
       cancelText: 'No',
       onOk() {
         axios.patch(BE_FRIEND_REQUEST_API_URL(HOST), data, { headers: headers })
           .then(res => {
+            message.success(`You have successfully ${decision} a friend request`,1)
             that.fetchData();
           }).catch(function (error) {
             console.log(error)
@@ -128,7 +129,7 @@ class FriendRequest extends React.Component {
 
     return (
       <div>
-        <AuthorHeader />
+        <AuthorHeader/>
         {!isloading ? 
         <List
           className="demo-loadmore-list"
