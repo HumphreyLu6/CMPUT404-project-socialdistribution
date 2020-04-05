@@ -38,7 +38,7 @@ class ProfileContent extends React.Component {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         if (code) {
-            this.githubValidate();
+            this.githubValidate(code);
             this.setState({
                 isRedirect: true,
             })
@@ -59,17 +59,7 @@ class ProfileContent extends React.Component {
                     github: userInfo.github ? userInfo.github.replace(githubUrl, "") : null,
                     bio: userInfo.bio
                 });
-                if (this.state.isRedirect) {
-                    const token = cookie.load('token');
-                    const headers = { 'Authorization': 'Token '.concat(token) }
-                    axios.post(BE_AUTHOR_GITHUB_API_URL(this.state.id),
-                        {
-                            "GithubToken": this.state.accessToken,
-                        }, { headers: headers })
-                        .catch((error) => {
-                            console.log(error);
-                        });
-                } else {
+                if (!this.state.isRedirect) {
                     if (this.state.github) {
                         this.setState({
                             isValid: true,
@@ -116,13 +106,11 @@ class ProfileContent extends React.Component {
         window.location = requestUrl;
     }
 
-    githubValidate() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const CODE = urlParams.get('code');
+    githubValidate(code) {
         axios.post("/login/oauth/access_token", {
             client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET,
-            code: CODE,
+            code: code,
         }, {
             headers: {
                 'Access-Control-Allow-Origin': '*',
@@ -138,17 +126,28 @@ class ProfileContent extends React.Component {
     };
 
     setGithub(accessToken) {
+        alert(accessToken);
         axios.get("https://api.github.com/user",
-            { headers: { 'Authorization': 'token ' + accessToken } })
-            .then(res => {
-                this.setState({
-                    github: res.data.login,
-                    accessToken: accessToken,
-                    isValid: true,
-                });
-            }).catch((error) => {
+        { headers: { 'Authorization': 'token ' + accessToken } })
+        .then(res => {
+            this.setState({
+                github: res.data.login,
+                isValid: true,
+            });
+
+            const token = cookie.load('token');
+            const headers = { 'Authorization': 'Token '.concat(token) }
+            axios.post(BE_AUTHOR_GITHUB_API_URL(this.state.id),
+            {
+                "GithubToken": accessToken,
+            }, { headers: headers })
+            .catch((error) => {
                 console.log(error);
             });
+
+        }).catch((error) => {
+            console.log(error);
+        });
     }
 
     needToAuth() {
