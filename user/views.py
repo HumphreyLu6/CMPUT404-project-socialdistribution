@@ -84,11 +84,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["GET"])
     def get_all_user(self, request, *args, **kwargs):
         """
-        Get local and remote users.
+        Get local and remote users except request user.
         """
         update_db(True, False)
         queryset = User.objects.filter(is_superuser=0).exclude(
             id__in=get_nodes_user_ids()
         )
+        if not request.user.is_anonymous:
+            queryset = queryset.exclude(id=request.user.id)
         serializer = AuthorSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
