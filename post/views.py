@@ -21,7 +21,8 @@ from rest_framework.decorators import action
 
 from mysite.settings import DEFAULT_HOST
 import mysite.utils as utils
-from node.models import Node, get_nodes_user_ids, update_db
+from node.models import Node, get_nodes_user_ids
+from node.connect_node import update_db
 from user.models import User
 from friend.models import Friend
 from comment.models import Comment
@@ -110,7 +111,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             not request.user.is_anonymous
             and request.user.id not in get_nodes_user_ids()
         ):
-            update_db(True, True, True, request.user)
+            update_db(True, True, request.user)
         filtered_posts = get_visible_posts(
             Post.objects.filter(unlisted=False), self.request.user
         )
@@ -128,7 +129,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             not request.user.is_anonymous
             and request.user.id not in get_nodes_user_ids()
         ):
-            update_db(True, True, True, request.user)
+            update_db(True, True, request.user)
         try:
             authot_id = kwargs["AUTHOR_ID"]
             author = User.objects.filter(id=authot_id).first()
