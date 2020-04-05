@@ -75,64 +75,63 @@ class AuthorHeader extends React.Component {
             <div>
                 <Menu className="menu" mode="horizontal" defaultSelectedKeys={defaultSelectedKeys}>
                     <Menu.Item className="menu-item-intro" key="Intro" disabled>
-                        <span>Hi, {displayName}</span>
+                        <span className="menu-item-title">Hi, {displayName}</span>
                     </Menu.Item>
 
-                    <Menu.Item className="menu-item" key="Home" >
+                    <Menu.Item key="Home" >
                         <a href={FE_USER_URL}>
                             <HomeOutlined className="menu-icon" style={{fontSize: 18}} />
-                            <span>Home</span>
+                            <span className="menu-item-title">Home</span>
+                        </a>
+                    </Menu.Item>
+
+                    <Menu.Item key="MyPost">
+                        <a onClick={this.handleMyProfile} href="#!">
+                            <UserOutlined className="menu-icon" style={{fontSize: 18}}/>
+                            <span className="menu-item-title">My Profile</span>
+                        </a>
+                    </Menu.Item>
+
+                    <Menu.Item key="PostInput">
+                        <a href={FE_ADD_POST_URL}>
+                            <BulbOutlined className="menu-icon" style={{fontSize: 18}}/>
+                            <span className="menu-item-title">What's on your mind</span>
+                        </a>
+                    </Menu.Item>
+
+                    <Menu.Item key="Search">
+                        <a href={FE_SEARCH_URL}>
+                            <SearchOutlined className="menu-icon" style={{fontSize: 18}}/>
+                            <span className="menu-item-title">Search Author</span>
                         </a>
                     </Menu.Item>
 
                     <SubMenu 
-                        className="menu-item" 
                         key="Friends" 
                         title={
-                            <span>
+                            <span className="menu-item-title">
                                 <UsergroupAddOutlined className="menu-icon" style={{fontSize: 19}}/>
                                 Friends
                             </span>
                         }>
-                        <Menu.Item className="sub-menu" key="FriendList">
+                        <Menu.Item key="FriendList">
                             <a onClick={this.handleFriendsList} href="#!">
                                 <TeamOutlined className="menu-icon" style={{fontSize: 17}}/>
-                                <span>Friend List</span>
+                                <span className="sub-menu-title">Friend List</span>
                             </a>
                         </Menu.Item>
-                        <Menu.Item className="sub-menu" key="FriendRequest">
+                        <Menu.Item  key="FriendRequest">
                             <a onClick={this.handleFriendRequest} href="#!">
                                 <UserAddOutlined className="menu-icon" style={{fontSize: 16}}/>
-                                <span>Friend Request</span>
+                                <span className="sub-menu-title">Friend Request</span>
                             </a>
                         </Menu.Item>
                     </SubMenu>
 
-                    <Menu.Item className="menu-item" key="PostInput">
-                        <a href={FE_ADD_POST_URL}>
-                            <BulbOutlined className="menu-icon" style={{fontSize: 18}}/>
-                            <span>What's on your mind</span>
-                        </a>
-                    </Menu.Item>
-
-                    <Menu.Item className="menu-item" key="MyPost">
-                        <a onClick={this.handleMyProfile} href="#!">
-                            <UserOutlined className="menu-icon" style={{fontSize: 18}}/>
-                            <span>My Profile</span>
-                        </a>
-                    </Menu.Item>
-
-                    <Menu.Item className="menu-item" key="Search">
-                        <a href={FE_SEARCH_URL}>
-                            <SearchOutlined className="menu-icon" style={{fontSize: 18}}/>
-                            <span>Search Author</span>
-                        </a>
-                    </Menu.Item>
-
-                    <Menu.Item className="menu-item" key="Logout">
+                    <Menu.Item className="menu-item-logout" key="Logout">
                         <a href="#!" onClick={this.logout}>
                             <LogoutOutlined className="menu-icon" style={{fontSize: 18}}/>
-                            <span>Logout</span>
+                            <span className="menu-item-title">Logout</span>
                         </a>
                     </Menu.Item>
                 </Menu>
