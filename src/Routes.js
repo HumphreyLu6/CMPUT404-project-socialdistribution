@@ -43,16 +43,16 @@ const Routes = () => {
     <Switch>
       {/*author*/}
       <Route exact path={FE_LOGIN_URL} component={Login} />
-      <Route path={FE_REGISTER_URL} component={Register} />
-      <Route path={FE_USER_URL} component={User} />
+      <Route exact path={FE_REGISTER_URL} component={Register} />
+      <Route exact path={FE_USER_URL} component={User} />
       <Route exact path={FE_USERPROFILE_URL} component={UserSelf} />
-      <Route path={FE_SEETING_URL} component={Settings} />
-      <Route path={FE_POST_COMMENTS_URL(':postid')} component={Comments} />
-      <Route path={FE_FREND_LIST_URL(':authorid')} component={FriendsList} />
-      <Route path={FE_FREND_REQUEST_URL(':authorid')} component={FriendRequest} />
-      <Route path={FE_SEARCH_URL} component={SearchPage} />
-      <Route path={FE_ADD_POST_URL} component={PostInput} />
-      <Route path={FE_POST_EDIT_URL(':postid')} component={PostEdit} />
+      <Route exact path={FE_SEETING_URL} component={Settings} />
+      <Route exact path={FE_POST_COMMENTS_URL(':postid')} component={Comments} />
+      <Route exact path={FE_FREND_LIST_URL(':authorid')} component={FriendsList} />
+      <Route exact path={FE_FREND_REQUEST_URL(':authorid')} component={FriendRequest} />
+      <Route exact path={FE_SEARCH_URL} component={SearchPage} />
+      <Route exact path={FE_ADD_POST_URL} component={PostInput} />
+      <Route exact path={FE_POST_EDIT_URL(':postid')} component={PostEdit} />
 
       {/*admin*/}
       <Route path={FE_ADMIN_REGISTER_URL} component={SignUpRequestPage} />
