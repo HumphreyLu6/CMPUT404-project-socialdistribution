@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-import socket
 import django_heroku
 from corsheaders.defaults import default_methods
 
