@@ -95,25 +95,25 @@ class UserSelf extends React.Component {
     getProfile(headers, userId) {
         var parsedId = getUserId(userId);
         axios.get(BE_AUTHOR_PROFILE_API_URL(parsedId),
-            { headers: headers }).then(res => {
-                var userInfo = res.data;
-                this.setState({
-                    userId: userId,
-                    userHost: userInfo.host,
-                    username: userInfo.username,
-                    userDisplayName: userInfo.displayName,
-                    userUrl: userInfo.url,
-                    userGithub: userInfo.github,
-                    userEmail: userInfo.email,
-                    userBio: userInfo.bio,
-                });
-                if (this.state.github) {
-                    // var githubUsername = this.state.github.replace("https://github.com/", "");
-                    //this.pullGithubActivity(githubUsername, username);
-                }
-            }).catch((error) => {
-                console.log(error);
+        { headers: headers }).then(res => {
+            var userInfo = res.data;
+            this.setState({
+                userId: userId,
+                userHost: userInfo.host,
+                username: userInfo.username,
+                userDisplayName: userInfo.displayName,
+                userUrl: userInfo.url,
+                userGithub: userInfo.github,
+                userEmail: userInfo.email,
+                userBio: userInfo.bio,
             });
+            if (this.state.github) {
+                // var githubUsername = this.state.github.replace("https://github.com/", "");
+                //this.pullGithubActivity(githubUsername, username);
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
     }
 
     pullGithubActivity(githubUsername, username) {
