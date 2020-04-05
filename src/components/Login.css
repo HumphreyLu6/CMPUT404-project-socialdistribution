@@ -1,22 +1,55 @@
-.login-form{
-    margin-top: 10%;
-    margin-right:42%; 
-    margin-left:42%;
-    margin-bottom:0%;
-    padding-bottom: 0%;
-    /* position: fixed;  */
+.mainpage{
+    margin:0% 0% 0% 0%;
+    width: 100%;
+    height: 100%;
+    position: absolute; 
+    background-color:#83CEF2;
+    background-size: cover;
 }
-.login-form-button{
-    padding-top: 0%;
-    margin-top: 1%;
-    margin-right:42%; 
-    margin-left:42%;
-    /* position: fixed;  */
+h1{
+    margin-left: 1%;
+    margin-top:1%;
+    color: #FFFFF7;
+    font-size: xx-large;
 }
+
+h3{
+    margin-left: 3%;
+    color: #FFFFF7;
+}
+
+.login-card {
+    width: 350px;
+    position: absolute;
+    left: 775px;
+    top : 230px;
+    border-radius: 5%;
+    background-color: #FFFFF7;
+}
+
 .login-to-register{
-    /* padding: 0%; */
-    margin-top: 0;
-    margin-right:42%; 
-    margin-left:42%;
-    /* position: fixed;  */
+    float: right;
+}
+
+.spongebob{
+    z-index: -1;
+    margin-left: 400px;
+    margin-top: 500px;
+    width: 280px;
+    height: 280px;
+}
+
+.seaweed1{
+    margin-left: 500px;
+    margin-top: 650px;
+    width: 100px;
+    height: 100px;
+}
+
+
+.searocklogin{
+    margin-left: 800px;
+    margin-top: 650px;
+    width: 110px;
+    height: 60px;
 }
