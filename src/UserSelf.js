@@ -294,7 +294,7 @@ class UserSelf extends React.Component {
                     />
                 </div> 
                 : 
-                <div style={{marginTop : "25%",marginLeft : "50%"}}>
+                <div style={{marginTop : "25%", marginLeft : "50%"}}>
                     <Spin size="large" />
                 </div>
                 }
