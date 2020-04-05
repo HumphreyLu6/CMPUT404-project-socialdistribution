@@ -178,7 +178,9 @@ def update_friends(user, depth, ignoreuser):
                     friend = User.objects.filter(non_uuid_id=id).first()
                 if friend:
                     friends.append(friend)
-                    if not Friend.objects.filter(f1Id=user.id, f2Id=friend.id, status="A").exists():
+                    if not Friend.objects.filter(
+                        f1Id=user.id, f2Id=friend.id, status="A"
+                    ).exists():
                         Friend.objects.create(
                             f1Id=user, f2Id=friend, status="A", isCopy=False
                         )
@@ -259,7 +261,6 @@ def update_remote_posts(host: str, auth: str):
             create_or_update_remote_comments(all_comments_dict_list)
             delete_non_existing_remote_comments(posts_dict_list, all_comments_dict_list)
         except Exception as e:
-            # traceback.print_stack(e)
             utils.print_warning(f"{type(e).__name__} {str(e)}")
 
 
@@ -270,7 +271,6 @@ def create_or_update_remote_posts(posts_dict_list: list):
                 id=post_dict["id"], defaults=post_dict,
             )
     except Exception as e:
-        # traceback.print_exc(e)
         utils.print_warning(f"{type(e).__name__} {str(e)}")
 
 
@@ -396,8 +396,8 @@ def update_remote_authors(host: str, auth: str):
     )
     raw_author_dict_list = response.json()
     if not raw_author_dict_list or response.status_code not in range(200, 300):
-        print(
-            f"Warning: {url} GET method failed with status code {response.status_code}"
+        utils.print_warning(
+            f"{url} GET method failed with status code {response.status_code}"
         )
     else:
         author_dict_list = []  # processed valid list
