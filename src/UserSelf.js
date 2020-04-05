@@ -1,6 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { List, Icon, Modal, Avatar, Drawer, Spin } from 'antd';
+import { List, Icon, Modal, Avatar, Drawer, Spin, Tag } from 'antd';
 import axios from 'axios';
 import AuthorHeader from './components/AuthorHeader'
 import AuthorProfile from './components/AuthorProfile'
@@ -156,14 +156,14 @@ class UserSelf extends React.Component {
     fetchPost(headers, userId) {
         var parsedId = getUserId(userId);
         axios.get(BE_AUTHOR_POST_API_URL(HOST, parsedId), { headers: headers })
-            .then(res => {
-                this.setState({
-                    postData: res.data.posts,
-                    isloading: false,
-                });
-            }).catch((error) => {
-                console.log(error);
+        .then(res => {
+            this.setState({
+                postData: res.data.posts,
+                isloading: false,
             });
+        }).catch((error) => {
+            console.log(error);
+        });
     }
 
     handleEdit = (postId) => {
@@ -179,14 +179,15 @@ class UserSelf extends React.Component {
       
       }
     
-      onClose = () => {
+    onClose = () => {
         this.setState({drawerVisible: false,});
-      }
-    render() {
+    }
 
+    render() {
         const { postData, userId, userHost, username, userDisplayName, userUrl, userGithub, userEmail, userBio,
             currentUserId, currentUserHost, currentUserDisplayName, currentUserUrl, isloading, isSelf } = this.state;
         var sortedData = postData.slice().sort((a, b) => Date.parse(b.published) - Date.parse(a.published));
+
         return (
             <div>
                 <AuthorHeader defaultSelectedKeys="MyPost"/>
@@ -247,39 +248,57 @@ class UserSelf extends React.Component {
                                     avatar={
                                         <Avatar size={50}
                                             style={{
-                                                color: '#FFFFFF',
-                                                backgroundColor: '#3991F7',
-                                                marginBottom : "-60px",
-                                                fontSize : "30px"
+                                                color: '#3992f7',
+                                                backgroundColor: '#ccebff',
+                                                marginTop: 1,
+                                                fontSize : "25pt",
                                             }}
-                                        >{item.author.displayName[0].toUpperCase()}
+                                        >
+                                            {item.author.displayName[0].toUpperCase()}
                                         </Avatar>
                                     }
-                                    title={<a href={FE_USERPROFILE_URL} style={{ color: '#031528' }}>{item.author.displayName}</a>}
+                                    title={
+                                        <a href={FE_USERPROFILE_URL} 
+                                            style={{ 
+                                                color: "#7f553b",
+                                                fontSize: "14pt",
+                                                marginTop : "-13pt",
+                                            }}
+                                        >
+                                            {item.author.displayName}
+                                        </a>
+                                        }
                                     description={
-                                        <div style={{marginBottom : "-10px",marginTop : "-10px"}}>
-                                          <span>{"Published on ".concat(item.published.split(".")[0] + "-" + item.published.split("-", 4)[3])}</span>
-                                          <br></br>
-                                          <span>{`Host: ${item.author.host ? item.author.host : null}`}</span>
-                                          <br></br>
-                                          <span>{`Category: ${item.categories}`}</span>
+                                        <div 
+                                            style={{
+                                                marginBottom : "-10pt",
+                                                marginTop : "-12pt",
+                                            }}
+                                        >
+                                            <span>{item.published.split(".")[0] + "-" + item.published.split("-", 4)[3]}</span>
+                                            <span>{` @ ${item.author.host ? item.author.host : null}`}</span>
+                                            <br/>
+                                            {item.categories.map((cate) =>
+                                                <Tag color="blue">{cate}</Tag>
+                                            )}
                                         </div>
                                     }
                                 />
-                                <h3>{"Title: ".concat(item.title)}</h3>
+                                <h2>{item.title}</h2>
                                 {item.contentType === "text/plain" ? item.content : (
-                                 <div className="markdown-content">
-                                    <ReactMarkdown source={item.content} />
-                                 </div>
+                                    <div className="markdown-content">
+                                        <ReactMarkdown source={item.content} />
+                                    </div>
                                 )}
-                                <p>  </p>
-
                             </List.Item>
                         )}
                     />
-                </div> : <div style={{marginTop : "25%",marginLeft : "50%"}}>
-                  <Spin size="large" />
-                 </div>}
+                </div> 
+                : 
+                <div style={{marginTop : "25%",marginLeft : "50%"}}>
+                    <Spin size="large" />
+                </div>
+                }
             </div> 
         );
     }
