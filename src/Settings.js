@@ -1,16 +1,21 @@
 import React from 'react';
-import 'antd/dist/antd.css';
-import './index.css';
-import { Form, Input, Button } from 'antd';
 import axios from 'axios';
-import './components/Settings.css';
-import './components/Header.css';
-import AuthorHeader from './components/AuthorHeader';
 import cookie from 'react-cookies';
+import AuthorHeader from './components/AuthorHeader';
 import validateCookie from './utils/validate.js';
-import { BE_CURRENT_USER_API_URL, BE_AUTHOR_PROFILE_API_URL, BE_AUTHOR_GITHUB_API_URL, FE_USERPROFILE_URL } from "./utils/constants.js";
-import { CLIENT_ID, CLIENT_SECRET } from "./utils/githubOAuth";
 import getUserId from './utils/getUserId.js';
+import { CLIENT_ID, CLIENT_SECRET } from "./utils/githubOAuth";
+import './components/Header.css';
+import './components/Settings.css';
+import './index.css';
+import 'antd/dist/antd.css';
+import { Form, Input, Button, Tooltip } from 'antd';
+import { 
+    BE_CURRENT_USER_API_URL, 
+    BE_AUTHOR_PROFILE_API_URL, 
+    BE_AUTHOR_GITHUB_API_URL, 
+    FE_USERPROFILE_URL 
+} from "./utils/constants.js";
 
 class ProfileContent extends React.Component {
     constructor(props) {
@@ -48,19 +53,19 @@ class ProfileContent extends React.Component {
         const token = cookie.load('token');
         const headers = { 'Authorization': 'Token '.concat(token) }
         axios.get(BE_CURRENT_USER_API_URL, { headers: headers })
-            .then(res => {
-                var userInfo = res.data;
-                this.setState({
-                    id: getUserId(userInfo.id),
-                    userName: userInfo.username,
-                    email: userInfo.email,
-                    displayName: userInfo.displayName,
-                    github: userInfo.github, 
-                    bio: userInfo.bio,
-                });
-            }).catch((error) => {
-                console.log(error);
+        .then(res => {
+            var userInfo = res.data;
+            this.setState({
+                id: getUserId(userInfo.id),
+                userName: userInfo.username,
+                email: userInfo.email,
+                displayName: userInfo.displayName,
+                github: userInfo.github, 
+                bio: userInfo.bio,
             });
+        }).catch((error) => {
+            console.log(error);
+        });
     };
 
     redirectToAuth() {
@@ -150,7 +155,6 @@ class ProfileContent extends React.Component {
                 span: 16,
             },
         };
-
         const tailLayout = {
             wrapperCol: {
                 offset: 8,
@@ -164,9 +168,11 @@ class ProfileContent extends React.Component {
                     <Form.Item label="User Name">
                         {userName}
                     </Form.Item>
+
                     <Form.Item label="Email">
                         {email}
                     </Form.Item>
+
                     <Form.Item label="Display Name">
                         {getFieldDecorator('displayName', {
                             initialValue: displayName,
@@ -178,25 +184,31 @@ class ProfileContent extends React.Component {
                             initialValue: github,
                         })(<Input disabled/>)}
                         {github ?
-                            <div>
-                                <Button type="link" onClick={this.cleanGithub}>
-                                    Unlink my github account
-                                </Button>
-                                <Button type="link" onClick={this.redirectToAuth}>
-                                    Change my github account
-                                </Button>
+                            <div className="github-choice">
+                                <Tooltip title='This action will delete all "Github posts" that you have.'>
+                                    <Button type="link" onClick={this.cleanGithub}>
+                                        Unlink my github account
+                                    </Button>
+                                </Tooltip>
+                                <Tooltip title="To change, make sure you have signed out Github or logged in as a different account.">
+                                    <Button type="link" onClick={this.redirectToAuth}>
+                                        Change my github account
+                                    </Button>
+                                </Tooltip>
                             </div>
                             :
-                            <Button type="link" onClick={this.redirectToAuth}>
-                                Link to your github
-                            </Button>
+                            <div className="github-choice">
+                                <Button type="link" onClick={this.redirectToAuth}>
+                                    Link to your github
+                                </Button>
+                            </div>
                         }
                     </Form.Item>
 
                     <Form.Item label="Bio">
                         {getFieldDecorator('bio', {
                             initialValue: bio,
-                        })(<Input.TextArea autoSize={true} />)}
+                        })(<Input.TextArea autoSize={true}/>)}
                     </Form.Item>
 
                     <Form.Item {...tailLayout}>
