@@ -22,7 +22,7 @@ from friend.models import Friend
 from post.models import Post
 from post.serializers import PostSerializer
 from node.models import Node, get_nodes_user_ids
-from node.connect_node import update_db
+from node.connect_node import update_db, pull_github_events
 from .serializers import AuthorSerializer
 from .models import User
 from .permissions import OwnerOrAdminPermissions
@@ -65,6 +65,14 @@ class AuthorViewSet(viewsets.ModelViewSet):
         else:
             self.permission_classes = [AllowAny]
         return super(AuthorViewSet, self).get_permissions()
+
+    def perform_create(self, serializer):
+        serializer.save()
+        pull_github_events(serializer.instance)
+
+    def perform_update(self, serializer):
+        serializer.save()
+        pull_github_events(serializer.instance)
 
     @action(detail=False, methods=["GET"])
     def current_user(self, request, *args, **kwargs):

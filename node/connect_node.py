@@ -385,6 +385,56 @@ def tidy_comment_data(data: dict, post_id: str) -> (bool, dict):
         return False, new_data
 
 
+def pull_github_events(user: User):
+    """
+    Pull user's github events into his stream
+    """
+    try:
+        if not user:
+            raise Exception("param user is null")
+        git_token = user.githubToken
+        if (
+            git_token is None
+            or git_token == ""
+            or user.github is None
+            or user.github == ""
+        ):
+            Post.objects.filter(author=user).exclude(githubId=None).delete()
+            print("\n\n\ndelete all github posts\n\n\n")
+            return
+        git_username = user.github.split("/")[-1]
+        url = f"https://api.github.com/users/{git_username}/events"
+        response = requests.get(url, headers={"Authorization": f"Token {git_token}"})
+        if response.status_code not in range(200, 300):
+            raise Exception(response.text)
+        events = response.json()
+        for event in events:
+            if not Post.objects.filter(githubId=int(event["id"])).exists():
+                actor = event["actor"]["login"]
+                action = None
+                try:
+                    action = event["payload"]["action"]
+                except:
+                    action = "had"
+                event_type = event["type"]
+                repo = event["repo"]["name"]
+                visibility = "PUBLIC" if event["public"] else "PRIVATE"
+                Post.objects.create(
+                    title=event["type"],
+                    description="Github Activity",
+                    content=f"{actor} {action} {event_type} at {repo}",
+                    contentType="text/plain",
+                    author=user,
+                    visibility=visibility,
+                    published=event["created_at"],
+                    githubId=int(event["id"]),
+                )
+
+    except Exception as e:
+        utils.print_warning(f"{type(e).__name__} {str(e)}")
+        return
+
+
 """
 update authors--------------------------------------------------------------------------------------
 """
