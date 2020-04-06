@@ -43,7 +43,7 @@ class Post(models.Model):
     # A list of authors' emails dumps into str
     visibleToStr = models.TextField(default="[]")
     unlisted = models.BooleanField(default=False)
-    githubId = models.IntegerField(null=True, blank=True)
+    githubId = models.BigIntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.title
