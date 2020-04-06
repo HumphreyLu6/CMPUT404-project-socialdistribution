@@ -236,7 +236,7 @@ class UserSelf extends React.Component {
                                             <span>{` @ ${item.author.host ? item.author.host : null}`}</span>
                                             <br/>
                                             {item.categories.map((cate) =>
-                                                <Tag color="blue">{cate}</Tag>
+                                                <Tag key="Category-tag" color="blue">{cate}</Tag>
                                             )}
                                         </div>
                                     }
