@@ -9,13 +9,15 @@ import './components/Header.css';
 import './components/Settings.css';
 import './index.css';
 import 'antd/dist/antd.css';
-import { Form, Input, Button, Tooltip } from 'antd';
+import { Form, Input, Button, Tooltip, Icon, message } from 'antd';
 import { 
     BE_CURRENT_USER_API_URL, 
     BE_AUTHOR_PROFILE_API_URL, 
     BE_AUTHOR_GITHUB_API_URL, 
     FE_USERPROFILE_URL 
 } from "./utils/constants.js";
+
+const GITHUB_URL = "https://github.com/";
 
 class ProfileContent extends React.Component {
     constructor(props) {
@@ -28,22 +30,14 @@ class ProfileContent extends React.Component {
             displayName: null,
             github: null,
             bio: null,
-            isRedirect: false,
+            isValid: false,
         }
 
-        this.cleanGithub = this.cleanGithub.bind(this)
+        this.validateAgain = this.validateAgain.bind(this)
     }
 
     componentWillMount() {
         validateCookie();
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        if (code) {
-            this.setState({
-                isRedirect: true,
-            })
-            this.githubValidate(code);
-        }
         window.onbeforeunload = function() {
             return -1;
         }
@@ -60,7 +54,7 @@ class ProfileContent extends React.Component {
                 userName: userInfo.username,
                 email: userInfo.email,
                 displayName: userInfo.displayName,
-                github: userInfo.github, 
+                github: userInfo.github ? userInfo.github.replace(GITHUB_URL, "") : null,
                 bio: userInfo.bio,
             });
         }).catch((error) => {
@@ -68,70 +62,51 @@ class ProfileContent extends React.Component {
         });
     };
 
-    redirectToAuth() {
-        window.onbeforeunload = null;
-        const githubAuthUrl = "https://github.com/login/oauth/authorize"
-        var requestUrl = githubAuthUrl + "?client_id=" + CLIENT_ID;
-        window.location = requestUrl;
-    }
-
-    githubValidate(code) {
-        axios.post("https://github.com/login/oauth/access_token", {
-            client_id: CLIENT_ID,
-            client_secret: CLIENT_SECRET,
-            code: code,
-        }, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                "Accept": 'application/json',
+    validateGithub = e => {
+        this.props.form.validateFieldsAndScroll((err, values) => {
+            if (!err) {
+                var githubUsername = values.github;
+                if (githubUsername) {
+                    var githubEventsUrl = "https://api.github.com/users/" + githubUsername + "/events";
+                    axios.get(githubEventsUrl)
+                    .then(res => {
+                        this.setState({
+                            isValid: true,
+                        });
+                    }).catch((error) => {
+                        message.error("Invalid Github username!");
+                    });
+                } else {
+                    message.error("Please enter your Github username!");
+                }
             }
-        }, { crossDomain: true })
-        .then(res => {
-            var accessToken = res.data.access_token;
-            this.setGithub(accessToken);
-        }).catch(function (error) {
-            console.log(error);
         });
     };
 
-    setGithub(accessToken) {
-        axios.get("https://api.github.com/user",
-        { headers: { 'Authorization': 'token ' + accessToken } })
-        .then(res => {
-            const githubUrl = "https://github.com/";
-            this.setState({
-                github: githubUrl.concat(res.data.login),
-            });
-
-            const token = cookie.load('token');
-            const headers = { 'Authorization': 'Token '.concat(token) }
-            axios.post(BE_AUTHOR_GITHUB_API_URL(this.state.id),
-            {
-                "GithubToken": accessToken,
-            }, { headers: headers })
-            .catch((error) => {
-                console.log(error);
-            });
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
-
-    cleanGithub() {
+    validateAgain() {
         this.setState({
-            github: "", 
+            isValid: false,
         });
-    }
+    };
 
     handleSubmit = e => {
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
+                var { isValid } = this.state;
+                var github = null;
+                if (values.github) {
+                    github = GITHUB_URL + values.github;
+                    if (!isValid) {
+                        message.error("Please validate your github account before your save the change!");
+                        return -1;
+                    }
+                }
                 window.onbeforeunload = null;
                 const token = cookie.load('token');
                 const headers = { 'Authorization': 'Token '.concat(token) }
                 axios.patch(BE_AUTHOR_PROFILE_API_URL(this.state.id),
                 {
-                    "github": values.github,
+                    "github": github,
                     "displayName": values.displayName,
                     "bio": values.bio,
                 }, { headers: headers })
@@ -146,7 +121,7 @@ class ProfileContent extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { userName, email, displayName, github, bio } = this.state;
+        const { userName, email, displayName, github, bio, isValid } = this.state;
         const layout = {
             labelCol: {
                 span: 8,
@@ -180,28 +155,21 @@ class ProfileContent extends React.Component {
                     </Form.Item>
 
                     <Form.Item label="GitHub">
+                        <span>{GITHUB_URL}</span>
                         {getFieldDecorator('github', {
                             initialValue: github,
-                        })(<Input disabled/>)}
-                        {github ?
-                            <div className="github-choice">
-                                <Tooltip title='This action will delete all "Github posts" that you have.'>
-                                    <Button type="link" onClick={this.cleanGithub}>
-                                        Unlink my github account
-                                    </Button>
-                                </Tooltip>
-                                <Tooltip title="To change, make sure you have signed out Github or logged in as a different account.">
-                                    <Button type="link" onClick={this.redirectToAuth}>
-                                        Change my github account
-                                    </Button>
-                                </Tooltip>
-                            </div>
+                        })(<Input onChange={this.validateAgain} style={{ width: 620 }} />)}
+                        {isValid ?
+                            <Button type="link">
+                                <Icon type="check" />
+                                Validated
+                            </Button>
                             :
-                            <div className="github-choice">
-                                <Button type="link" onClick={this.redirectToAuth}>
-                                    Link to your github
+                            <Tooltip title="You need to validate first">
+                                <Button type="link" onClick={this.validateGithub}>
+                                    Validate
                                 </Button>
-                            </div>
+                            </Tooltip>
                         }
                     </Form.Item>
 
