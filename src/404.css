@@ -1,24 +1,26 @@
+/* reference: https://kicksdigitalmarketing.com/2019/09/10/how-do-i-fix-a-404-error/ */
+
 .background{  
     font-family: sans-serif;
     width: 100%;
     height: 100%;
     position: absolute; 
     background-size: cover;
-    background-image: url("bimg1.jpg");
+    background-color: #83CEF2;
 }
+
+.homeButton{
+    background-color: #F7F7E3;
+    font-size: larger;
+}
+
+.errorImage{
+    margin-left: 495px;
+    margin-top: 100px;
+}
+
 .row{
-    position: fixed;
-    margin:10% 10%;
-   
+    margin-left: 800px;
+    margin-top: 0px;
 }
-.TEXT{
-    
-    background-image: url("bimg2.jpg");
-    background-size: cover;
-    width: 100%;
-    height: 100%;
-}
-.link{
-    background-color: #A0EEE1;
-}
-/* reference: https://kicksdigitalmarketing.com/2019/09/10/how-do-i-fix-a-404-error/ */
+
