@@ -34,8 +34,10 @@ class NormalLoginForm extends React.Component {
           if (error.response) {
             if (error.response) {
               let msg = JSON.parse(error.response.request.response);
-              message.error(msg['non_field_errors'][0])
-            } else console.log(error);
+              message.error(msg['non_field_errors'][0]);
+            } else {
+                console.log(error);
+            }
           }
         });
       }
