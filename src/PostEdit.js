@@ -40,7 +40,7 @@ class PostEdit extends React.Component {
         postType: '',
         postVisibility: '',
         authorid: '',
-        visibleTo: [],
+        defaultVisibleTo: [],
 
         tags: [],
         inputVisible: false,
@@ -131,12 +131,11 @@ class PostEdit extends React.Component {
                 fullPostContent: getPost.content,
                 postType: getPost.contentType,
                 postVisibility: getPost.visibility,
-                visibleTo: getPost.visibleTo,
                 tags: getPost.categories,
                 isloading: false
             });
             if (this.state.postVisibility === "PRIVATE"){
-                this.showSelectFriends(this.state.visibleTo);
+                this.showSelectFriends(getPost.visibleTo);
             } else {
                 this.hideSelectFriends();
             }
@@ -171,17 +170,13 @@ class PostEdit extends React.Component {
         });
     };
 
-    showSelectFriends = (visibleTo) => {
+    showSelectFriends = (postVisibleTo) => {
         var p = document.getElementsByClassName("select-friends");
         if (p[0].style.display === "none"){
             p[0].style.display = "block";
         } 
         axios.get(BE_ALL_AUTHOR_API_URL(HOST), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
         .then(res => {
-            // console.log();
-            // for (var j=0; j<visibleTo.length; j++) {
-            //     visibleTo[j] = res.data.url
-            // }
             for (var i=0; i<res.data.length; i++){
                 var displayName = res.data[i].displayName;
                 var url = res.data[i].url;
@@ -191,9 +186,20 @@ class PostEdit extends React.Component {
                 authorInfo[uniqueKey] = url;
                 authors.push(<Option key={uniqueKey} label={displayName}>{options}</Option>);
             }
+            var defaultVisibleTo = [];
+            for (var j=0; j<postVisibleTo.length; j++) {
+                defaultVisibleTo[j] = this.getUniqueKey(postVisibleTo[j]);
+            }
+            this.setState({
+                defaultVisibleTo: defaultVisibleTo,
+            })
         }).catch(function (error) {
-        console.log(error);
+            console.log(error);
         });
+    }
+
+    getUniqueKey(visibleToUrl) {
+        return Object.keys(authorInfo).find(key => authorInfo[key] === visibleToUrl);
     }
 
     hideSelectFriends = () => {
@@ -269,7 +275,7 @@ class PostEdit extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { tags, inputVisible, inputValue, modalVisibility, postTitle, postType, visibleTo,
+        const { tags, inputVisible, inputValue, modalVisibility, postTitle, postType, defaultVisibleTo,
                 postVisibility, isloading, fullPostContent, modalMarkdownVisibility} = this.state;
         const tagChild = tags.map(this.forMap);
         const formItemLayout = {
@@ -409,7 +415,9 @@ class PostEdit extends React.Component {
                     </Form.Item>
 
                     <Form.Item>
-                    {getFieldDecorator("specificFriends")
+                    {getFieldDecorator("specificFriends",{
+                        initialValue: defaultVisibleTo, 
+                    })
                     (<Select 
                         className="select-friends"
                         mode="multiple"
