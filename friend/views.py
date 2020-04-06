@@ -330,8 +330,8 @@ def send_friend_request(author: User, friend: User) -> bool:
                 "Accept": "application/json",
             },
         )
-
         if response.status_code not in range(200, 300):
+            print(response.status_code)
             raise Exception(response.text)
         return True
     except Exception as e:
