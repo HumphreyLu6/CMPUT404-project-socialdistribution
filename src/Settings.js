@@ -165,7 +165,7 @@ class ProfileContent extends React.Component {
             <div>
                 <AuthorHeader />
                 <Form {...layout} className="user-info">
-                    <Form.Item label="User Name">
+                    <Form.Item label="Username">
                         {userName}
                     </Form.Item>
 
