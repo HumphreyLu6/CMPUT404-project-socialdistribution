@@ -1,5 +1,5 @@
 import React from 'react';
-import "./404.css"
+import "./components/404.css"
 import { FE_LOGIN_URL } from "./utils/constants.js"
 class Error404 extends React.Component {
 	render() {

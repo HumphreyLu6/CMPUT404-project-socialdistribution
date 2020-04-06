@@ -29,7 +29,6 @@ import {
 const Routes = () => {
   return (
     <Switch>
-      {/*author*/}
       <Route exact path={FE_LOGIN_URL} component={Login} />
       <Route path={FE_REGISTER_URL} component={Register} />
       <Route path={FE_USER_URL} component={User} />
@@ -41,10 +40,7 @@ const Routes = () => {
       <Route path={FE_SEARCH_URL} component={SearchPage} />
       <Route path={FE_ADD_POST_URL} component={PostInput} />
       <Route path={FE_POST_EDIT_URL(':postid')} component={PostEdit} />
-
-      {/*admin*/}
       <Route path="*" status={404} component={Error404} />
-
     </Switch>
   )
 }
