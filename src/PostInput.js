@@ -160,7 +160,6 @@ class PostInput extends React.Component {
         } 
     }
 
-
     handleClose = removedTag => {
         const tags = this.state.tags.filter(tag => tag !== removedTag);
         this.setState({ tags });

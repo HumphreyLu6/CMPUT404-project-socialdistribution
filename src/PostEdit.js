@@ -198,6 +198,7 @@ class PostEdit extends React.Component {
         });
     }
 
+    // Reference: https://stackoverflow.com/questions/9907419/how-to-get-a-key-in-a-javascript-object-by-its-value [Accessed on Apr. 6, 2020]
     getUniqueKey(visibleToUrl) {
         return Object.keys(authorInfo).find(key => authorInfo[key] === visibleToUrl);
     }
