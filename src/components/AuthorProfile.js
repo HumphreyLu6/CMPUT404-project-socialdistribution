@@ -47,9 +47,15 @@ class AuthorProfile extends Component {
                             profileOwner: 1, // current profile page is belong to current logged-in user's friend
                         })
                     } else {
-                        this.setState({
-                            profileOwner: 2, // current profile page owner is not current logged-in user's friend
-                        })
+                        if (res.data.pending === true) {
+                            this.setState({
+                                profileOwner: 3, // friend request has already sent to the current profile page owner
+                            })
+                        } else {
+                            this.setState({
+                                profileOwner: 2, // current profile page owner is not current logged-in user's friend
+                            })
+                        }
                     }
                 }).catch((error) => {
                     console.log(error);
@@ -82,8 +88,14 @@ class AuthorProfile extends Component {
                 "url": this.state.userUrl,
             }
         }, { headers: headers }).then(() => {
-            message.success(`You have sent friend request to ${this.state.username}`,2);
+            message.success(`You have sent friend request to ${this.state.username}`, 2);
+            this.setState({
+                profileOwner: 3,
+            })
         }).catch(function (error) {
+            if (error.response.status === 400) {
+                message.error("Error: remote server may failed.");
+            }
             console.log(error);
         });
     }
@@ -113,8 +125,9 @@ class AuthorProfile extends Component {
                     </li>
                 </ul>
                 {profileOwner === 0 ? <a className="self-edit" href={FE_SEETING_URL}><Icon type="edit" /></a> : null}
-                {profileOwner === 1 ? <Button shape="round" ghost disabled className="friends"><Icon type="check" /><span>Friends</span></Button> : null}
-                {profileOwner === 2 ? <Button type="primary" shape="round" className="not-friend" onClick={() => this.sendFriendRequest()}><Icon type="user-add" /><span>Add Friend</span></Button> : null}
+                {profileOwner === 1 ? <Button shape="round" disabled style={{ color: '#3992f7', backgroundColor: '#ccebff', fontWeight: 'bold'}} className="friends"><Icon type="check"/><span>Friends</span></Button> : null}
+                {profileOwner === 2 ? <Button shape="round" style={{ color: '#3992f7', backgroundColor: '#ccebff', fontWeight: 'bold'}} className="not-friend" onClick={() => this.sendFriendRequest()}><Icon type="user-add" /><span>Add Friend</span></Button> : null}
+                {profileOwner === 3 ? <Button shape="round" disabled style={{ color: '#3992f7', backgroundColor: '#ccebff', fontWeight: 'bold'}} className="friends"><span>Pending...</span></Button> : null}
                 <hr />
             </div>
         );
