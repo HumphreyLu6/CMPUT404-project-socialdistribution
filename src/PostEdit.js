@@ -423,7 +423,7 @@ class PostEdit extends React.Component {
                     (<Select 
                         className="select-friends"
                         mode="multiple"
-                        style={{ width: "100%"}}
+                        style={{ width: "100%", display: "none"}}
                         placeholder="Search for a friend..."
                         optionLabelProp="label"
                     >
