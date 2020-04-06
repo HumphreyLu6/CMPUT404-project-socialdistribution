@@ -1,34 +1,26 @@
-import uuid
+
 import json
-import requests
 import base64
-from typing import Tuple, List
+from typing import Tuple
 
 from django.db.models import Q
-from django.urls import resolve
 from django.http import HttpResponse
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (
-    IsAuthenticated,
     AllowAny,
-    IsAdminUser,
-    IsAuthenticatedOrReadOnly,
 )
 from rest_framework.decorators import action
 
 from mysite.settings import DEFAULT_HOST
-import mysite.utils as utils
-from node.models import Node, get_nodes_user_ids
+from node.models import get_nodes_user_ids
 from node.connect_node import update_db
 from user.models import User
 from friend.models import Friend
-from comment.models import Comment
-from comment.serializers import CommentSerializer
 from .serializers import PostSerializer
-from .models import Post, VISIBILITYCHOICES
+from .models import Post
 from .permissions import OwnerOrAdminPermissions
 
 
@@ -104,7 +96,7 @@ class PostsViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods="GET")
     def visible_posts(self, request, *args, **kwargs):
         """
-        http://service/author/posts (posts that are visible to the currently 
+        http://service/author/posts (posts that are visible to the currently
         authenticated user)
         """
         if (
