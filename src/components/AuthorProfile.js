@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
-import 'antd/dist/antd.css';
-import { Icon, Button, message } from 'antd';
-import './AuthorProfile.css'
 import axios from 'axios';
 import cookie from 'react-cookies';
 import validateCookie from '../utils/validate.js';
 import getUserId from '../utils/getUserId.js';
-import { BE_IF_TWO_AUTHORS_FRIENDS_API_URL, BE_FRIEND_REQUEST_API_URL, HOST, FE_SEETING_URL } from '../utils/constants.js';
+import './AuthorProfile.css'
+import 'antd/dist/antd.css';
+import { Icon, Button, message } from 'antd';
+import { 
+    BE_IF_TWO_AUTHORS_FRIENDS_API_URL, 
+    BE_FRIEND_REQUEST_API_URL, 
+    HOST, 
+    FE_SEETING_URL 
+} from '../utils/constants.js';
 
 class AuthorProfile extends Component {
 
@@ -62,25 +67,25 @@ class AuthorProfile extends Component {
             'Authorization': 'Token '.concat(token)
         }
         axios.post(BE_FRIEND_REQUEST_API_URL(HOST),
-            {
-                "query": "friendrequest",
-                "author": {
-                    "id": this.state.currentUserId,
-                    "host": this.state.currentUserHost,
-                    "displayName": this.state.currentUserDisplayName,
-                    "url": this.state.currentUserUrl,
-                },
-                "friend": {
-                    "id": this.state.userId,
-                    "host": this.state.userHost,
-                    "displayName": this.state.username,
-                    "url": this.state.userUrl,
-                }
-            }, { headers: headers }).then(() => {
-                message.success(`You have sent friend request to ${this.state.username}`,2);
-            }).catch(function (error) {
-                console.log(error);
-            });
+        {
+            "query": "friendrequest",
+            "author": {
+                "id": this.state.currentUserId,
+                "host": this.state.currentUserHost,
+                "displayName": this.state.currentUserDisplayName,
+                "url": this.state.currentUserUrl,
+            },
+            "friend": {
+                "id": this.state.userId,
+                "host": this.state.userHost,
+                "displayName": this.state.username,
+                "url": this.state.userUrl,
+            }
+        }, { headers: headers }).then(() => {
+            message.success(`You have sent friend request to ${this.state.username}`,2);
+        }).catch(function (error) {
+            console.log(error);
+        });
     }
 
     render() {

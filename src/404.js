@@ -1,5 +1,5 @@
 import React from 'react';
-import "./404.css"
+import "./components/404.css"
 import { FE_LOGIN_URL } from "./utils/constants.js"
 import { Button } from 'antd';
 import error from './Images/sponge404premade.png';

@@ -88,7 +88,12 @@ class SearchPage extends React.Component {
                                 <List.Item>
                                     <List.Item.Meta
                                         avatar={
-                                            <Avatar size="medium" style={{ color: '#FFFFFF', backgroundColor: '#3991F7' }}
+                                            <Avatar size="medium" style={{ 
+                                                color: '#3992f7',
+                                                backgroundColor: '#ccebff',
+                                                marginTop: 1,
+                                                fontSize : "15pt",
+                                            }}
                                             >{item.displayName[0].toUpperCase()}
                                             </Avatar>
                                         }

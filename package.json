@@ -2,7 +2,6 @@
   "name": "myblog",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://github.com",
   "dependencies": {
     "@ant-design/icons": "^4.0.5",
     "@testing-library/jest-dom": "^4.2.4",
