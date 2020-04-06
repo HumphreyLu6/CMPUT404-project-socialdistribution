@@ -391,20 +391,13 @@ def pull_github_events(user: User):
     """
     try:
         if not user:
-            raise Exception("param user is null")
-        git_token = user.githubToken
-        if (
-            git_token is None
-            or git_token == ""
-            or user.github is None
-            or user.github == ""
-        ):
+            raise Exception("param 'user' is null")
+        if user.github is None or user.github == "":
             Post.objects.filter(author=user).exclude(githubId=None).delete()
-            print("\n\n\ndelete all github posts\n\n\n")
             return
         git_username = user.github.split("/")[-1]
         url = f"https://api.github.com/users/{git_username}/events"
-        response = requests.get(url, headers={"Authorization": f"Token {git_token}"})
+        response = requests.get(url, headers={"Accept": "application/json"})
         if response.status_code not in range(200, 300):
             raise Exception(response.text)
         events = response.json()
