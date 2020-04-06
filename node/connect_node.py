@@ -1,4 +1,6 @@
+from dateutil import parser
 import json
+import pytz
 import time
 import urllib
 import uuid
@@ -414,6 +416,10 @@ def pull_github_events(user: User):
                 event_type = event["type"]
                 repo = event["repo"]["name"]
                 visibility = "PUBLIC" if event["public"] else "PRIVATE"
+                create_at = parser.parse(event["created_at"].replace("Z", ".326198Z"))
+                create_at = create_at.replace(
+                    tzinfo=pytz.timezone("MST7MDT")
+                ).isoformat()
                 Post.objects.create(
                     title=event["type"],
                     description="Github Activity",
@@ -421,7 +427,7 @@ def pull_github_events(user: User):
                     contentType="text/plain",
                     author=user,
                     visibility=visibility,
-                    published=event["created_at"],
+                    published=create_at,
                     githubId=int(event["id"]),
                 )
 
