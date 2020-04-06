@@ -224,15 +224,17 @@ def update_remote_posts(host: str, auth: str):
         try:
             data = response.json()
             raw_posts_dict_list = data["posts"]
-            while data.pop("next", None):
+            next_url = data.pop("next", None)
+            while next_url:
                 response = requests.get(
-                    data["next"],
+                    next_url,
                     headers={
                         "Authorization": f"Basic {auth}",
                         "Accept": "application/json",
                     },
                 )
                 data = response.json()
+                next_url = data.pop("next", None)
                 raw_posts_dict_list += data["posts"]
             posts_dict_list = []
             all_comments_dict_list = []
