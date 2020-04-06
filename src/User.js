@@ -137,11 +137,13 @@ class User extends React.Component {
                             }
                         />
                         <h2>{item.title}</h2>
-                        {item.contentType === "text/plain" ? item.content : (
+                        {item.contentType === "text/plain" ? 
+                            <div class="plain-content">{item.content}</div> 
+                        : 
                             <div className="markdown-content">
                                 <ReactMarkdown source={item.content} />
                             </div>
-                        )}
+                        }
                         </List.Item>
                         )}
                     />

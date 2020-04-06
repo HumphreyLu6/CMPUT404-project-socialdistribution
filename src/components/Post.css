@@ -7,9 +7,12 @@ img {
     border-radius: 6%;
 }
 
+.plain-content {
+    font-size: 12pt;
+}
+
 .markdown-content {
-    margin-left: 1%;
-    font-size: larger;
+    font-size: 12pt;
 }
 
 .markdown-content img {
