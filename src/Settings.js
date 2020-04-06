@@ -4,7 +4,6 @@ import cookie from 'react-cookies';
 import AuthorHeader from './components/AuthorHeader';
 import validateCookie from './utils/validate.js';
 import getUserId from './utils/getUserId.js';
-import { CLIENT_ID, CLIENT_SECRET } from "./utils/githubOAuth";
 import './components/Header.css';
 import './components/Settings.css';
 import './index.css';
@@ -13,8 +12,8 @@ import { Form, Input, Button, Tooltip, Icon, message } from 'antd';
 import { 
     BE_CURRENT_USER_API_URL, 
     BE_AUTHOR_PROFILE_API_URL, 
-    BE_AUTHOR_GITHUB_API_URL, 
-    FE_USERPROFILE_URL 
+    FE_USERPROFILE_URL,
+    FE_GET_GITHUB_EVENTS_URL,
 } from "./utils/constants.js";
 
 const GITHUB_URL = "https://github.com/";
@@ -57,6 +56,11 @@ class ProfileContent extends React.Component {
                 github: userInfo.github ? userInfo.github.replace(GITHUB_URL, "") : null,
                 bio: userInfo.bio,
             });
+            if (this.state.github) {
+                this.setState({
+                    isValid: true,
+                })
+            }
         }).catch((error) => {
             console.log(error);
         });
@@ -67,14 +71,14 @@ class ProfileContent extends React.Component {
             if (!err) {
                 var githubUsername = values.github;
                 if (githubUsername) {
-                    var githubEventsUrl = "https://api.github.com/users/" + githubUsername + "/events";
-                    axios.get(githubEventsUrl)
+                    axios.get(FE_GET_GITHUB_EVENTS_URL(githubUsername))
                     .then(res => {
                         this.setState({
                             isValid: true,
                         });
                     }).catch((error) => {
                         message.error("Invalid Github username!");
+                        console.log(error);
                     });
                 } else {
                     message.error("Please enter your Github username!");

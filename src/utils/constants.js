@@ -98,3 +98,9 @@ export const FE_POST_COMMENTS_URL = function (postid) {
 }
 
 //###########################################################################
+//GITHUB
+//###########################################################################
+
+export const FE_GET_GITHUB_EVENTS_URL = function (username) {
+    return `https://api.github.com/users/${username}/events`;
+}
