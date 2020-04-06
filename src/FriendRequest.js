@@ -136,7 +136,7 @@ class FriendRequest extends React.Component {
           itemLayout="horizontal"
           dataSource={list}
           style={liststyle}
-          locale={{ emptyText: "You Currently Have No Friend Request" }}
+          locale={{ emptyText: "You currently have no friend request" }}
           renderItem={item => (
             <List.Item>
               <Skeleton avatar title={false} loading={item.loading} >
@@ -144,9 +144,9 @@ class FriendRequest extends React.Component {
                   avatar={
                     <Avatar size={50}
                       style={{
-                        color: '#FFFFFF',
-                        backgroundColor: '#3991F7',
-                        fontSize : "30px"
+                        color: '#3992f7',
+                        backgroundColor: '#ccebff',
+                        fontSize : "25pt",
                       }}
                     >
                       {item.displayName[0].toUpperCase()}

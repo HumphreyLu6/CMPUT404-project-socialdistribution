@@ -68,12 +68,6 @@ export const BE_COMMENT_API_URL = function (host, postId) {
 }
 
 //###########################################################################
-
-
-
-
-
-//###########################################################################
 //FE-URLS
 //###########################################################################
 
@@ -81,15 +75,9 @@ export const FE_LOGIN_URL = "/";
 export const FE_USER_URL = "/fe/author/posts/";
 export const FE_REGISTER_URL = "/fe/register";
 export const FE_NODES_URL = HOST + "/fe/nodes-request";
-export const FE_MY_NODES_URL = HOST + "/fe/my-nodes";
-export const FE_AUTHORS_URL = "fe/authors";
-export const FE_PROFILE_URL = "fe/profile";
 export const FE_USERPROFILE_URL = "/fe/author/profile/";
-export const FE_ADDNODES_URL = "/fe/add-nodes";
 export const FE_SEETING_URL = "/fe/settings";
-export const FE_ADMIN_REGISTER_URL = "/fe/sign-up-request";
 export const FE_ADD_POST_URL = "/fe/new_post";
-export const FE_NODE_REQUEST_URL = "/fe/nodes-request";
 export const FE_SEARCH_URL = "/fe/author/search";
 
 //Parameter based URLs
@@ -110,3 +98,9 @@ export const FE_POST_COMMENTS_URL = function (postid) {
 }
 
 //###########################################################################
+//GITHUB
+//###########################################################################
+
+export const FE_GET_GITHUB_EVENTS_URL = function (username) {
+    return `https://api.github.com/users/${username}/events`;
+}

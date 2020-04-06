@@ -1,19 +1,20 @@
 import React from 'react';
-import "./404.css"
+import "./components/404.css"
 import { FE_LOGIN_URL } from "./utils/constants.js"
+import { Button } from 'antd';
+import error from './Images/sponge404premade.png';
 class Error404 extends React.Component {
+
+	componentDidMount(){
+		document.body.style.background = "#83CEF2";
+	}
+
 	render() {
 		return (
-			<div className="background" id='page-wrapper'>
-				<title title='Wrong！'></title>
+			<div className="background">
+				<img className="errorImage" src={error} alt=""></img>
 				<div className="row">
-					<div className='TEXT'>
-						<h1>This page does not exist</h1>
-						<br></br>
-						<br></br>
-						<br></br>
-						<a className="link" href={FE_LOGIN_URL}> Click here to return to main page</a>
-					</div>
+						<Button className="homeButton" shape={"round"} href={FE_LOGIN_URL}>Return to home page</Button>
 				</div>
 			</div>
 		)

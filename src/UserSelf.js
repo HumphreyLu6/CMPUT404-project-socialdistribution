@@ -5,7 +5,6 @@ import { reactLocalStorage } from 'reactjs-localstorage';
 import cookie from 'react-cookies';
 import WrappedComments from './Comment';
 import validateCookie from './utils/validate.js';
-import convertTime from './utils/isoFormat.js';
 import getUserId from './utils/getUserId.js';
 import AuthorHeader from './components/AuthorHeader'
 import AuthorProfile from './components/AuthorProfile'
@@ -106,47 +105,6 @@ class UserSelf extends React.Component {
                 userGithub: userInfo.github,
                 userEmail: userInfo.email,
                 userBio: userInfo.bio,
-            });
-            if (this.state.github) {
-                // var githubUsername = this.state.github.replace("https://github.com/", "");
-                //this.pullGithubActivity(githubUsername, username);
-            }
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
-
-    pullGithubActivity(githubUsername, username) {
-        var githubData = [];
-        const githubEventUrl = "https://api.github.com/users/" + githubUsername + "/events"
-        var config = {
-            method: 'get',
-            url: githubEventUrl,
-        };
-        if (this.state.isSelf) {
-            const accessToken = "access token"; // load from database
-            const headers = {
-                'Authorization': 'Token ' + accessToken,
-            };
-            config = {
-                method: 'get',
-                url: githubEventUrl,
-                headers: headers,
-            };
-        }
-        axios(config).then(res => {
-            res.data.forEach((item) => {
-                var data = {
-                    author: username,
-                    title: item.type,
-                    content: "https://github.com/" + item.repo.name,
-                    visibility: item.public ? "PUBLIC" : "PRIVATE",
-                    published: convertTime(item.created_at),
-                }
-                githubData.push(data);
-            });
-            this.setState({
-                postData: this.state.postData.concat(githubData),
             });
         }).catch((error) => {
             console.log(error);

@@ -1,0 +1,28 @@
+/* reference: https://kicksdigitalmarketing.com/2019/09/10/how-do-i-fix-a-404-error/ */
+
+.background{  
+    font-family: sans-serif;
+    width: 100%;
+    height: 100%;
+    position: absolute; 
+    background-size: cover;
+    background-color: #83CEF2;
+}
+
+.homeButton{
+    background-color: #F7F7E3;
+    font-size: larger;
+}
+
+.errorImage{
+    left: 25%;
+    top: 25%;
+    position: fixed;
+}
+
+.row{
+    left: 45%;
+    top: 85%;
+    position: relative;
+}
+

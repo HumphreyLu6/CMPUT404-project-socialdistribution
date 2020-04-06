@@ -1,8 +1,6 @@
-import json
 import base64
 from rest_framework import status
 from rest_framework.test import APITestCase
-from rest_framework.authtoken.models import Token
 from .models import User
 
 
@@ -71,7 +69,7 @@ class UserTestCase(APITestCase):
 
     def test_update_profile(self):
         # test update display name
-        request_body = {"displayName": "new name"}
+        request_body = {"displayName": "new name", "github": ""}
 
         response = self.client.patch(
             f"/author/{self.id}", request_body, HTTP_AUTHORIZATION=f"Basic {self.token}"
@@ -87,11 +85,3 @@ class UserTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["bio"], "this is user2")
-
-    def test_get_github(self):
-        response = self.client.get(
-            f"/author/{self.id}/github_token", HTTP_AUTHORIZATION=f"Basic {self.token}"
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["GithubToken"], None)

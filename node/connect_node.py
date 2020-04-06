@@ -1,4 +1,6 @@
+from dateutil import parser
 import json
+import pytz
 import time
 import urllib
 import uuid
@@ -224,15 +226,17 @@ def update_remote_posts(host: str, auth: str):
         try:
             data = response.json()
             raw_posts_dict_list = data["posts"]
-            while data.pop("next", None):
+            next_url = data.pop("next", None)
+            while next_url:
                 response = requests.get(
-                    data["next"],
+                    next_url,
                     headers={
                         "Authorization": f"Basic {auth}",
                         "Accept": "application/json",
                     },
                 )
                 data = response.json()
+                next_url = data.pop("next", None)
                 raw_posts_dict_list += data["posts"]
             posts_dict_list = []
             all_comments_dict_list = []
@@ -391,20 +395,13 @@ def pull_github_events(user: User):
     """
     try:
         if not user:
-            raise Exception("param user is null")
-        git_token = user.githubToken
-        if (
-            git_token is None
-            or git_token == ""
-            or user.github is None
-            or user.github == ""
-        ):
+            raise Exception("param 'user' is null")
+        if user.github is None or user.github == "":
             Post.objects.filter(author=user).exclude(githubId=None).delete()
-            print("\n\n\ndelete all github posts\n\n\n")
             return
         git_username = user.github.split("/")[-1]
         url = f"https://api.github.com/users/{git_username}/events"
-        response = requests.get(url, headers={"Authorization": f"Token {git_token}"})
+        response = requests.get(url, headers={"Accept": "application/json"})
         if response.status_code not in range(200, 300):
             raise Exception(response.text)
         events = response.json()
@@ -419,14 +416,18 @@ def pull_github_events(user: User):
                 event_type = event["type"]
                 repo = event["repo"]["name"]
                 visibility = "PUBLIC" if event["public"] else "PRIVATE"
+                create_at = parser.parse(event["created_at"].replace("Z", ".326198Z"))
+                create_at = create_at.replace(
+                    tzinfo=pytz.timezone("MST7MDT")
+                ).isoformat()
                 Post.objects.create(
-                    title=event["type"],
+                    title="Github Activity",
                     description="Github Activity",
                     content=f"{actor} {action} {event_type} at {repo}",
                     contentType="text/plain",
                     author=user,
                     visibility=visibility,
-                    published=event["created_at"],
+                    published=create_at,
                     githubId=int(event["id"]),
                 )
 

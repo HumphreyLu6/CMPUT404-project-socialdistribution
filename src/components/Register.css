@@ -1,3 +1,44 @@
-.register{
-    margin: 10%;
+.R-mainpage{
+    margin:0% 0% 0% 0%;
+    width: 100%;
+    height: 100%;
+    position: absolute; 
+    background-color:#83CEF2;
+    background-size: cover;
+}
+
+.register-card {
+    width: 700px;
+    position: fixed;
+    left: 30%;
+    top : 20%;
+    z-index: 1;
+    border-radius: 2%;
+    background-color: #FFFFF7;
+}
+
+.back-to-login {
+    margin-left: 1px;
+}
+
+.SpongebobRegister{
+    z-index: 0;
+    left: 10%;
+    top : 50%;
+    position: fixed;
+    width: 280px;
+    height: 280px;
+}
+
+.buttondiv{
+    margin-left: 280px;
+}
+
+.searock{
+    left: 30%;
+    top: 75%;
+    position: fixed;
+    width: 110px;
+    height: 60px;
+    z-index: 1;
 }

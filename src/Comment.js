@@ -133,7 +133,11 @@ class Comments extends React.Component {
                       avatar={
                       <Avatar 
                         size="large" 
-                        style={{color: '#FFFFFF',backgroundColor: '#3991F7',fontSize : "25px"}}
+                        style={{
+                            color: '#3992f7',
+                            backgroundColor: '#ccebff',
+                            fontSize : "20pt",
+                        }}
                       >
                         {item.author.displayName[0].toUpperCase()}
                       </Avatar>}  

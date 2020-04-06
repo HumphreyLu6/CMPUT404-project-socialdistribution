@@ -1,16 +1,12 @@
 import uuid
-import requests
-import json
-import base64
-import time
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import password_validation
 
-from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
-import mysite.utils as utils
+from mysite.settings import DEFAULT_HOST
 
-# Create your models here.
+
 class User(AbstractUser):
     class Meta:
         verbose_name = "User"
@@ -21,7 +17,6 @@ class User(AbstractUser):
     host = models.URLField(default=DEFAULT_HOST)
     displayName = models.CharField(max_length=150)
     github = models.URLField(null=True, blank=True)
-    githubToken = models.TextField(null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
     is_approve = models.BooleanField(default=False)
     # This field is for caching non-uuid ids of users on YuXuan's group server

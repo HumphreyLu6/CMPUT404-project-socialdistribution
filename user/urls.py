@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from .views import AuthorViewSet
 
 urlpatterns = [
@@ -11,8 +11,4 @@ urlpatterns = [
         ),
     ),
     path("author/current_user", AuthorViewSet.as_view({"get": "current_user",})),
-    path(
-        "author/<uuid:id>/github_token",
-        AuthorViewSet.as_view({"get": "github_token", "post": "github_token",}),
-    ),
 ]

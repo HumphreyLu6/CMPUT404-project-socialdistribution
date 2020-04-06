@@ -5,9 +5,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.permissions import (
-    AllowAny,
-)
+from rest_framework.permissions import AllowAny
 
 from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
 import mysite.utils as utils
@@ -186,17 +184,19 @@ def send_remote_comments(comment, post, author) -> bool:
         }
         url = f"{post.origin}posts/{str(post.id)}/comments"
         node = Node.objects.filter(host=post.origin).first()
-        response = requests.post(
-            url,
-            data=json.dumps(request_data),
-            headers={
-                "Authorization": f"Basic {node.auth}",
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            },
-        )
-        print(json.dumps(request_data))
+        headers = {
+            "Authorization": f"Basic {node.auth}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+
+        response = requests.post(url, data=json.dumps(request_data), headers=headers,)
+        
         if response.status_code not in range(200, 300):
+            print(response.status_code)
+            print(url)
+            print(headers)
+            print(json.dumps(request_data))
             raise Exception(response.text)
         return True
     except Exception as e:
