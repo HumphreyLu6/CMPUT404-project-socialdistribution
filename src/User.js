@@ -131,14 +131,14 @@ class User extends React.Component {
                                     <span>{` @ ${item.author.host ? item.author.host : null}`}</span>
                                     <br/>
                                     {item.categories.map((cate) =>
-                                        <Tag color="blue">{cate}</Tag>
+                                        <Tag key="Category-tag" color="blue">{cate}</Tag>
                                     )}
                                 </div>
                             }
                         />
                         <h2>{item.title}</h2>
                         {item.contentType === "text/plain" ? 
-                            <div class="plain-content">{item.content}</div> 
+                            <div className="plain-content">{item.content}</div> 
                         : 
                             <div className="markdown-content">
                                 <ReactMarkdown source={item.content} />
