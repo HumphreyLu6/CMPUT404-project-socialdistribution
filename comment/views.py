@@ -107,54 +107,59 @@ class CommentViewSet(viewsets.ModelViewSet):
             response_data["message"] = "Post does not exist"
             return Response(response_data, status=status.HTTP_404_NOT_FOUND)
         else:
-            if is_post_visible_to(post, request.user):
-                try:
-                    comment = request.data["comment"].copy()
-                    if Comment.objects.filter(id=comment["id"]).exists():
-                        raise Exception("Comment id already exists.")
-                    author_data = comment.pop("author")
-                    author_data["id"] = author_data["id"].split("/")[-1]
-                    update_db(True, False)
-                    author = None
-                    if author_data["host"] == REMOTE_HOST1:
-                        author = User.objects.filter(
-                            non_uuid_id=int(author_data["id"])
-                        ).first()
-                    else:
-                        author = User.objects.filter(id=author_data["id"]).first()
-
-                    if not author:
-                        raise Exception("Author not found")
-                    serializer = CommentSerializer(data=comment)
-                    if serializer.is_valid():
-                        if post.origin == DEFAULT_HOST:
-                            serializer.save(author=author, post=post)
-                            response_data["success"] = "true"
-                            response_data["message"] = "Comment Added"
-                            return Response(
-                                response_data, status=status.HTTP_201_CREATED
-                            )
+            try:
+                if is_post_visible_to(post, request.user):
+                    try:
+                        comment = request.data["comment"].copy()
+                        if Comment.objects.filter(id=comment["id"]).exists():
+                            raise Exception("Comment id already exists.")
+                        author_data = comment.pop("author")
+                        author_data["id"] = author_data["id"].split("/")[-1]
+                        update_db(True, False)
+                        author = None
+                        if author_data["host"] == REMOTE_HOST1:
+                            author = User.objects.filter(
+                                non_uuid_id=int(author_data["id"])
+                            ).first()
                         else:
-                            # send request
-                            if send_remote_comments(comment, post, author):
+                            author = User.objects.filter(id=author_data["id"]).first()
+
+                        if not author:
+                            raise Exception("Author not found")
+                        serializer = CommentSerializer(data=comment)
+                        if serializer.is_valid():
+                            if post.origin == DEFAULT_HOST:
+                                serializer.save(author=author, post=post)
                                 response_data["success"] = "true"
                                 response_data["message"] = "Comment Added"
                                 return Response(
                                     response_data, status=status.HTTP_201_CREATED
                                 )
                             else:
-                                raise Exception("Remote server failed.")
+                                # send request
+                                if send_remote_comments(comment, post, author):
+                                    response_data["success"] = "true"
+                                    response_data["message"] = "Comment Added"
+                                    return Response(
+                                        response_data, status=status.HTTP_201_CREATED
+                                    )
+                                else:
+                                    raise Exception("Remote server failed.")
 
-                    else:
-                        raise Exception("Bad request body")
-                except Exception as e:
+                        else:
+                            raise Exception("Bad request body")
+                    except Exception as e:
+                        response_data["success"] = "false"
+                        response_data["message"] = f"{str(type(e).__name__)}:{str(e)}"
+                        return Response(
+                            response_data, status=status.HTTP_400_BAD_REQUEST
+                        )
+                else:
                     response_data["success"] = "false"
-                    response_data["message"] = f"{str(type(e).__name__)}:{str(e)}"
-                    return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                response_data["success"] = "false"
-                response_data["message"] = "Comment not allowed"
-                return Response(response_data, status=status.HTTP_403_FORBIDDEN)
+                    response_data["message"] = "Comment not allowed"
+                    return Response(response_data, status=status.HTTP_403_FORBIDDEN)
+            except Exception as e:
+                utils.print_warning(f"{type(e).__name__} {str(e)}")
 
 
 def send_remote_comments(comment, post, author) -> bool:
@@ -191,7 +196,7 @@ def send_remote_comments(comment, post, author) -> bool:
         }
 
         response = requests.post(url, data=json.dumps(request_data), headers=headers,)
-        
+
         if response.status_code not in range(200, 300):
             print(response.status_code)
             print(url)
