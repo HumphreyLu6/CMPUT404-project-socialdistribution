@@ -120,7 +120,8 @@ class PostEdit extends React.Component {
 
     componentDidMount() {
         validateCookie();
-        id = reactLocalStorage.get("postid");
+        let url = window.location.href;
+        id = url.match(new RegExp("posts/(.*)/edit"))[1];
         axios.get(BE_SINGLE_POST_API_URL(HOST, id), 
         { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
         .then(res => {
@@ -457,8 +458,8 @@ class PostEdit extends React.Component {
                     </Form.Item>
 
                     <Form.Item {...tailFormItemLayout}>
-                    <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
-                        Post it
+                    <Button type="primary" size = "large" shape = "round" style={{"left" : "15%","width" : "20%","fontSize" : "20px"}} htmlType="button" onClick={this.handleSubmit}>
+                        Save Post
                     </Button>
                     </Form.Item>
                 </Form>
