@@ -19,7 +19,7 @@ const { TextArea } = Input;
 var imageFileName = '';
 var imageEncoding = '';
 const { Option } = Select;
-const authors = [];
+let authors = [];
 var authorInfo = {};
 
 //https://stackoverflow.com/questions/51421348/how-to-get-the-path-of-an-uploaded-file-in-reactjs
@@ -136,6 +136,7 @@ class PostInput extends React.Component {
         if (p[0].style.display === "none"){
             p[0].style.display = "block";
         } 
+        authors = [];
         axios.get(BE_ALL_AUTHOR_API_URL(HOST), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
         .then(res => {
             for (var i=0; i<res.data.length; i++){
