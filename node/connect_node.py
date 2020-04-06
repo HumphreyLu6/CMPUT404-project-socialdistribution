@@ -421,7 +421,7 @@ def pull_github_events(user: User):
                     tzinfo=pytz.timezone("MST7MDT")
                 ).isoformat()
                 Post.objects.create(
-                    title=event["type"],
+                    title="Github Activity",
                     description="Github Activity",
                     content=f"{actor} {action} {event_type} at {repo}",
                     contentType="text/plain",
