@@ -394,9 +394,11 @@ def pull_github_events(user: User):
     Pull user's github events into his stream
     """
     try:
+        print("\n\n\n connect node line 397 \n\n\n")
         if not user:
             raise Exception("param 'user' is null")
         if user.github is None or user.github == "":
+            print("\n\n\n connect node line 401 \n\n\n")
             Post.objects.filter(author=user).exclude(githubId=None).delete()
             return
         git_username = user.github.split("/")[-1]
@@ -406,7 +408,9 @@ def pull_github_events(user: User):
             raise Exception(response.text)
         events = response.json()
         for event in events:
+            print("\n\n\n connect node line 411 \n\n\n")
             if not Post.objects.filter(githubId=int(event["id"])).exists():
+                print("\n\n\n connect node line 413 \n\n\n")
                 actor = event["actor"]["login"]
                 action = None
                 try:
