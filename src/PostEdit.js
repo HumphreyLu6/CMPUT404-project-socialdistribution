@@ -247,7 +247,7 @@ class PostEdit extends React.Component {
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
                 var visibleTo = "";
-                if (values.Visibility === "PRIVATE") {
+                if (values.Visibility === "PRIVATE" && values.specificFriends) {
                     visibleTo = values.specificFriends.map(function(key){ 
                         return authorInfo[key]; 
                     }) 
