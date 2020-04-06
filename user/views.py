@@ -53,12 +53,10 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save()
-        print("\n\n\n views line 56 \n\n\n")
         pull_github_events(serializer.instance)
 
     def perform_update(self, serializer):
         serializer.save()
-        print("\n\n\n views line 61 \n\n\n")
         pull_github_events(serializer.instance)
 
     @action(detail=False, methods=["GET"])
