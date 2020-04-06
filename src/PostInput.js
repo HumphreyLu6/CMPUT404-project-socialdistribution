@@ -421,7 +421,7 @@ class PostInput extends React.Component {
             </Form.Item>
 
             <Form.Item {...tailFormItemLayout}>
-              <Button type="primary" htmlType="button" onClick={this.handleSubmit}>
+              <Button type="primary" size = "large" shape = "round" style={{"left" : "15%", "width" : "20%", "fontSize" : "20px"}} htmlType="button" onClick={this.handleSubmit}>
                 Post it
               </Button>
             </Form.Item>
