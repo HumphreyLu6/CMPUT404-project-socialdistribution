@@ -76,10 +76,10 @@ class PostsViewSet(viewsets.ModelViewSet):
         """
         serializer.save(author=self.request.user)
         categories = self.request.data.pop("categories", None)
-        if categories:
+        if categories is not None:
             serializer.save(categoriesStr=json.dumps(categories))
         visibleTo = self.request.data.pop("visibleTo", None)
-        if visibleTo:
+        if visibleTo is not None:
             serializer.save(visibleToStr=json.dumps(visibleTo))
 
     def perform_create(self, serializer):
