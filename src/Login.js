@@ -4,6 +4,7 @@ import "antd/dist/antd.css";
 import cookie from 'react-cookies'
 import "./components/Login.css"
 import searocklogin from './Images/searock.jpg'
+import speech from './Images/speech.jpg'
 import Spongebob from './Images/Spongebob-Squarepants.png'
 import seaweed from './Images/seaplant.png'
 import axios from 'axios';
@@ -98,13 +99,12 @@ class NormalLoginForm extends React.Component {
                 </Form.Item>
               </Form>
             </Card>
+            <img className="speech" src={speech} alt=""></img>
             <img className="spongebob" src={Spongebob} alt=""></img>
             <img className="seaweed1" src={seaweed} alt=""></img>
             <img className="searocklogin" src={searocklogin} alt=""></img>
-
         </Layout.Content>
       </Layout>
-      
     );
   }
 }
