@@ -40,6 +40,7 @@ class PostEdit extends React.Component {
         postType: '',
         postVisibility: '',
         authorid: '',
+        visibleTo: [],
 
         tags: [],
         inputVisible: false,
@@ -130,9 +131,15 @@ class PostEdit extends React.Component {
                 fullPostContent: getPost.content,
                 postType: getPost.contentType,
                 postVisibility: getPost.visibility,
+                visibleTo: getPost.visibleTo,
                 tags: getPost.categories,
                 isloading: false
             });
+            if (this.state.postVisibility === "PRIVATE"){
+                this.showSelectFriends(this.state.visibleTo);
+            } else {
+                this.hideSelectFriends();
+            }
         }).catch(function (error) {
             console.log(error);
         });
@@ -164,13 +171,17 @@ class PostEdit extends React.Component {
         });
     };
 
-    showSelectFriends = () => {
+    showSelectFriends = (visibleTo) => {
         var p = document.getElementsByClassName("select-friends");
         if (p[0].style.display === "none"){
             p[0].style.display = "block";
         } 
         axios.get(BE_ALL_AUTHOR_API_URL(HOST), { headers: { 'Authorization': 'Token ' + cookie.load('token') } })
         .then(res => {
+            // console.log();
+            // for (var j=0; j<visibleTo.length; j++) {
+            //     visibleTo[j] = res.data.url
+            // }
             for (var i=0; i<res.data.length; i++){
                 var displayName = res.data[i].displayName;
                 var url = res.data[i].url;
@@ -258,7 +269,7 @@ class PostEdit extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { tags, inputVisible, inputValue, modalVisibility, postTitle, postType, 
+        const { tags, inputVisible, inputValue, modalVisibility, postTitle, postType, visibleTo,
                 postVisibility, isloading, fullPostContent, modalMarkdownVisibility} = this.state;
         const tagChild = tags.map(this.forMap);
         const formItemLayout = {
@@ -402,7 +413,7 @@ class PostEdit extends React.Component {
                     (<Select 
                         className="select-friends"
                         mode="multiple"
-                        style={{ width: "100%", display: "none" }}
+                        style={{ width: "100%"}}
                         placeholder="Search for a friend..."
                         optionLabelProp="label"
                     >
