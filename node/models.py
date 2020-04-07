@@ -12,7 +12,6 @@ class Node(models.Model):
     auth = models.TextField()
     date = models.DateField(auto_now_add=True)
     shareImage = models.BooleanField(default=True)
-    enable = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.host}"
