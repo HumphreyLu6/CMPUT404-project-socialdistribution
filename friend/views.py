@@ -164,7 +164,7 @@ class FriendViewSet(viewsets.ModelViewSet):
             else:
                 raise Exception("Invalid opearation")
         except Exception as e:
-            print(e)
+            utils.print_warning(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["GET"])

@@ -147,10 +147,6 @@ def update_friends(user, depth, ignoreuser):
             friends += deal_current_friends(tmp2, user)
         else:
             # user from remote servers
-            print("\n\n\n")
-            print(user.displayName)
-            print(user.host)
-            print("\n\n\n")
             url = f"{user.host}author/{str(user.id)}"
             if user.host == REMOTE_HOST1:
                 url = f"{user.host}author/{user.non_uuid_id}"
