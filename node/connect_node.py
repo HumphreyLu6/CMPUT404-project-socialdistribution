@@ -223,7 +223,7 @@ def update_remote_posts(host: str, auth: str):
     response = requests.get(
         url, headers={"Authorization": f"Basic {auth}", "Accept": "application/json",}
     )
-    print(f"time used fot post request:", time.time() - stime)
+    print(f"Time used fot post request:", time.time() - stime)
     if response.status_code not in range(200, 300):
         utils.print_warning(
             f"Warning: {url} GET method failed with status code {response.status_code}"
@@ -436,26 +436,28 @@ update authors------------------------------------------------------------------
 
 
 def update_remote_authors(host: str, auth: str):
-    url = f"{host}author"
-    stime = time.time()
-    response = requests.get(
-        url, headers={"Authorization": f"Basic {auth}", "Accept": "application/json",}
-    )
-    print("Time used for request user:", time.time() - stime)
-    raw_author_dict_list = response.json()
-    if not raw_author_dict_list or response.status_code not in range(200, 300):
-        utils.print_warning(
-            f"{url} GET method failed with status code {response.status_code}"
+    try:
+        url = f"{host}author"
+        stime = time.time()
+        response = requests.get(
+            url,
+            headers={"Authorization": f"Basic {auth}", "Accept": "application/json",},
         )
-    else:
-        author_dict_list = []  # processed valid list
-        for raw_author_dict in raw_author_dict_list:
-            valid, author_dict = tidy_user_data(raw_author_dict, host)
-            if not valid:
-                continue
-            author_dict_list.append(author_dict)
-        create_or_update_remote_users(host, author_dict_list)
-        delete_non_existing_remote_users(host, author_dict_list)
+        print("Time used for request user:", time.time() - stime)
+        if response.status_code not in range(200, 300):
+            raise Exception(f"{response.text}")
+        else:
+            raw_author_dict_list = response.json()
+            author_dict_list = []  # processed valid list
+            for raw_author_dict in raw_author_dict_list:
+                valid, author_dict = tidy_user_data(raw_author_dict, host)
+                if not valid:
+                    continue
+                author_dict_list.append(author_dict)
+            create_or_update_remote_users(host, author_dict_list)
+            delete_non_existing_remote_users(host, author_dict_list)
+    except Exception as e:
+        utils.print_warning(f"{type(e).__name__} {str(e)}")
 
 
 def delete_non_existing_remote_users(host: str, author_dict_list: list):
