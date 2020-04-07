@@ -24,9 +24,11 @@ def update_db(
     Params:
         update_users: bool, update_posts: bool, update_user: User
     """
+    for node in Node.objects.filter(enable=False):
+        User.objects.filter(host=node.host).delete()
     print_time_usage = True
     t_time = time.time()
-    for node in Node.objects.all():
+    for node in Node.objects.filter(enable=True):
         if update_users:
             stime = time.time()
             update_remote_authors(node.host, node.auth)
