@@ -24,7 +24,7 @@ def update_db(
     Params:
         update_users: bool, update_posts: bool, update_user: User
     """
-    print_time_usage = False
+    print_time_usage = True
     t_time = time.time()
     for node in Node.objects.all():
         if update_users:
@@ -219,9 +219,11 @@ update posts and comments-------------------------------------------------------
 
 def update_remote_posts(host: str, auth: str):
     url = f"{host}author/posts"
+    stime = time.time()
     response = requests.get(
         url, headers={"Authorization": f"Basic {auth}", "Accept": "application/json",}
     )
+    print(f"time used fot post request:", time.time() - stime)
     if response.status_code not in range(200, 300):
         utils.print_warning(
             f"Warning: {url} GET method failed with status code {response.status_code}"
@@ -230,18 +232,6 @@ def update_remote_posts(host: str, auth: str):
         try:
             data = response.json()
             raw_posts_dict_list = data["posts"]
-            next_url = data.pop("next", None)
-            while next_url:
-                response = requests.get(
-                    next_url,
-                    headers={
-                        "Authorization": f"Basic {auth}",
-                        "Accept": "application/json",
-                    },
-                )
-                data = response.json()
-                next_url = data.pop("next", None)
-                raw_posts_dict_list += data["posts"]
             posts_dict_list = []
             all_comments_dict_list = []
             for raw_post_dict in raw_posts_dict_list:
@@ -265,8 +255,8 @@ def update_remote_posts(host: str, auth: str):
                     all_comments_dict_list += comments_dict_list
                     if valid:
                         posts_dict_list.append(post_dict)
-                create_or_update_remote_posts(posts_dict_list)
-                delete_non_existing_remote_posts(host, posts_dict_list)
+            create_or_update_remote_posts(posts_dict_list)
+            delete_non_existing_remote_posts(host, posts_dict_list)
             create_or_update_remote_comments(all_comments_dict_list)
             delete_non_existing_remote_comments(posts_dict_list, all_comments_dict_list)
         except Exception as e:
@@ -447,9 +437,11 @@ update authors------------------------------------------------------------------
 
 def update_remote_authors(host: str, auth: str):
     url = f"{host}author"
+    stime = time.time()
     response = requests.get(
         url, headers={"Authorization": f"Basic {auth}", "Accept": "application/json",}
     )
+    print("Time used for request user:", time.time() - stime)
     raw_author_dict_list = response.json()
     if not raw_author_dict_list or response.status_code not in range(200, 300):
         utils.print_warning(

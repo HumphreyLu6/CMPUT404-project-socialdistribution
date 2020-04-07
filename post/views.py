@@ -117,11 +117,6 @@ class PostsViewSet(viewsets.ModelViewSet):
         http://service/author/{AUTHOR_ID}/posts (all posts made by {AUTHOR_ID}
         visible to the currently authenticated user)
         """
-        if (
-            not request.user.is_anonymous
-            and request.user.id not in get_nodes_user_ids()
-        ):
-            update_db(True, True, request.user)
         try:
             authot_id = kwargs["AUTHOR_ID"]
             author = User.objects.filter(id=authot_id).first()

@@ -164,10 +164,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 def send_remote_comments(comment, post, author) -> bool:
     try:
-        if author.host == REMOTE_HOST1:
-            author_id = author.non_uuid_id
-        else:
+        author_id = None
+        if post.origin == REMOTE_HOST1:
             author_id = author.id
+        else:
+            author_id = str(author.id).replace("-", "")
         author_dict = {
             "id": f"{author.host}author/{author_id}",
             "host": f"{author.host}",
@@ -175,12 +176,17 @@ def send_remote_comments(comment, post, author) -> bool:
             "url": f"{author.host}author/{author_id}",
             "github": f"{author.github}",
         }
+        comment_id = None
+        if post.origin == REMOTE_HOST1:
+            comment_id = comment["id"]
+        else:
+            comment_id = comment["id"].replace("-", "")
         comment_dict = {
             "author": author_dict,
             "comment": comment["comment"],
             "contentType": comment["contentType"],
             "published": comment["published"],
-            "id": comment["id"],
+            "id": comment_id,
         }
         request_data = {
             "query": "addComment",
@@ -188,6 +194,8 @@ def send_remote_comments(comment, post, author) -> bool:
             "comment": comment_dict,
         }
         url = f"{post.origin}posts/{str(post.id)}/comments"
+        if post.origin != REMOTE_HOST1:
+            url += "/"
         node = Node.objects.filter(host=post.origin).first()
         headers = {
             "Authorization": f"Basic {node.auth}",
