@@ -106,3 +106,8 @@ Contributors:
 
 Acknowledgments
 ===============
+https://github.com/404-SpongeBob-SquarePants/CMPUT404-project-socialdistribution/wiki/Acknowledgments
+
+Demo Video
+==========
+https://www.youtube.com/watch?v=jtxW7VnxjQ8
