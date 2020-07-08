@@ -5,7 +5,6 @@ import time
 from django.db import models
 import mysite.utils as utils
 from user.models import User
-from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
 
 
 # Create your models here.

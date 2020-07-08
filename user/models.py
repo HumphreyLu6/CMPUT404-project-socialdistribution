@@ -19,8 +19,6 @@ class User(AbstractUser):
     github = models.URLField(null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
     is_approve = models.BooleanField(default=False)
-    # This field is for caching non-uuid ids of users on YuXuan's group server
-    non_uuid_id = models.IntegerField(null=True, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]

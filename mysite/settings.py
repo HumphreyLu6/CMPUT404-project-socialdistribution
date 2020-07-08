@@ -66,7 +66,6 @@ INSTALLED_APPS = [
     "user.apps.UserConfig",
     "post.apps.PostConfig",
     "comment.apps.CommentConfig",
-    "node.apps.NodeConfig",
     "friend.apps.FriendConfig",
 ]
 
@@ -162,8 +161,6 @@ CORS_ORIGIN_WHITELIST = (
     "http://localhost:3000",
     "https://spongebook.herokuapp.com",
     "https://spongebook-develop.herokuapp.com",
-    # connected nodes
-    "https://cmput404-socialdistribution.herokuapp.com",
 )
 
 CORS_ALLOW_HEADERS = [

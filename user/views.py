@@ -6,9 +6,6 @@ from rest_framework.permissions import (
     AllowAny,
 )
 
-from mysite.settings import DEFAULT_HOST
-from node.models import get_nodes_user_ids
-from node.connect_node import update_db, pull_github_events
 from .serializers import AuthorSerializer
 from .models import User
 from .permissions import OwnerOrAdminPermissions
@@ -19,22 +16,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
     lookup_field = "id"
 
     def get_queryset(self):
-        if self.action in ["retrieve"]:
-            if (
-                self.request.user.id in get_nodes_user_ids()
-                or self.request.user.is_anonymous
-            ):
-                return User.objects.filter(is_superuser=0, host=DEFAULT_HOST).exclude(
-                    id__in=get_nodes_user_ids()
-                )
-            else:
-                return User.objects.filter(is_superuser=0).exclude(
-                    id__in=get_nodes_user_ids()
-                )
-        else:
-            return User.objects.filter(is_superuser=0, host=DEFAULT_HOST).exclude(
-                id__in=get_nodes_user_ids()
-            )
+        return User.objects.filter(is_superuser=0)
 
     def get_permissions(self):
         if self.action in [
@@ -53,11 +35,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save()
-        pull_github_events(serializer.instance)
 
     def perform_update(self, serializer):
         serializer.save()
-        pull_github_events(serializer.instance)
 
     @action(detail=False, methods=["GET"])
     def current_user(self, request, *args, **kwargs):
@@ -69,12 +49,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["GET"])
     def get_all_user(self, request, *args, **kwargs):
         """
-        Get local and remote users except request user.
+        Get all users except request user and admin.
         """
-        update_db(True, False)
-        queryset = User.objects.filter(is_superuser=0).exclude(
-            id__in=get_nodes_user_ids()
-        )
+        queryset = User.objects.filter(is_superuser=0)
         if not request.user.is_anonymous:
             queryset = queryset.exclude(id=request.user.id)
         serializer = AuthorSerializer(queryset, many=True)

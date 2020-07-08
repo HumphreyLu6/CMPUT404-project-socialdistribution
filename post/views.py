@@ -1,4 +1,3 @@
-
 import json
 import base64
 from typing import Tuple
@@ -9,14 +8,10 @@ from django.http import HttpResponse
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import (
-    AllowAny,
-)
+from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 
 from mysite.settings import DEFAULT_HOST
-from node.models import get_nodes_user_ids
-from node.connect_node import update_db
 from user.models import User
 from friend.models import Friend
 from .serializers import PostSerializer
@@ -99,11 +94,6 @@ class PostsViewSet(viewsets.ModelViewSet):
         http://service/author/posts (posts that are visible to the currently
         authenticated user)
         """
-        if (
-            not request.user.is_anonymous
-            and request.user.id not in get_nodes_user_ids()
-        ):
-            update_db(True, True, request.user)
         filtered_posts = get_visible_posts(
             Post.objects.filter(unlisted=False), self.request.user
         )
@@ -148,10 +138,6 @@ def is_post_visible_to(post: Post, user: User) -> bool:
 def get_visible_posts(posts, user):
     if user.is_anonymous:
         return posts.filter(visibility="PUBLIC").exclude(visibility="SERVERONLY")
-
-    elif user.id in get_nodes_user_ids():
-        return posts.filter(origin=DEFAULT_HOST).exclude(visibility="SERVERONLY")
-
     else:
         # 1 visibility = "PUBLIC"
         q1 = Q(visibility="PUBLIC")
