@@ -33,10 +33,6 @@ DEFAULT_HOST = (
     else os.getenv("DEFAULT_HOST")
 )
 
-REMOTE_HOST1 = "https://cmput404-socialdistribution.herokuapp.com/"
-REMOTE_HOST2 = "https://testing-mandala.herokuapp.com/"
-REMOTE_HOST3 = "https://cmput404-group-project-mandala.herokuapp.com/"
-
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "spongebook.herokuapp.com",

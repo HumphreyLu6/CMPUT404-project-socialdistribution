@@ -1,29 +1,25 @@
 language: python
 python:
-    - "3.6.8"
+  - "3.6.8"
 node_js:
-    - "12.16.1"
-cache: 
-    npm: true
-    pip: true
+  - "12.16.1"
+cache:
+  npm: true
+  pip: true
 
 install:
-    - pip install -r requirements.txt
-    - npm install
+  - pip install -r requirements.txt
+  - npm install
 
 script:
-    - python manage.py makemigrations
-    - python manage.py migrate
-    - python manage.py test
-    - npm test
-    
+  - python manage.py makemigrations
+  - python manage.py migrate
+  - python manage.py test
+  - npm test
+
 notifications:
-    email:
-        recipients:
-            - isaaczhang11@gmail.com
-            - qiaoyan1@ualberta.ca
-            - wdai@ualberta.ca 
-            - wang17@ualberta.ca
-            - zlu@ualberta.ca
-        on_success: never # default: change
-        on_failure: always # default: always
+  email:
+    recipients:
+      - zlu@ualberta.ca
+    on_success: never # default: change
+    on_failure: always # default: always

@@ -7,13 +7,11 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
-from mysite.settings import DEFAULT_HOST, REMOTE_HOST1
+from mysite.settings import DEFAULT_HOST
 import mysite.utils as utils
 from user.models import User
 from post.models import Post
 from post.views import is_post_visible_to
-from node.models import Node
-from node.connect_node import update_db
 from .models import Comment
 from .serializers import CommentSerializer
 
@@ -115,37 +113,18 @@ class CommentViewSet(viewsets.ModelViewSet):
                             raise Exception("Comment id already exists.")
                         author_data = comment.pop("author")
                         author_data["id"] = author_data["id"].split("/")[-1]
-                        update_db(True, False)
-                        author = None
-                        if author_data["host"] == REMOTE_HOST1:
-                            author = User.objects.filter(
-                                non_uuid_id=int(author_data["id"])
-                            ).first()
-                        else:
-                            author = User.objects.filter(id=author_data["id"]).first()
+                        author = User.objects.filter(id=author_data["id"]).first()
 
                         if not author:
                             raise Exception("Author not found")
                         serializer = CommentSerializer(data=comment)
                         if serializer.is_valid():
-                            if post.origin == DEFAULT_HOST:
-                                serializer.save(author=author, post=post)
-                                response_data["success"] = "true"
-                                response_data["message"] = "Comment Added"
-                                return Response(
-                                    response_data, status=status.HTTP_201_CREATED
-                                )
-                            else:
-                                # send request
-                                if send_remote_comments(comment, post, author):
-                                    response_data["success"] = "true"
-                                    response_data["message"] = "Comment Added"
-                                    return Response(
-                                        response_data, status=status.HTTP_201_CREATED
-                                    )
-                                else:
-                                    raise Exception("Remote server failed.")
-
+                            serializer.save(author=author, post=post)
+                            response_data["success"] = "true"
+                            response_data["message"] = "Comment Added"
+                            return Response(
+                                response_data, status=status.HTTP_201_CREATED
+                            )
                         else:
                             raise Exception("Bad request body")
                     except Exception as e:
@@ -160,58 +139,3 @@ class CommentViewSet(viewsets.ModelViewSet):
                     return Response(response_data, status=status.HTTP_403_FORBIDDEN)
             except Exception as e:
                 utils.print_warning(f"{type(e).__name__} {str(e)}")
-
-
-def send_remote_comments(comment, post, author) -> bool:
-    try:
-        author_id = None
-        if post.origin == REMOTE_HOST1:
-            author_id = author.id
-        else:
-            author_id = str(author.id).replace("-", "")
-        author_dict = {
-            "id": f"{author.host}author/{author_id}",
-            "host": f"{author.host}",
-            "displayName": f"{author.displayName}",
-            "url": f"{author.host}author/{author_id}",
-            "github": f"{author.github}",
-        }
-        comment_id = None
-        if post.origin == REMOTE_HOST1:
-            comment_id = comment["id"]
-        else:
-            comment_id = comment["id"].replace("-", "")
-        comment_dict = {
-            "author": author_dict,
-            "comment": comment["comment"],
-            "contentType": comment["contentType"],
-            "published": comment["published"],
-            "id": comment_id,
-        }
-        request_data = {
-            "query": "addComment",
-            "post": f"{post.origin}posts/{post.id}",
-            "comment": comment_dict,
-        }
-        url = f"{post.origin}posts/{str(post.id)}/comments"
-        if post.origin != REMOTE_HOST1:
-            url += "/"
-        node = Node.objects.filter(host=post.origin).first()
-        headers = {
-            "Authorization": f"Basic {node.auth}",
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        }
-
-        response = requests.post(url, data=json.dumps(request_data), headers=headers,)
-
-        if response.status_code not in range(200, 300):
-            print(response.status_code)
-            print(url)
-            print(headers)
-            print(json.dumps(request_data))
-            raise Exception(response.text)
-        return True
-    except Exception as e:
-        utils.print_warning(e)
-        return False
