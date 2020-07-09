@@ -1,6 +1,6 @@
 # SpongeBook
 
-[![Build Status](https://travis-ci.com/HumphreyLu6/SpongeBook.svg?branch=master)](https://travis-ci.org/github/404-SpongeBob-SquarePants/CMPUT404-project-socialdistribution)
+[![Build Status](https://travis-ci.com/HumphreyLu6/SpongeBook.svg?branch=master)](https://travis-ci.com/HumphreyLu6/SpongeBook)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Record beautiful life, share with the ones you love.
