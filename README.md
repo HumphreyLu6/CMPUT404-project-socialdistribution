@@ -1,17 +1,11 @@
-CMPUT404-project-socialdistribution
-===================================
+# SpongeBook
 
-[![Build Status](https://travis-ci.org/404-SpongeBob-SquarePants/CMPUT404-project-socialdistribution.svg?branch=master)](https://travis-ci.org/github/404-SpongeBob-SquarePants/CMPUT404-project-socialdistribution)
+[![Build Status](https://travis-ci.com/HumphreyLu6/SpongeBook.svg?branch=master)](https://travis-ci.org/github/404-SpongeBob-SquarePants/CMPUT404-project-socialdistribution)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-CMPUT404-project-socialdistribution
+Record beautiful life, share with the ones you love.
 
-See project.org (plain-text/org-mode) for a description of the project.
-
-Make a distributed social network!
-
-Getting Started
-===============
+# Getting Started
 
 The following instructions will get you a copy of this project and you can run the project on your local machine.
 
@@ -19,22 +13,23 @@ The following instructions will get you a copy of this project and you can run t
 
 You need to install the following software:
 
-* Node - v12.16.1
+- Node - v12.16.1
 
-* npm - 6.13.4
+- npm - 6.13.4
 
-* Python - 3.6.8
+- Python - 3.6.8
 
 ### Clone
 
-* Clone this repo to your local machine using `git clone https://github.com/404-SpongeBob-SquarePants/CMPUT404-project-socialdistribution.git`
+- Clone this repo to your local machine using `git clone https://github.com/HumphreyLu6/SpongeBook.git`
 
 ### Structure
+
     .
     ├── comment                 # Backend app
-    ├── friend                  # Backend app  
-    ├── mysite                  # Backend app 
-    ├── node                    # Backend app 
+    ├── friend                  # Backend app
+    ├── mysite                  # Backend app
+    ├── node                    # Backend app
     ├── post                    # Backend app
     ├── public                  # Frontend resource
     ├── src                     # Frontend source code
@@ -44,17 +39,18 @@ You need to install the following software:
     ├── Procfile                # Heroku config
     ├── requirements.txt        # Python Package
     ├── runtime.txt             # Python version
-    ├── LICENSE                 
-    └── README.md               
+    ├── LICENSE
+    └── README.md
 
 ### Setup
 
-> Install the package for frontend 
+> Install the package for frontend
 
 ```shell
-$ npm install 
+$ npm install
 ```
-> Install the package for backend 
+
+> Install the package for backend (virtual environment recommened)
 
 ```shell
 $ pip install -r requirements.txt
@@ -63,51 +59,50 @@ $ python manage.py migrate
 
 ### Run
 
-> Run frontend 
+> Run frontend
 
 ```shell
 $ npm start
 ```
-> Run backend 
+
+> Run backend
 
 ```shell
 $ python manage.py runserver
 ```
 
-### Running the tests
+### Run tests
+
 ```
 $ npm test
 $ python manage.py test
 ```
 
-Documentation
-=============
+# Documentation
 
-* Backend APIs: the documentation of our backend APIs are located at the [Wiki page](https://github.com/404-SpongeBob-SquarePants/CMPUT404-project-socialdistribution/wiki)
+- Backend APIs: please reference our documentation [Wiki page](https://github.com/HumphreyLu6/SpongeBook/wiki)
 
-Contributors / Licensing
-========================
+# Contributors / Licensing
 
-Generally everything is LICENSE'D under the Apache 2 license by Abram Hindle.
+Generally everything is LICENSE'D under the Apache 2 license by Zhonghao Lu.
 
 All text is licensed under the CC-BY-SA 4.0 http://creativecommons.org/licenses/by-sa/4.0/deed.en_US
 
 Contributors:
 
-* Devin Dai
+- Devin Dai
 
-* Isaac Zhang
+- Isaac Zhang
 
-* Qiaoyan Zhang
+- Qiaoyan Zhang
 
-* Yuan Wang
+- Yuan Wang
 
-* Zhonghao Lu
+- Zhonghao Lu
 
-Acknowledgments
-===============
-https://github.com/404-SpongeBob-SquarePants/CMPUT404-project-socialdistribution/wiki/Acknowledgments
+# [Acknowledgments](https://github.com/HumphreyLu6/SpongeBook/wiki/Acknowledgments)
 
-Demo Video
-==========
-https://www.youtube.com/watch?v=jtxW7VnxjQ8
+# Demo Video
+
+- [YouTube](https://www.youtube.com/watch?v=jtxW7VnxjQ8)
+- [bilibili](https://www.bilibili.com/video/BV1BK411L7a9)
