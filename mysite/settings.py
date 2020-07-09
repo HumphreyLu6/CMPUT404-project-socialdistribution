@@ -17,24 +17,21 @@ from corsheaders.defaults import default_methods
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 if SECRET_KEY is None:
-    from .config import DJANGO_SECREST_KEY
-    SECRET_KEY = DJANGO_SECREST_KEY
+    from .config import DJANGO_SECRET_KEY
+    SECRET_KEY = DJANGO_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-DEFAULT_HOST = (
-    "https://spongebook.herokuapp.com/"
-    if os.getenv("DEFAULT_HOST") is None
-    else os.getenv("DEFAULT_HOST")
-)
+DEFAULT_HOST = ("https://spongebook.herokuapp.com/"
+                if os.getenv("DEFAULT_HOST") is None else
+                os.getenv("DEFAULT_HOST"))
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
@@ -106,7 +103,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "mysite.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
@@ -117,19 +113,27 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {
+        "NAME":
+        "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME":
+        "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME":
+        "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
@@ -143,7 +147,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -185,7 +188,8 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ),
-    "TEST_REQUEST_DEFAULT_FORMAT": "json",
+    "TEST_REQUEST_DEFAULT_FORMAT":
+    "json",
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
@@ -198,7 +202,6 @@ AUTH_USER_MODEL = "user.User"
 REST_AUTH_SERIALIZERS = {
     "LOGIN_SERIALIZER": "user.serializers.CustomLoginSerializer",
 }
-
 
 if "HEROKU" in os.environ:
     django_heroku.settings(locals())
