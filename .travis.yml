@@ -1,25 +1,25 @@
+env:
+  global:
+    secure: WRSzUUeYZAdMM0It6ABBN6iCSAPAnoc7h6LIQvx3yp9AXshElUbZsa0v2Xe92JNzOs6W2BaYxaleJG8Vn0xVgfC8MMjYjDdPeoaw5bPafNLQ0/sQVY9siHeRbq1LxcMR40PK2UML0fbeK+GxZWT3lwSYK9AskyHeevMw5lk1wsF/EP4yR0HuBS2btk0Qd0PgzyfCzJObKLGazGn+uy8mLGMjdFk9D3IqGQlQQNYZv9+vVbzvYrywj8XHViIec5qinrQSQvcIKeyJQ3t0jSe81jWUJK6R3Z23dOAQNWoln2hsNUKZK9LysahjayJgzEveDsfKvB0IK7OobRg03ythBY7moRJySjOnc4oIiKN9UcGohUl9InnpQqLCV0sszr4BJbp1C+ZH8fh0rqrMOCcstQRvzJvXo2z5TT/qGiTdlEE1F7HvDkf9mSoHLhhbZ82LSV9cSAIyGsng3gemufkrh8BItlyZwLBj29l2vdzRkMqWp0dcpu8fEqWii1jlK07Tg5HUbcq8dt4jkVA4qVptbp98ZNllwcjlrR/Vte+ZQyQ7Ul9DF6iHp5pLOjIolO+yMDV5uWALcce+uN94XzbZmtn6bBuZfWrXsV+5SKD+T0q+SiVat9w8dZGzh6jUFdOfCl5VsHB+KVRX3f1nSdSszvEhPrp0W8QQelGoHXjc8T8=
 language: python
 python:
-- 3.6.8
+  - 3.6.8
 node_js:
-- 12.16.3
+  - 12.16.3
 cache:
   npm: true
   pip: true
 install:
-- pip install -r requirements.txt
-- npm install
+  - pip install -r requirements.txt
+  - npm install
 script:
-- python manage.py makemigrations
-- python manage.py migrate
-- python manage.py test
-- npm test
+  - python manage.py makemigrations
+  - python manage.py migrate
+  - python manage.py test
+  - npm test
 notifications:
   email:
     recipients:
-    - zlu@ualberta.ca
+      - zlu@ualberta.ca
     on_success: never
     on_failure: always
-env:
-  global:
-    secure: WRSzUUeYZAdMM0It6ABBN6iCSAPAnoc7h6LIQvx3yp9AXshElUbZsa0v2Xe92JNzOs6W2BaYxaleJG8Vn0xVgfC8MMjYjDdPeoaw5bPafNLQ0/sQVY9siHeRbq1LxcMR40PK2UML0fbeK+GxZWT3lwSYK9AskyHeevMw5lk1wsF/EP4yR0HuBS2btk0Qd0PgzyfCzJObKLGazGn+uy8mLGMjdFk9D3IqGQlQQNYZv9+vVbzvYrywj8XHViIec5qinrQSQvcIKeyJQ3t0jSe81jWUJK6R3Z23dOAQNWoln2hsNUKZK9LysahjayJgzEveDsfKvB0IK7OobRg03ythBY7moRJySjOnc4oIiKN9UcGohUl9InnpQqLCV0sszr4BJbp1C+ZH8fh0rqrMOCcstQRvzJvXo2z5TT/qGiTdlEE1F7HvDkf9mSoHLhhbZ82LSV9cSAIyGsng3gemufkrh8BItlyZwLBj29l2vdzRkMqWp0dcpu8fEqWii1jlK07Tg5HUbcq8dt4jkVA4qVptbp98ZNllwcjlrR/Vte+ZQyQ7Ul9DF6iHp5pLOjIolO+yMDV5uWALcce+uN94XzbZmtn6bBuZfWrXsV+5SKD+T0q+SiVat9w8dZGzh6jUFdOfCl5VsHB+KVRX3f1nSdSszvEhPrp0W8QQelGoHXjc8T8=
