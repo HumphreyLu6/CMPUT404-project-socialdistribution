@@ -18,7 +18,7 @@ class User(AbstractUser):
     displayName = models.CharField(max_length=150)
     github = models.URLField(null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
-    is_approve = models.BooleanField(default=True)
+    is_approve = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
