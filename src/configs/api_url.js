@@ -1,9 +1,7 @@
 //###########################################################################
 //BE-APIS-URLS
 //###########################################################################
-let HOST = "http://localhost:8000/";
-if (process.env.DEFAULT_HOST) HOST = process.env.DEFAULT_HOST;
-export { HOST };
+export const HOST = "https://sponge-book.herokuapp.com/";
 
 // login and register api
 export const LOGIN_API = HOST + "login/";
