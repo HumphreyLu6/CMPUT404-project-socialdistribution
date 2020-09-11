@@ -1,0 +1,19 @@
+.signUpBG {
+  background-image: url("../../Images/registerBackGround.png");
+  background-size: cover;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.signUpCard {
+  width: 40%;
+  position: relative;
+  left: 35%;
+  top: 25%;
+  border-radius: 5%;
+  background-color: #fffff7;
+}
+
+.signUpButton {
+  width: 100%;
+}

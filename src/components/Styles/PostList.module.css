@@ -1,0 +1,16 @@
+.postList {
+  margin-left: 17%;
+  margin-right: 17%;
+}
+
+.loadmore {
+  text-align: center;
+  margin-top: 12px;
+  height: 32px;
+  line-height: 32px;
+}
+
+.avatar {
+  color: #3992f7;
+  background-color: #ccebff;
+}

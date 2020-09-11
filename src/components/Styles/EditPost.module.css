@@ -1,0 +1,28 @@
+.form {
+  margin-left: 17%;
+  margin-right: 17%;
+  margin-top: 1em;
+}
+
+.contentWrapper {
+  border: solid;
+  border-color: lightgray;
+  border-width: 1px;
+}
+
+.contentTextArea {
+  border: hidden;
+  resize: none;
+}
+
+.contentTextArea:focus {
+  box-shadow: none;
+}
+
+.contentButtonsWrapper {
+  float: right;
+}
+.contentButton {
+  font-size: 16px;
+  border: none;
+}

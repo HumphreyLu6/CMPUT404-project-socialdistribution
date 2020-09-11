@@ -1,26 +1,45 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import { BrowserRouter, Route } from "react-router-dom";
+import LogIn from "./components/LogIn";
+import Register from "./components/Register";
+import HomePage from "./components/HomePage";
+import ProfilePage from "./components/ProfilePage";
+import FriendRequestsPage from "./components/FriendRequestsPage";
+import FriendsPage from "./components/FriendsPage";
+import SearchPage from "./components/SearchPage";
+import EditPostPage from "./components/EditPostPage";
+
+import {
+  FE_HOME_URL,
+  FE_LOGIN_URL,
+  FE_REGISTER_URL,
+  FE_USERPROFILE_URL,
+  FE_FREND_REQUEST_URL,
+  FE_FREND_LIST_URL,
+  FE_SEARCH_URL,
+  FE_POST_URL,
+  FE_EDIT_POST_URL,
+} from "./configs/fe_url";
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <BrowserRouter className="App">
+        <Route exact path={FE_LOGIN_URL} render={() => <LogIn />} />
+        <Route exact path={FE_REGISTER_URL} render={() => <Register />} />
+        <Route exact path={FE_HOME_URL} render={() => <HomePage />} />
+        <Route exact path={FE_USERPROFILE_URL} render={() => <ProfilePage />} />
+        <Route
+          exact
+          path={FE_FREND_REQUEST_URL}
+          render={() => <FriendRequestsPage />}
+        />
+        <Route exact path={FE_FREND_LIST_URL} render={() => <FriendsPage />} />
+        <Route exact path={FE_SEARCH_URL(":authorId")} component={SearchPage} />
+        <Route exact path={FE_SEARCH_URL("")} component={SearchPage} />
+        <Route exact path={FE_POST_URL} render={() => <EditPostPage />} />
+        <Route exact path={FE_EDIT_POST_URL} component={EditPostPage} />
+      </BrowserRouter>
     );
   }
 }

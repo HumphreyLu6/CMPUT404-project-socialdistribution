@@ -1,42 +1,34 @@
 {
-  "name": "myblog",
+  "name": "example",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ant-design/icons": "^4.0.5",
+    "@ant-design/icons": "^4.2.1",
     "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.4.0",
-    "@testing-library/user-event": "^7.2.1",
-    "antd": "^3.26.9",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "antd": "^4.4.1",
     "axios": "^0.19.2",
-    "bootstrap": "^4.4.1",
-    "cors": "^2.8.5",
-    "history": "^4.10.1",
-    "image-to-base64": "^2.0.1",
-    "lodash": "^4.17.15",
-    "rc-tween-one": "^2.6.8",
-    "react": "^16.12.0",
-    "react-cookies": "^0.1.1",
-    "react-dom": "^16.12.0",
-    "react-image": "^2.4.0",
-    "react-image-lightbox": "^5.1.1",
-    "react-images-upload": "^1.2.8",
-    "react-lightbox-component": "^1.2.1",
+    "jQuery": "^1.7.4",
+    "jquery": "^3.5.1",
+    "js-cookie": "^2.2.1",
+    "rc-tween-one": "^2.7.3",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "react-markdown": "^4.3.1",
-    "react-modal-image": "^2.5.0",
-    "react-router": "^5.1.2",
-    "react-scripts": "3.3.1",
-    "reactjs-localstorage": "0.0.8",
-    "reqwest": "^2.0.5",
-    "simple-react-lightbox": "^2.2.0",
-    "url-join": "^4.0.1"
+    "react-redux": "^7.2.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "^3.4.3",
+    "redux": "^4.0.5",
+    "redux-devtools-extension": "^2.13.8",
+    "redux-thunk": "^2.3.0",
+    "reqwest": "^2.0.5"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "postinstall": "npm run build"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -52,9 +44,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "engines": {
-    "node": "12.16.3",
-    "npm": "6.14.4"
   }
 }

@@ -24,14 +24,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 if SECRET_KEY is None:
     from .config import DJANGO_SECRET_KEY
+
     SECRET_KEY = DJANGO_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-DEFAULT_HOST = ("https://spongebook.herokuapp.com/"
-                if os.getenv("DEFAULT_HOST") is None else
-                os.getenv("DEFAULT_HOST"))
+DEFAULT_HOST = (
+    "https://spongebook.herokuapp.com/"
+    if os.getenv("DEFAULT_HOST") is None
+    else os.getenv("DEFAULT_HOST")
+)
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
@@ -118,21 +121,11 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME":
-        "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {
-        "NAME":
-        "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME":
-        "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME":
-        "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
 ]
 
 # Internationalization
@@ -188,8 +181,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ),
-    "TEST_REQUEST_DEFAULT_FORMAT":
-    "json",
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

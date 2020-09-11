@@ -1,0 +1,19 @@
+.logInBG {
+  background-image: url("../../Images/loginBackGround.png");
+  background-size: cover;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.logInCard {
+  width: 30%;
+  position: relative;
+  left: 45%;
+  top: 25%;
+  border-radius: 5%;
+  background-color: #fffff7;
+}
+
+.logInButton {
+  width: 100%;
+}
