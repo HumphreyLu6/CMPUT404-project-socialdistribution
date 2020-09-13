@@ -127,7 +127,7 @@ class PostList extends Component {
           dataSource={data}
           renderItem={(item) => (
             <List.Item
-              key={item.title}
+              key={item.id}
               actions={
                 !showEdit
                   ? [
