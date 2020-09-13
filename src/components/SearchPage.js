@@ -52,7 +52,7 @@ class SearchPage extends React.Component {
     return (
       <div>
         <ProfileContent user={user} author={author} />
-        <PostList source={AUTHOR_POST_API(authorId, 3)} showEdit={false} />
+        <PostList source={AUTHOR_POST_API(authorId, 5)} showEdit={false} />
       </div>
     );
   };

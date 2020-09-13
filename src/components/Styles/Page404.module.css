@@ -1,0 +1,6 @@
+.BG {
+  background-image: url("../../Images/404BackGround.png");
+  background-size: cover;
+  overflow-y: auto;
+  height: 100%;
+}

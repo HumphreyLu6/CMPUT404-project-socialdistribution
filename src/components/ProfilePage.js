@@ -22,7 +22,7 @@ class ProfilePage extends React.Component {
     return (
       <div>
         <ProfileContent user={user} author={user} />
-        <PostList source={AUTHOR_POST_API(authorId, 3)} showEdit={true} />
+        <PostList source={AUTHOR_POST_API(authorId, 5)} showEdit={true} />
       </div>
     );
   }

@@ -253,7 +253,9 @@ class ProfileContent extends React.Component {
                   <input
                     id="githubInput"
                     name="githubInput"
-                    defaultValue={author.github.split("/").pop()}
+                    defaultValue={
+                      author.github ? author.github.split("/").pop() : null
+                    }
                   />
                 ) : (
                   author.github

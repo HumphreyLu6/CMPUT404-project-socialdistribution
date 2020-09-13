@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { BrowserRouter, Route } from "react-router-dom";
+import { Switch, Route, BrowserRouter } from "react-router-dom";
 import LogIn from "./components/LogIn";
 import Register from "./components/Register";
 import HomePage from "./components/HomePage";
@@ -8,6 +8,7 @@ import FriendRequestsPage from "./components/FriendRequestsPage";
 import FriendsPage from "./components/FriendsPage";
 import SearchPage from "./components/SearchPage";
 import EditPostPage from "./components/EditPostPage";
+import Page404 from "./components/Page404";
 
 import {
   FE_HOME_URL,
@@ -25,20 +26,35 @@ class App extends Component {
   render() {
     return (
       <BrowserRouter className="App">
-        <Route exact path={FE_LOGIN_URL} render={() => <LogIn />} />
-        <Route exact path={FE_REGISTER_URL} render={() => <Register />} />
-        <Route exact path={FE_HOME_URL} render={() => <HomePage />} />
-        <Route exact path={FE_USERPROFILE_URL} render={() => <ProfilePage />} />
-        <Route
-          exact
-          path={FE_FREND_REQUEST_URL}
-          render={() => <FriendRequestsPage />}
-        />
-        <Route exact path={FE_FREND_LIST_URL} render={() => <FriendsPage />} />
-        <Route exact path={FE_SEARCH_URL(":authorId")} component={SearchPage} />
-        <Route exact path={FE_SEARCH_URL("")} component={SearchPage} />
-        <Route exact path={FE_POST_URL} render={() => <EditPostPage />} />
-        <Route exact path={FE_EDIT_POST_URL} component={EditPostPage} />
+        <Switch>
+          <Route exact path={FE_LOGIN_URL} render={() => <LogIn />} />
+          <Route exact path={FE_REGISTER_URL} render={() => <Register />} />
+          <Route exact path={FE_HOME_URL} render={() => <HomePage />} />
+          <Route
+            exact
+            path={FE_USERPROFILE_URL}
+            render={() => <ProfilePage />}
+          />
+          <Route
+            exact
+            path={FE_FREND_REQUEST_URL}
+            render={() => <FriendRequestsPage />}
+          />
+          <Route
+            exact
+            path={FE_FREND_LIST_URL}
+            render={() => <FriendsPage />}
+          />
+          <Route
+            exact
+            path={FE_SEARCH_URL(":authorId")}
+            component={SearchPage}
+          />
+          <Route exact path={FE_SEARCH_URL("")} component={SearchPage} />
+          <Route exact path={FE_POST_URL} render={() => <EditPostPage />} />
+          <Route exact path={FE_EDIT_POST_URL} component={EditPostPage} />
+          <Route eaxct path="*" status={404} component={Page404} />
+        </Switch>
       </BrowserRouter>
     );
   }

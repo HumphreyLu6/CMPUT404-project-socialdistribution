@@ -8,7 +8,7 @@ class HomePage extends React.Component {
     return (
       <div>
         <Header selectedKey={"0"} />
-        <PostList source={VISIBLE_POSTS_API(3)} showEdit={false} />
+        <PostList source={VISIBLE_POSTS_API(5)} showEdit={false} />
       </div>
     );
   }
