@@ -21,7 +21,7 @@ import styles from "./Styles/EditPost.module.css";
 const emptyPost = {
   title: null,
   content: null,
-  categories: ["cat", "dog"],
+  categories: [],
   contentType: "text/markdown",
   visibility: "PUBLIC",
   visibleTo: [],
