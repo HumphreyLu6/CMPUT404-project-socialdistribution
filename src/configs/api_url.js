@@ -1,7 +1,10 @@
 //###########################################################################
 //BE-APIS-URLS
 //###########################################################################
-export const HOST = "https://sponge-book.herokuapp.com/";
+var protocol = window.location.protocol;
+var slashes = protocol.concat("//");
+var host = slashes.concat(window.location.host);
+export const HOST = host.concat("/");
 
 // login and register api
 export const LOGIN_API = HOST + "login/";
