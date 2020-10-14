@@ -40,6 +40,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "spongebook.herokuapp.com",
     "spongebook-develop.herokuapp.com",
+    "spongebook-env.eba-erfwyu8f.ca-central-1.elasticbeanstalk.com",
 ]
 
 APPEND_SLASH = False
