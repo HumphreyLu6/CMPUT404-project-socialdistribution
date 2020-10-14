@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-import django_heroku
 from corsheaders.defaults import default_methods
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -198,8 +197,3 @@ AUTH_USER_MODEL = "user.User"
 REST_AUTH_SERIALIZERS = {
     "LOGIN_SERIALIZER": "user.serializers.CustomLoginSerializer",
 }
-
-if "HEROKU" in os.environ:
-    django_heroku.settings(locals())
-else:
-    django_heroku.settings(locals(), test_runner=False)
