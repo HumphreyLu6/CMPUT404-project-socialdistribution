@@ -180,3 +180,7 @@ packages/react-devtools-shell/dist
 
 # config files
 mysite/config.py
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
