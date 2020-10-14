@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/static/css/main.08a8fff3.chunk.css",
+    "main.js": "/static/js/main.67c25692.chunk.js",
+    "main.js.map": "/static/js/main.67c25692.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.1bd49777.js",
+    "runtime-main.js.map": "/static/js/runtime-main.1bd49777.js.map",
+    "static/css/2.9edc93b8.chunk.css": "/static/css/2.9edc93b8.chunk.css",
+    "static/js/2.ce019181.chunk.js": "/static/js/2.ce019181.chunk.js",
+    "static/js/2.ce019181.chunk.js.map": "/static/js/2.ce019181.chunk.js.map",
+    "index.html": "/index.html",
+    "precache-manifest.ccdd0c59ae7a601ef0c68d04a21427c0.js": "/precache-manifest.ccdd0c59ae7a601ef0c68d04a21427c0.js",
+    "service-worker.js": "/service-worker.js",
+    "static/css/2.9edc93b8.chunk.css.map": "/static/css/2.9edc93b8.chunk.css.map",
+    "static/css/main.08a8fff3.chunk.css.map": "/static/css/main.08a8fff3.chunk.css.map",
+    "static/js/2.ce019181.chunk.js.LICENSE.txt": "/static/js/2.ce019181.chunk.js.LICENSE.txt",
+    "static/media/Page404.module.css": "/static/media/404BackGround.12e53467.png",
+    "static/media/Header.module.css": "/static/media/HeaderBackground.dd317fa8.svg",
+    "static/media/Login.module.css": "/static/media/loginBackGround.a4f07764.png",
+    "static/media/Register.module.css": "/static/media/registerBackGround.2b8ec3f7.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.1bd49777.js",
+    "static/css/2.9edc93b8.chunk.css",
+    "static/js/2.ce019181.chunk.js",
+    "static/css/main.08a8fff3.chunk.css",
+    "static/js/main.67c25692.chunk.js"
+  ]
+}
