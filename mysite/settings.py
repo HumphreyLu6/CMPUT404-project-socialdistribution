@@ -25,12 +25,14 @@ if SECRET_KEY is None:
     from .config import DJANGO_SECRET_KEY
 
     SECRET_KEY = DJANGO_SECRET_KEY
+print("DEBUG:", SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 DEFAULT_HOST = (
-    "https://spongebook.herokuapp.com/"
+    # "https://spongebook.herokuapp.com/"
+    "http://spongebook-env.eba-erfwyu8f.ca-central-1.elasticbeanstalk.com/"
     if os.getenv("DEFAULT_HOST") is None
     else os.getenv("DEFAULT_HOST")
 )
