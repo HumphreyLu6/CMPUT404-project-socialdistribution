@@ -31,8 +31,7 @@ print("DEBUG:", SECRET_KEY)
 DEBUG = True
 
 DEFAULT_HOST = (
-    # "https://spongebook.herokuapp.com/"
-    "http://spongebook-env.eba-erfwyu8f.ca-central-1.elasticbeanstalk.com/"
+    "https://www.spongebook.tk/"
     if os.getenv("DEFAULT_HOST") is None
     else os.getenv("DEFAULT_HOST")
 )
