@@ -179,7 +179,7 @@ packages/react-devtools-shell/dist
 /yarn-error.log*
 
 # config files
-# mysite/config.py
+mysite/config.py
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
