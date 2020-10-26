@@ -114,7 +114,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "SpongeBookDB",
         "USER": "SpongeBookMaster",
-        "PASSWORD": "passqwer",
+        "PASSWORD": os.getenv("POSTGRESQL_AWS_SECRET"),
         "HOST": "spongebookdbinstance.cncaselvmgfu.ca-central-1.rds.amazonaws.com",
         "PORT": "5432",
     }
